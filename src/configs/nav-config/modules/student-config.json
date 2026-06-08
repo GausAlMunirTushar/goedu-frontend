@@ -2,6 +2,8 @@
   "module": {
     "id": "student",
     "label": "Student",
+    "icon": "Users",
+    "base_path": "/student",
     "menus": [
       {
         "id": "student-list",

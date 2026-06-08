@@ -97,7 +97,7 @@ const LoginForm = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 from-background via-background to-primary/10 p-4 animate-fade-in">
             <div className="w-full max-w-md">
-                <div className="bg-card rounded-2xl p-8 backdrop-blur-md shadow-lg transition-all duration-300 ring-1 ring-gray-200">
+                <div className="bg-card rounded-2xl p-8 backdrop-blur-md transition-all duration-300 ring-1 ring-gray-200">
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
                             {t("welcome_back") || "Welcome Back"}
