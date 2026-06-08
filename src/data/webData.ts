@@ -27,10 +27,10 @@ export const webHeaderData = {
         { labelKey: "home", href: "/", defaultLabel: "হোম" },
         { 
             labelKey: "about_us", 
-            href: "#", 
+            href: "/about", 
             defaultLabel: "আমাদের সম্পর্কে",
             children: [
-                { labelKey: "institution_info", href: "#", defaultLabel: "প্রতিষ্ঠানের তথ্য" }
+                { labelKey: "institution_info", href: "/about", defaultLabel: "প্রতিষ্ঠানের তথ্য" }
             ]
         },
         { 
@@ -63,6 +63,6 @@ export const webHeaderData = {
             ]
         },
         { labelKey: "others", href: "#", defaultLabel: "অন্যান্য" },
-        { labelKey: "contact", href: "#", defaultLabel: "যোগাযোগ" },
+        { labelKey: "contact", href: "/contact", defaultLabel: "যোগাযোগ" },
     ]
 };
