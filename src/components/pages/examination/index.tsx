@@ -1,0 +1,7 @@
+export function ExaminationPage() {
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold">Examination Module</h1>
+    </div>
+  );
+}

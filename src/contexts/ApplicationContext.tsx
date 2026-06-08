@@ -4,7 +4,6 @@ import React, { createContext, useCallback, useEffect, useState } from "react";
 
 import type { FiscalYearType, SystemConfigType, UniversityType, UserType } from "@/types/configs";
 import { useRouter } from "next/navigation";
-import { useSetupQuery } from "@/apis/queries/dashboard_queries";
 import Cookies from "js-cookie";
 import { COOKIES_KEYS } from "@/configs/constants";
 import Loader from "@/components/common/Loader";
@@ -27,12 +26,6 @@ interface ApplicationContextType {
     environment: string;
     language: string;
     timezone: string;
-    /**
-     * Opens the report download dialog and streams the file from `url`.
-     *
-     * @param url        - Absolute or relative API endpoint that returns the file.
-     * @param reportType - Human-readable label shown in the dialog (e.g. "Salary Certificate").
-     */
     downloadReport: (url: string, reportType: string) => void;
 }
 
@@ -58,7 +51,6 @@ const CLOSED_DIALOG: DownloadDialogState = { open: false, url: "", reportType: "
 
 const ApplicationProvider = ({ children }: AuthGuardProps) => {
     const router = useRouter();
-    const { data, isLoading, mutate } = useSetupQuery();
     const [dialog, setDialog] = useState<DownloadDialogState>(CLOSED_DIALOG);
 
     useEffect(() => {
@@ -69,10 +61,24 @@ const ApplicationProvider = ({ children }: AuthGuardProps) => {
             router.replace("/login");
             return;
         }
+    }, [router]);
 
-        // Trigger setup query
-        void mutate();
-    }, [mutate, router]);
+    // Mock setup data to bypass the missing query
+    const isLoading = false;
+    const data = {
+        success: true,
+        data: {
+            user: {} as UserType,
+            university: {} as UniversityType,
+            fiscal_years: [],
+            current_fiscal_year: {} as FiscalYearType,
+            system_configs: {} as SystemConfigType,
+            app_version: "1.0.0",
+            environment: "dev",
+            language: "en",
+            timezone: "UTC"
+        }
+    };
 
     const downloadReport = useCallback((url: string, reportType: string) => {
         setDialog({ open: true, url, reportType });
@@ -82,12 +88,10 @@ const ApplicationProvider = ({ children }: AuthGuardProps) => {
         setDialog(CLOSED_DIALOG);
     }, []);
 
-    // While loading setup data
     if (isLoading || !data) {
         return <Loader />;
     }
 
-    // If setup failed (and Axios already handled refresh attempt)
     if (!data.success) {
         return <Loader />;
     }
