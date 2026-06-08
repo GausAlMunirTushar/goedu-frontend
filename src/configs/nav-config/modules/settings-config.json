@@ -1,0 +1,91 @@
+{
+    "module": {
+        "id": "settings",
+        "label": "Settings",
+        "icon": "Settings",
+        "base_path": "/settings",
+        "menus": [
+            {
+                "id": "settings-dashboard",
+                "label": "settings_dashboard",
+                "icon": "LayoutDashboard",
+                "path": "/settings",
+                "required_permissions": ["settings.view"]
+            },
+            {
+                "id": "organization-setting",
+                "label": "organization_setting",
+                "icon": "Building2",
+                "path": "/settings/organization",
+                "required_permissions": ["settings.view"]
+            },
+            {
+                "id": "currency-setting",
+                "label": "currency_setting",
+                "icon": "HandCoins",
+                "path": "/settings/currency",
+                "required_permissions": ["settings.view"]
+            },
+            {
+                "id": "theme-setting",
+                "label": "theme_setting",
+                "icon": "Palette",
+                "path": "/settings/theme",
+                "required_permissions": ["settings.view"]
+            },
+            {
+                "id": "payroll-setting",
+                "label": "Payroll Setting",
+                "icon": "HandCoins",
+                "path": "/settings/payroll",
+                "required_permissions": ["settings.view"]
+            },
+            {
+                "id": "payslip-setting",
+                "label": "payslip_setting",
+                "icon": "FileText",
+                "path": "/settings/payslip",
+                "required_permissions": ["settings.view"],
+                "submenus": [
+                    {
+                        "id": "payslip-logo-content",
+                        "label": "payslip_logo_content",
+                        "path": "/settings/payslip/logo-content",
+                        "icon": "",
+                        "required_permissions": ["settings.view"]
+                    },
+                    {
+                        "id": "payslip-template",
+                        "label": "payslip_template",
+                        "path": "/settings/payslip/template",
+                        "icon": "",
+                        "required_permissions": ["settings.view"]
+                    }
+                ]
+            },
+            {
+                "id": "salary-certificate-setting",
+                "label": "salary_certificate_setting",
+                "icon": "Award",
+                "path": "/settings/salary-certificate",
+                "required_permissions": ["settings.view"],
+                "submenus": [
+                    {
+                        "id": "salary-certificate-logo-content",
+                        "label": "salary_certificate_logo_content",
+                        "path": "/settings/salary-certificate/logo-content",
+                        "icon": "",
+                        "required_permissions": ["settings.view"]
+                    },
+                    {
+                        "id": "salary-certificate-template",
+                        "label": "salary_certificate_template",
+                        "path": "/settings/salary-certificate/template",
+                        "icon": "",
+                        "required_permissions": ["settings.view"]
+                    }
+                ]
+            }
+        ]
+    }
+}

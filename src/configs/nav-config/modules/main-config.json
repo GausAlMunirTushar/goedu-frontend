@@ -1,0 +1,38 @@
+{
+    "module": {
+        "id": "main",
+        "label": "Main",
+        "icon": "Home",
+        "base_path": "/dashboard",
+        "menus": [
+            {
+                "id": "admin-dashboard",
+                "label": "Admin Dashboard",
+                "icon": "LayoutDashboard",
+                "path": "/dashboard",
+                "required_permissions": ["chart_of_accounts.view"]
+            },
+            {
+                "id": "personal-dashboard",
+                "label": "Personal Dashboard",
+                "icon": "UserRound",
+                "path": "/dashboard/personal",
+                "required_permissions": ["chart_of_accounts.view"]
+            },
+            {
+                "id": "calendar",
+                "label": "Calendar",
+                "icon": "Calendar",
+                "path": "/dashboard/calendar",
+                "required_permissions": ["chart_of_accounts.view"]
+            },
+            {
+                "id": "holiday",
+                "label": "Holiday",
+                "icon": "Award",
+                "path": "/dashboard/holiday",
+                "required_permissions": ["chart_of_accounts.view"]
+            }
+        ]
+    }
+}

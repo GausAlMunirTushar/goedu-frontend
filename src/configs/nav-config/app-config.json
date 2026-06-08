@@ -1,0 +1,302 @@
+{
+    "app": {
+        "name": "GoEdu",
+        "short_name": "GoEdu",
+        "version": "1.0.0",
+        "default_language": "en",
+        "supported_languages": ["en", "bn"]
+    },
+    "layout": {
+        "module_bar": {
+            "width": "64px",
+            "position": "fixed",
+            "logo": {
+                "text": "GO",
+                "gradient": "from-blue-500 to-purple-600"
+            }
+        },
+        "module_sidebar": {
+            "width": "256px",
+            "position": "fixed",
+            "collapsible": true
+        },
+        "topbar": {
+            "height": "56px",
+            "position": "fixed",
+            "show_breadcrumbs": true,
+            "show_search": true,
+            "show_notifications": true,
+            "show_user_menu": true
+        }
+    },
+    "modules": [
+        {
+            "id": "auth",
+            "name": "Auth",
+            "label": "Authentication & Authorization",
+            "icon": "Lock",
+            "color": "bg-blue-600",
+            "path": "/auth",
+            "order": 1,
+            "enabled": true,
+            "required_permissions": [],
+            "config_file": "auth-config.json",
+            "has_sidebar": false,
+            "contain_menus": ["login", "forgot-password", "role-based-access", "user-profile", "change-password"]
+        },
+        {
+            "id": "dashboard",
+            "name": "Dashboard",
+            "label": "Dashboard",
+            "icon": "Home",
+            "color": "bg-indigo-600",
+            "path": "/dashboard",
+            "order": 2,
+            "enabled": true,
+            "required_permissions": ["dashboard.view"],
+            "config_file": "dashboard-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["institution-stats", "student-stats", "teacher-stats", "attendance-overview", "recent-activities", "quick-actions"]
+        },
+        {
+            "id": "institution",
+            "name": "Institution",
+            "label": "Institution Management",
+            "icon": "Building",
+            "color": "bg-purple-600",
+            "path": "/institution",
+            "order": 3,
+            "enabled": true,
+            "required_permissions": ["institution.view"],
+            "config_file": "institution-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["institution-profile", "academic-info", "contact-info", "logo-branding", "website-settings"]
+        },
+        {
+            "id": "academic",
+            "name": "Academic",
+            "label": "Academic Management",
+            "icon": "BookOpen",
+            "color": "bg-green-600",
+            "path": "/academic",
+            "order": 4,
+            "enabled": true,
+            "required_permissions": ["academic.view"],
+            "config_file": "academic-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["academic-year", "session", "class", "section", "group", "shift"]
+        },
+        {
+            "id": "student",
+            "name": "Student",
+            "label": "Student Management",
+            "icon": "Users",
+            "color": "bg-teal-600",
+            "path": "/student",
+            "order": 5,
+            "enabled": true,
+            "required_permissions": ["student.view"],
+            "config_file": "student-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["student-registration", "student-profile", "student-promotion", "student-transfer", "student-documents"]
+        },
+        {
+            "id": "teacher",
+            "name": "Teacher",
+            "label": "Teacher Management",
+            "icon": "UserCheck",
+            "color": "bg-orange-600",
+            "path": "/teacher",
+            "order": 6,
+            "enabled": true,
+            "required_permissions": ["teacher.view"],
+            "config_file": "teacher-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["teacher-registration", "teacher-profile", "designation", "subject-assignment", "teacher-documents"]
+        },
+        {
+            "id": "staff",
+            "name": "Staff",
+            "label": "Staff Management",
+            "icon": "UserCog",
+            "color": "bg-slate-600",
+            "path": "/staff",
+            "order": 7,
+            "enabled": true,
+            "required_permissions": ["staff.view"],
+            "config_file": "staff-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["staff-registration", "staff-profile", "department", "designation"]
+        },
+        {
+            "id": "attendance",
+            "name": "Attendance",
+            "label": "Attendance Management",
+            "icon": "CalendarCheck",
+            "color": "bg-red-600",
+            "path": "/attendance",
+            "order": 8,
+            "enabled": true,
+            "required_permissions": ["attendance.view"],
+            "config_file": "attendance-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["student-attendance", "teacher-attendance", "staff-attendance", "daily-report", "monthly-report"]
+        },
+        {
+            "id": "subject",
+            "name": "Subject",
+            "label": "Subject Management",
+            "icon": "Library",
+            "color": "bg-pink-600",
+            "path": "/subject",
+            "order": 9,
+            "enabled": true,
+            "required_permissions": ["subject.view"],
+            "config_file": "subject-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["subject-creation", "subject-assignment", "subject-teacher-mapping"]
+        },
+        {
+            "id": "routine",
+            "name": "Routine",
+            "label": "Routine Management",
+            "icon": "Clock",
+            "color": "bg-cyan-600",
+            "path": "/routine",
+            "order": 10,
+            "enabled": true,
+            "required_permissions": ["routine.view"],
+            "config_file": "routine-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["class-routine", "teacher-routine", "exam-routine"]
+        },
+        {
+            "id": "examination",
+            "name": "Examination",
+            "label": "Examination Management",
+            "icon": "FileText",
+            "color": "bg-violet-600",
+            "path": "/examination",
+            "order": 11,
+            "enabled": true,
+            "required_permissions": ["examination.view"],
+            "config_file": "examination-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["exam-setup", "exam-schedule", "mark-entry", "grade-setup", "result-processing", "gpa-calculation"]
+        },
+        {
+            "id": "result",
+            "name": "Result",
+            "label": "Result Management",
+            "icon": "Award",
+            "color": "bg-emerald-600",
+            "path": "/result",
+            "order": 12,
+            "enabled": true,
+            "required_permissions": ["result.view"],
+            "config_file": "result-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["marksheet", "tabulation-sheet", "merit-list", "pass-list", "fail-list", "result-publish"]
+        },
+        {
+            "id": "notice",
+            "name": "Notice",
+            "label": "Notice & Communication",
+            "icon": "Bell",
+            "color": "bg-yellow-600",
+            "path": "/notice",
+            "order": 13,
+            "enabled": true,
+            "required_permissions": ["notice.view"],
+            "config_file": "notice-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["notice-board", "announcement", "circular", "event-notice"]
+        },
+        {
+            "id": "cms",
+            "name": "CMS",
+            "label": "Website CMS",
+            "icon": "Globe",
+            "color": "bg-sky-600",
+            "path": "/cms",
+            "order": 14,
+            "enabled": true,
+            "required_permissions": ["cms.view"],
+            "config_file": "cms-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["homepage-management", "about-us", "notice-publish", "result-publish", "gallery", "contact-info"]
+        },
+        {
+            "id": "reports",
+            "name": "Reports",
+            "label": "Reports Module",
+            "icon": "BarChart",
+            "color": "bg-rose-600",
+            "path": "/reports",
+            "order": 15,
+            "enabled": true,
+            "required_permissions": ["reports.view"],
+            "config_file": "reports-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["student-reports", "teacher-reports", "attendance-reports", "result-reports"]
+        }
+    ],
+    "global_permissions": {
+        "DASHBOARD_VIEW": "Access main dashboard",
+        "INSTITUTION_MODULE_ACCESS": "Access Institution module",
+        "ACADEMIC_MODULE_ACCESS": "Access Academic module",
+        "STUDENT_MODULE_ACCESS": "Access Student module",
+        "TEACHER_MODULE_ACCESS": "Access Teacher module",
+        "STAFF_MODULE_ACCESS": "Access Staff module",
+        "ATTENDANCE_MODULE_ACCESS": "Access Attendance module",
+        "SUBJECT_MODULE_ACCESS": "Access Subject module",
+        "ROUTINE_MODULE_ACCESS": "Access Routine module",
+        "EXAMINATION_MODULE_ACCESS": "Access Examination module",
+        "RESULT_MODULE_ACCESS": "Access Result module",
+        "NOTICE_MODULE_ACCESS": "Access Notice module",
+        "CMS_MODULE_ACCESS": "Access CMS module",
+        "REPORTS_MODULE_ACCESS": "Access Reports module",
+        "SUPER_ADMIN": "Full system access"
+    },
+    "user_roles": {
+        "super_admin": {
+            "label": "Super Administrator",
+            "permissions": ["SUPER_ADMIN"]
+        },
+        "admin": {
+            "label": "Administrator",
+            "permissions": [
+                "DASHBOARD_VIEW",
+                "INSTITUTION_MODULE_ACCESS",
+                "ACADEMIC_MODULE_ACCESS",
+                "STUDENT_MODULE_ACCESS",
+                "TEACHER_MODULE_ACCESS",
+                "STAFF_MODULE_ACCESS",
+                "ATTENDANCE_MODULE_ACCESS",
+                "SUBJECT_MODULE_ACCESS",
+                "ROUTINE_MODULE_ACCESS",
+                "EXAMINATION_MODULE_ACCESS",
+                "RESULT_MODULE_ACCESS",
+                "NOTICE_MODULE_ACCESS",
+                "CMS_MODULE_ACCESS",
+                "REPORTS_MODULE_ACCESS"
+            ]
+        }
+    },
+    "theme": {
+        "primary_color": "blue",
+        "sidebar_bg": "gray-900",
+        "topbar_bg": "white",
+        "content_bg": "gray-50",
+        "dark_mode": false
+    },
+    "features": {
+        "multi_language": true,
+        "notifications": true,
+        "search": true,
+        "breadcrumbs": true,
+        "user_profile": true,
+        "help_system": true,
+        "activity_logs": true
+    }
+}

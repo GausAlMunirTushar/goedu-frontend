@@ -1,0 +1,24 @@
+{
+    "module": {
+        "id": "profile",
+        "label": "Profile",
+        "icon": "User",
+        "base_path": "/profile",
+        "menus": [
+            {
+                "id": "my-profile",
+                "label": "my_profile",
+                "icon": "CgProfile",
+                "path": "/profile",
+                "required_permissions": ["chart_of_accounts.view"]
+            },
+            {
+                "id": "change-password",
+                "label": "change_password",
+                "icon": "TbPasswordFingerprint",
+                "path": "/profile/change-password",
+                "required_permissions": ["chart_of_accounts.view"]
+            }
+        ]
+    }
+}

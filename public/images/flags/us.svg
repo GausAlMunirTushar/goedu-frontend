@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7410 3900">
+  <rect width="7410" height="3900" fill="#b22234"/>
+  <g fill="#fff">
+    <rect y="300" width="7410" height="300"/>
+    <rect y="900" width="7410" height="300"/>
+    <rect y="1500" width="7410" height="300"/>
+    <rect y="2100" width="7410" height="300"/>
+    <rect y="2700" width="7410" height="300"/>
+    <rect y="3300" width="7410" height="300"/>
+  </g>
+  <rect width="2964" height="2100" fill="#3c3b6e"/>
+  <g fill="#fff">
+    <g id="s">
+      <polygon points="247,90 317,307 130,180 364,180 177,307"/>
+    </g>
+    <use href="#s" x="494"/>
+    <use href="#s" x="988"/>
+    <use href="#s" x="1482"/>
+    <use href="#s" x="1976"/>
+    <use href="#s" x="2470"/>
+  </g>
+</svg>
