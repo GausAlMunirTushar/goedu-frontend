@@ -1,1 +1,9 @@
-{ "menus": [] }
+{
+    "module":  {
+                   "label":  "Reports Management",
+                   "id":  "reports",
+                   "menus":  [
+
+                             ]
+               }
+}

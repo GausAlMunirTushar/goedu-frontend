@@ -59,7 +59,8 @@ export default function DynamicModuleSidebar({
     // Calculate initial expanded items based on active path
     const getInitialExpandedItems = () => {
         const menusToExpand: string[] = [];
-        config.module.menus.forEach((menu) => {
+        const menus = config?.module?.menus || [];
+        menus.forEach((menu) => {
             if (menu.submenus && menu.submenus.length > 0) {
                 const hasActiveSubmenu = menu.submenus.some(
                     (submenu: Submenu) =>
@@ -93,8 +94,8 @@ export default function DynamicModuleSidebar({
     // const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
     const isActive = (path: string) => pathname === path;
 
-    // Filter menus by search - translate labels for filtering
-    const filteredMenus = config.module.menus.filter((menu) =>
+    const menus = config?.module?.menus || [];
+    const filteredMenus = menus.filter((menu) =>
         t(menu.label).toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
@@ -179,7 +180,7 @@ export default function DynamicModuleSidebar({
                 <SidebarHeader className="border-b">
                     <div className="p-2">
                         <h2 className="text-md font-semibold tracking-tight">
-                            {t(config.module.label)}
+                            {t(config?.module?.label || "Menu")}
                         </h2>
                     </div>
                 </SidebarHeader>
@@ -206,7 +207,7 @@ export default function DynamicModuleSidebar({
 
                 <SidebarFooter className="border-t">
                     <div className="px-2 py-1.5 text-[10px] text-muted-foreground">
-                        <p>{t(config.module.label)}</p>
+                        <p>{t(config?.module?.label || "Menu")}</p>
                     </div>
                 </SidebarFooter>
             </Sidebar>

@@ -1,1 +1,9 @@
-{ "menus": [] }
+{
+    "module":  {
+                   "label":  "Routine Management",
+                   "id":  "routine",
+                   "menus":  [
+
+                             ]
+               }
+}

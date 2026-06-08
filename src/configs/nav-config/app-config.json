@@ -4,7 +4,10 @@
         "short_name": "GoEdu",
         "version": "1.0.0",
         "default_language": "en",
-        "supported_languages": ["en", "bn"]
+        "supported_languages": [
+            "en",
+            "bn"
+        ]
     },
     "layout": {
         "module_bar": {
@@ -31,20 +34,6 @@
     },
     "modules": [
         {
-            "id": "auth",
-            "name": "Auth",
-            "label": "Authentication & Authorization",
-            "icon": "Lock",
-            "color": "bg-blue-600",
-            "path": "/auth",
-            "order": 1,
-            "enabled": true,
-            "required_permissions": [],
-            "config_file": "auth-config.json",
-            "has_sidebar": false,
-            "contain_menus": ["login", "forgot-password", "role-based-access", "user-profile", "change-password"]
-        },
-        {
             "id": "dashboard",
             "name": "Dashboard",
             "label": "Dashboard",
@@ -53,10 +42,19 @@
             "path": "/dashboard",
             "order": 2,
             "enabled": true,
-            "required_permissions": ["dashboard.view"],
+            "required_permissions": [
+                "dashboard.view"
+            ],
             "config_file": "dashboard-config.json",
             "has_sidebar": true,
-            "contain_menus": ["institution-stats", "student-stats", "teacher-stats", "attendance-overview", "recent-activities", "quick-actions"]
+            "contain_menus": [
+                "institution-stats",
+                "student-stats",
+                "teacher-stats",
+                "attendance-overview",
+                "recent-activities",
+                "quick-actions"
+            ]
         },
         {
             "id": "institution",
@@ -67,10 +65,18 @@
             "path": "/institution",
             "order": 3,
             "enabled": true,
-            "required_permissions": ["institution.view"],
+            "required_permissions": [
+                "institution.view"
+            ],
             "config_file": "institution-config.json",
             "has_sidebar": true,
-            "contain_menus": ["institution-profile", "academic-info", "contact-info", "logo-branding", "website-settings"]
+            "contain_menus": [
+                "institution-profile",
+                "academic-info",
+                "contact-info",
+                "logo-branding",
+                "website-settings"
+            ]
         },
         {
             "id": "academic",
@@ -81,10 +87,19 @@
             "path": "/academic",
             "order": 4,
             "enabled": true,
-            "required_permissions": ["academic.view"],
+            "required_permissions": [
+                "academic.view"
+            ],
             "config_file": "academic-config.json",
             "has_sidebar": true,
-            "contain_menus": ["academic-year", "session", "class", "section", "group", "shift"]
+            "contain_menus": [
+                "academic-year",
+                "session",
+                "class",
+                "section",
+                "group",
+                "shift"
+            ]
         },
         {
             "id": "student",
@@ -95,10 +110,18 @@
             "path": "/student",
             "order": 5,
             "enabled": true,
-            "required_permissions": ["student.view"],
+            "required_permissions": [
+                "chart_of_account.view"
+            ],
             "config_file": "student-config.json",
             "has_sidebar": true,
-            "contain_menus": ["student-registration", "student-profile", "student-promotion", "student-transfer", "student-documents"]
+            "contain_menus": [
+                "student-registration",
+                "student-profile",
+                "student-promotion",
+                "student-transfer",
+                "student-documents"
+            ]
         },
         {
             "id": "teacher",
@@ -109,10 +132,18 @@
             "path": "/teacher",
             "order": 6,
             "enabled": true,
-            "required_permissions": ["teacher.view"],
+            "required_permissions": [
+                "teacher.view"
+            ],
             "config_file": "teacher-config.json",
             "has_sidebar": true,
-            "contain_menus": ["teacher-registration", "teacher-profile", "designation", "subject-assignment", "teacher-documents"]
+            "contain_menus": [
+                "teacher-registration",
+                "teacher-profile",
+                "designation",
+                "subject-assignment",
+                "teacher-documents"
+            ]
         },
         {
             "id": "staff",
@@ -123,10 +154,17 @@
             "path": "/staff",
             "order": 7,
             "enabled": true,
-            "required_permissions": ["staff.view"],
+            "required_permissions": [
+                "staff.view"
+            ],
             "config_file": "staff-config.json",
             "has_sidebar": true,
-            "contain_menus": ["staff-registration", "staff-profile", "department", "designation"]
+            "contain_menus": [
+                "staff-registration",
+                "staff-profile",
+                "department",
+                "designation"
+            ]
         },
         {
             "id": "attendance",
@@ -137,10 +175,18 @@
             "path": "/attendance",
             "order": 8,
             "enabled": true,
-            "required_permissions": ["attendance.view"],
+            "required_permissions": [
+                "attendance.view"
+            ],
             "config_file": "attendance-config.json",
             "has_sidebar": true,
-            "contain_menus": ["student-attendance", "teacher-attendance", "staff-attendance", "daily-report", "monthly-report"]
+            "contain_menus": [
+                "student-attendance",
+                "teacher-attendance",
+                "staff-attendance",
+                "daily-report",
+                "monthly-report"
+            ]
         },
         {
             "id": "subject",
@@ -151,10 +197,16 @@
             "path": "/subject",
             "order": 9,
             "enabled": true,
-            "required_permissions": ["subject.view"],
+            "required_permissions": [
+                "subject.view"
+            ],
             "config_file": "subject-config.json",
             "has_sidebar": true,
-            "contain_menus": ["subject-creation", "subject-assignment", "subject-teacher-mapping"]
+            "contain_menus": [
+                "subject-creation",
+                "subject-assignment",
+                "subject-teacher-mapping"
+            ]
         },
         {
             "id": "routine",
@@ -165,10 +217,16 @@
             "path": "/routine",
             "order": 10,
             "enabled": true,
-            "required_permissions": ["routine.view"],
+            "required_permissions": [
+                "routine.view"
+            ],
             "config_file": "routine-config.json",
             "has_sidebar": true,
-            "contain_menus": ["class-routine", "teacher-routine", "exam-routine"]
+            "contain_menus": [
+                "class-routine",
+                "teacher-routine",
+                "exam-routine"
+            ]
         },
         {
             "id": "examination",
@@ -179,10 +237,19 @@
             "path": "/examination",
             "order": 11,
             "enabled": true,
-            "required_permissions": ["examination.view"],
+            "required_permissions": [
+                "examination.view"
+            ],
             "config_file": "examination-config.json",
             "has_sidebar": true,
-            "contain_menus": ["exam-setup", "exam-schedule", "mark-entry", "grade-setup", "result-processing", "gpa-calculation"]
+            "contain_menus": [
+                "exam-setup",
+                "exam-schedule",
+                "mark-entry",
+                "grade-setup",
+                "result-processing",
+                "gpa-calculation"
+            ]
         },
         {
             "id": "result",
@@ -193,10 +260,19 @@
             "path": "/result",
             "order": 12,
             "enabled": true,
-            "required_permissions": ["result.view"],
+            "required_permissions": [
+                "result.view"
+            ],
             "config_file": "result-config.json",
             "has_sidebar": true,
-            "contain_menus": ["marksheet", "tabulation-sheet", "merit-list", "pass-list", "fail-list", "result-publish"]
+            "contain_menus": [
+                "marksheet",
+                "tabulation-sheet",
+                "merit-list",
+                "pass-list",
+                "fail-list",
+                "result-publish"
+            ]
         },
         {
             "id": "notice",
@@ -207,10 +283,17 @@
             "path": "/notice",
             "order": 13,
             "enabled": true,
-            "required_permissions": ["notice.view"],
+            "required_permissions": [
+                "notice.view"
+            ],
             "config_file": "notice-config.json",
             "has_sidebar": true,
-            "contain_menus": ["notice-board", "announcement", "circular", "event-notice"]
+            "contain_menus": [
+                "notice-board",
+                "announcement",
+                "circular",
+                "event-notice"
+            ]
         },
         {
             "id": "cms",
@@ -221,10 +304,19 @@
             "path": "/cms",
             "order": 14,
             "enabled": true,
-            "required_permissions": ["cms.view"],
+            "required_permissions": [
+                "cms.view"
+            ],
             "config_file": "cms-config.json",
             "has_sidebar": true,
-            "contain_menus": ["homepage-management", "about-us", "notice-publish", "result-publish", "gallery", "contact-info"]
+            "contain_menus": [
+                "homepage-management",
+                "about-us",
+                "notice-publish",
+                "result-publish",
+                "gallery",
+                "contact-info"
+            ]
         },
         {
             "id": "reports",
@@ -235,10 +327,17 @@
             "path": "/reports",
             "order": 15,
             "enabled": true,
-            "required_permissions": ["reports.view"],
+            "required_permissions": [
+                "reports.view"
+            ],
             "config_file": "reports-config.json",
             "has_sidebar": true,
-            "contain_menus": ["student-reports", "teacher-reports", "attendance-reports", "result-reports"]
+            "contain_menus": [
+                "student-reports",
+                "teacher-reports",
+                "attendance-reports",
+                "result-reports"
+            ]
         }
     ],
     "global_permissions": {
@@ -261,7 +360,9 @@
     "user_roles": {
         "super_admin": {
             "label": "Super Administrator",
-            "permissions": ["SUPER_ADMIN"]
+            "permissions": [
+                "SUPER_ADMIN"
+            ]
         },
         "admin": {
             "label": "Administrator",

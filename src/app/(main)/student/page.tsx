@@ -1,5 +1,5 @@
-import { StudentPage } from '@/components/pages/student';
+import { StudentListView } from '@/components/pages/student/StudentListView';
 
 export default function Page() {
-  return <StudentPage />;
+  return <StudentListView />;
 }

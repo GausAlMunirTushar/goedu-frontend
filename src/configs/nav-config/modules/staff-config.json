@@ -1,1 +1,9 @@
-{ "menus": [] }
+{
+    "module":  {
+                   "label":  "Staff Management",
+                   "id":  "staff",
+                   "menus":  [
+
+                             ]
+               }
+}

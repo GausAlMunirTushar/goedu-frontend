@@ -1,1 +1,9 @@
-{ "menus": [] }
+{
+    "module":  {
+                   "label":  "Academic Management",
+                   "id":  "academic",
+                   "menus":  [
+
+                             ]
+               }
+}

@@ -1,1 +1,9 @@
-{ "menus": [] }
+{
+    "module":  {
+                   "label":  "Dashboard Management",
+                   "id":  "dashboard",
+                   "menus":  [
+
+                             ]
+               }
+}

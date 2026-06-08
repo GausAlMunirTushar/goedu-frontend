@@ -1,1 +1,9 @@
-{ "menus": [] }
+{
+    "module":  {
+                   "label":  "Attendance Management",
+                   "id":  "attendance",
+                   "menus":  [
+
+                             ]
+               }
+}

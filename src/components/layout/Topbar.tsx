@@ -1,6 +1,5 @@
 "use client";
 
-import { useLogoutMutation } from "@/apis/mutations/auth_mutations";
 import {
     Select,
     SelectContent,
@@ -49,9 +48,8 @@ export default function Topbar({
     const [profileOpen, setProfileOpen] = useState(false);
     const profileRef = useRef<HTMLButtonElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const { submit: logoutSubmit, isLoading: logoutLoading, setData, data } = useLogoutMutation();
+    const logoutLoading = false;
     const router = useRouter();
-    const [pendingLogout, setPendingLogout] = useState(false);
 
     // Build fiscal year options dynamically from API data
     const fiscalYearOptions = (fiscal_years || [])
@@ -120,37 +118,13 @@ export default function Topbar({
     };
 
     const handleLogout = async () => {
-        const refreshToken = Cookies.get(COOKIES_KEYS.REFRESH_TOKEN);
-        if (!refreshToken) {
-            toast.error(t("session_expired"));
-            router.push("/login");
-            return;
-        }
-        setData("refresh_token", refreshToken);
-        setPendingLogout(true);
+        Cookies.remove(COOKIES_KEYS.ACCESS_TOKEN);
+        Cookies.remove(COOKIES_KEYS.REFRESH_TOKEN);
+        Cookies.remove(COOKIES_KEYS.USER);
+        Cookies.remove(COOKIES_KEYS.EXPIRY_TIME);
+        toast.success(t("logout") + " " + t("login_successful").replace("Login", "").trim());
+        router.push("/login");
     };
-
-    useEffect(() => {
-        const doLogout = async () => {
-            const result = await logoutSubmit();
-            if (!result.success) {
-                toast.error(result.message || t("login_failed"));
-                setPendingLogout(false);
-                return;
-            }
-            Cookies.remove(COOKIES_KEYS.ACCESS_TOKEN);
-            Cookies.remove(COOKIES_KEYS.REFRESH_TOKEN);
-            Cookies.remove(COOKIES_KEYS.USER);
-            Cookies.remove(COOKIES_KEYS.EXPIRY_TIME);
-            toast.success(t("logout") + " " + t("login_successful").replace("Login", "").trim());
-            router.push("/login");
-            setPendingLogout(false);
-        };
-        if (pendingLogout && data.refresh_token) {
-            doLogout();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pendingLogout, data.refresh_token]);
 
     if (!mounted) return null;
 

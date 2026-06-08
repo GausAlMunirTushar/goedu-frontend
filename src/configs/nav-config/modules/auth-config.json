@@ -1,1 +1,9 @@
-{ "menus": [] }
+{
+    "module":  {
+                   "label":  "Auth Management",
+                   "id":  "auth",
+                   "menus":  [
+
+                             ]
+               }
+}
