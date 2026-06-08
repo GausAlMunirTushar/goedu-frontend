@@ -5,7 +5,7 @@ import { Mail, Lock, ArrowRight } from "lucide-react";
 import Input from "@/components/form/Input";
 import Cookies from "js-cookie";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useLoginMutation } from "@/apis/endpoints/auth/mutations/auth_mutations";
+import { useLoginMutation } from "@/apis/mutations/auth_mutations";
 import { COOKIES_KEYS } from "@/configs/constants";
 import { toast } from "sonner";
 import { AxiosResponse } from "axios";
