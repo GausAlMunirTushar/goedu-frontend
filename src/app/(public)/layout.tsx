@@ -1,4 +1,4 @@
-import WebHeader from "@/components/layout/WebHeader";
+import WebHeader from "@/components/layout/web/WebHeader";
 import React from "react";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
