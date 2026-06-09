@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import WebFooter from "@/components/layout/web/WebFooter";
 import Slider from "@/components/layout/web/Slider";
 import { Building, GraduationCap, Clock, FileCheck, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -131,8 +130,6 @@ export default function Home() {
                     </button>
                 </div>
             </div>
-
-            <WebFooter />
         </div>
     );
 }

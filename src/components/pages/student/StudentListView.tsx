@@ -111,7 +111,7 @@ export function StudentListView() {
                             </Select>
 
                             <Link href="/student/registration" className="w-full sm:w-auto">
-                                <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-sm h-9">
+                                <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground gap-2 shadow-sm h-9">
                                     <PlusCircle className="w-4 h-4" />
                                     Add New Student
                                 </Button>

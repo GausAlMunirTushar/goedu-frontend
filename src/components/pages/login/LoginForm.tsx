@@ -157,7 +157,7 @@ const LoginForm = () => {
                             disabled={isLoading}
                             variant="default"
                             size="default"
-                            className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white"
+                            className="w-full mt-6 bg-primary hover:bg-primary/90 text-primary-foreground"
                         >
                             <span>{isLoading ? (t("signing_in") || "Signing in...") : (t("sign_in") || "Sign in")}</span>
                             {!isLoading && (

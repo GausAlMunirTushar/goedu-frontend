@@ -122,7 +122,7 @@ export function StudentRegistrationPage() {
                 <Link href="/student">
                     <Button variant="outline">Cancel</Button>
                 </Link>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm">Save Registration</Button>
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm">Save Registration</Button>
             </div>
         </div>
     );

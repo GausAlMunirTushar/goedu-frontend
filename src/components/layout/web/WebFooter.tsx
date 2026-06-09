@@ -11,17 +11,17 @@ export default function WebFooter() {
     const { t } = useTranslationClient(lng);
 
     return (
-        <footer className="bg-[#f8f9fa] text-gray-600 pt-20 pb-8 border-t-4 border-primary relative overflow-hidden">
+        <footer className="bg-[#f8f9fa] text-gray-600 pt-10 pb-6 border-t-4 border-primary relative overflow-hidden">
             {/* Background Decoration */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-[0.03]">
                 <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
                 <div className="absolute bottom-0 left-10 w-64 h-64 bg-primary rounded-full blur-3xl"></div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8 relative z-10">
                 
                 {/* Column 1: About */}
-                <div className="space-y-6">
+                <div className="space-y-4">
                     <div className="flex items-center gap-3">
                         <div className="flex items-center justify-center">
                             <Image src="/logo.svg" alt="ePathshala Logo" width={48} height={48} className="w-12 h-12 object-contain" />
@@ -45,7 +45,7 @@ export default function WebFooter() {
 
                 {/* Column 2: Contact Info */}
                 <div>
-                    <h3 className="font-bold text-lg mb-6 text-gray-900">{t("contact") || "যোগাযোগ"}</h3>
+                    <h3 className="font-bold text-lg mb-4 text-gray-900">{t("contact") || "যোগাযোগ"}</h3>
                     <div className="space-y-4 text-sm text-gray-600">
                         <div className="flex items-start gap-3 group">
                             <div className="mt-1 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
@@ -72,7 +72,7 @@ export default function WebFooter() {
 
                 {/* Column 3: Important Links */}
                 <div>
-                    <h3 className="font-bold text-lg mb-6 text-gray-900">{t("important_links") || "Important Links"}</h3>
+                    <h3 className="font-bold text-lg mb-4 text-gray-900">{t("important_links") || "Important Links"}</h3>
                     <ul className="space-y-3 text-sm text-gray-600">
                         <li>
                             <Link href="#" className="flex items-center gap-2 hover:text-primary transition-colors group">
@@ -102,8 +102,8 @@ export default function WebFooter() {
                     <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm w-full hover:border-primary/30 transition-all duration-300 group">
                         <p className="text-xs text-gray-400 mb-4 uppercase tracking-wider font-semibold">Powered By</p>
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300">
-                                P
+                            <div className="w-14 h-14 bg-white border border-gray-100 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 group-hover:border-primary/20 transition-all duration-300 overflow-hidden shrink-0">
+                                <Image src="/logo.svg" alt="ePathshala Logo" width={40} height={40} className="w-10 h-10 object-contain" />
                             </div>
                             <div>
                                 <h4 className="font-bold text-xl text-gray-900 leading-tight">ePathshala</h4>
@@ -115,7 +115,7 @@ export default function WebFooter() {
             </div>
 
             {/* Bottom Footer */}
-            <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 gap-4 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 pt-6 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 gap-4 relative z-10">
                 <p>&copy; {new Date().getFullYear()} {lng === "bn" ? webHeaderData.schoolNameBn : webHeaderData.schoolNameEn}. All rights reserved.</p>
                 <p className="flex items-center gap-1">
                     Developed by <a href="#" className="text-primary hover:text-primary/80 font-medium transition-colors">IngoTech</a>

@@ -117,11 +117,11 @@ export default function PricingPage() {
             {/* Hero Section */}
             <div className="container mx-auto px-4 py-16 md:py-24">
                 <div className="text-center mb-16">
-                    <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full mb-6">
+                    <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mb-6">
                         <Sparkles className="w-4 h-4" />
                         <span className="text-sm font-semibold">{t("flexible_pricing")}</span>
                     </div>
-                    <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-linear-to-r from-primary to-orange-400 bg-clip-text text-transparent">
                         {t("pricing_title")}
                     </h1>
                     <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
@@ -151,13 +151,13 @@ export default function PricingPage() {
                                 }`}
                             >
                                 {plan.popular && (
-                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-1 rounded-full text-sm font-semibold">
                                         {t("most_popular")}
                                     </div>
                                 )}
                                 <CardHeader className="text-center pb-4">
-                                    <div className="mx-auto mb-4 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                        <Icon className="w-6 h-6 text-blue-600" />
+                                    <div className="mx-auto mb-4 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                                        <Icon className="w-6 h-6 text-primary" />
                                     </div>
                                     <CardTitle className="text-2xl">
                                         {t(plan.name)}
@@ -229,7 +229,7 @@ export default function PricingPage() {
                 </div>
 
                 {/* CTA Section */}
-                <div className="max-w-4xl mx-auto bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 md:p-12 text-center text-white">
+                <div className="max-w-4xl mx-auto bg-gradient-to-r from-primary to-orange-500 rounded-2xl p-8 md:p-12 text-center text-white">
                     <h2 className="text-3xl md:text-4xl font-bold mb-4">
                         {t("ready_to_get_started")}
                     </h2>
@@ -240,7 +240,7 @@ export default function PricingPage() {
                         <Button
                             size="lg"
                             variant="secondary"
-                            className="bg-white text-blue-600 hover:bg-blue-50"
+                            className="bg-white text-primary hover:bg-orange-50"
                             asChild
                         >
                             <Link href="/login">{t("start_free_trial")}</Link>

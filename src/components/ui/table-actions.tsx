@@ -86,7 +86,7 @@ const TableActions: React.FC<TableActionsProps> = ({
             label: "Edit",
             onClick: onEdit,
             icon: <Pencil size={16} />,
-            colorClass: "border border-blue-300 text-blue-600 hover:bg-blue-200",
+            colorClass: "border border-primary/30 text-primary hover:bg-primary/10",
         },
         onDelete && {
             key: "delete",
