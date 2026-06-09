@@ -48,8 +48,10 @@ export default function AboutPage() {
                         <span className="text-sm font-semibold">{t("about_us") || "About Us"}</span>
                     </div>
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-gray-900 leading-tight">
-                        Welcome to <br className="hidden md:block" />
-                        <span className="text-primary">{webHeaderData.schoolName}</span>
+                        {t("welcome_to") || "Welcome to"}{" "}
+                        <span className="text-primary block md:inline mt-2 md:mt-0">
+                            {lng === "bn" ? webHeaderData.schoolNameBn : webHeaderData.schoolNameEn}
+                        </span>
                     </h1>
                     <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
                         Dedicated to nurturing the leaders of tomorrow through holistic education, critical thinking, and character development since {webHeaderData.establishedYear}.

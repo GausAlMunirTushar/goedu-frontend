@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslationClient } from "@/lib/i18n/client";
 import { GraduationCap } from "lucide-react";
+import Image from "next/image";
 import WebTopbar from "./WebTopbar";
 import NavItem from "./NavItem";
 import { topBarData, webHeaderData } from "@/data/webData";
@@ -19,12 +20,16 @@ export default function WebHeader() {
             <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row justify-between items-center lg:items-center gap-6 relative z-50">
                 {/* Left: Logo & Name */}
                 <div className="flex items-center gap-4 shrink-0">
-                    <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center text-primary border-2 border-primary/20">
-                        <GraduationCap className="w-10 h-10" />
+                    <div className="flex items-center justify-center p-1 rounded-lg">
+                        <Image src="/logo.svg" alt="ePathshala Logo" width={64} height={64} className="w-16 h-16 object-contain" />
                     </div>
                     <div className="flex flex-col justify-center">
-                        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">{webHeaderData.schoolName}</h1>
-                        <p className="text-[12px] text-gray-500 mt-0.5">{webHeaderData.address}</p>
+                        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
+                            {lng === "bn" ? webHeaderData.schoolNameBn : webHeaderData.schoolNameEn}
+                        </h1>
+                        <p className="text-[12px] text-gray-500 mt-0.5">
+                            {lng === "bn" ? webHeaderData.addressBn : webHeaderData.address}
+                        </p>
                     </div>
                 </div>
                 

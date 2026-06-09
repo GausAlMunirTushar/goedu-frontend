@@ -1,7 +1,7 @@
 {
     "app": {
-        "name": "GoEdu",
-        "short_name": "GoEdu",
+        "name": "ePathshala",
+        "short_name": "ePathshala",
         "version": "1.0.0",
         "default_language": "en",
         "supported_languages": [

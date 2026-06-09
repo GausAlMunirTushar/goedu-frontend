@@ -56,7 +56,7 @@ export default function ModuleBar({ isOpen = true, onClose }: ModuleBarProps) {
                         className={`w-9 h-9 rounded-lg flex items-center justify-center bg-white shadow-sm`}
                     >
                         <Image
-                            src="/images/bdren_logo.png"
+                            src="/logo.svg"
                             alt="Logo"
                             width={32}
                             height={32}
@@ -82,10 +82,9 @@ export default function ModuleBar({ isOpen = true, onClose }: ModuleBarProps) {
                                             className={`
                                                 w-full flex flex-col items-center justify-center py-1.5 px-1 rounded-lg
                                                 transition-all duration-200 cursor-pointer relative
-                                                ${
-                                                    isActive
-                                                        ? ""
-                                                        : "hover:bg-primary/10 hover:from-primary/20 hover:to-primary/10 hover:border-primary/30"
+                                                ${isActive
+                                                    ? ""
+                                                    : "hover:bg-primary/10 hover:from-primary/20 hover:to-primary/10 hover:border-primary/30"
                                                 }
                                             `}
                                         >
@@ -98,10 +97,9 @@ export default function ModuleBar({ isOpen = true, onClose }: ModuleBarProps) {
                                             <div
                                                 className={`
                                                     flex items-center justify-center transition-all duration-200 relative
-                                                    ${
-                                                        isActive
-                                                            ? "text-primary scale-110"
-                                                            : "text-sidebar-foreground/70 group-hover:text-primary group-hover:scale-105"
+                                                    ${isActive
+                                                        ? "text-primary scale-110"
+                                                        : "text-sidebar-foreground/70 group-hover:text-primary group-hover:scale-105"
                                                     }
                                                 `}
                                             >
@@ -122,10 +120,9 @@ export default function ModuleBar({ isOpen = true, onClose }: ModuleBarProps) {
                                             <span
                                                 className={`
                                                     text-[9px] font-medium text-center truncate w-full mt-0.5 transition-all duration-200
-                                                    ${
-                                                        isActive
-                                                            ? "text-primary font-semibold"
-                                                            : "text-sidebar-foreground/60 group-hover:text-primary group-hover:font-medium"
+                                                    ${isActive
+                                                        ? "text-primary font-semibold"
+                                                        : "text-sidebar-foreground/60 group-hover:text-primary group-hover:font-medium"
                                                     }
                                                 `}
                                             >

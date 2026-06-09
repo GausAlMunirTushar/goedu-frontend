@@ -1,7 +1,7 @@
 import { fallbackLng } from "@/lib/i18n/settings";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans_Bengali } from "next/font/google";
 import { cookies } from "next/headers";
 import React from "react";
 
@@ -16,10 +16,17 @@ const inter = Inter({
     preload: true,
 });
 
+const notoSansBengali = Noto_Sans_Bengali({
+    variable: "--font-noto-bengali",
+    subsets: ["bengali"],
+    display: "swap",
+    preload: true,
+});
+
 export const metadata: Metadata = {
-    title: "BdREN University Management System - Coming Soon",
+    title: "ePathshala - Smart Education Management System",
     description:
-        "A comprehensive platform for managing university operations, accounting, and administration. Powered by Bangladesh Research and Education Network.",
+        "A comprehensive platform for managing education operations, accounting, and administration. Powered by ePathshala.",
 };
 
 export default async function RootLayout({
@@ -33,15 +40,8 @@ export default async function RootLayout({
     return (
         <html suppressHydrationWarning lang={lng}>
             <head>
-                <link
-                    rel="preload"
-                    href="/fonts/SolaimanLipiNormalCustomNumber.ttf"
-                    as="font"
-                    type="font/ttf"
-                    crossOrigin="anonymous"
-                />
             </head>
-            <body suppressHydrationWarning className={`${inter.variable} antialiased`}>
+            <body suppressHydrationWarning className={`${inter.variable} ${notoSansBengali.variable} antialiased`}>
                 <LanguageProvider>
                     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                         {children}

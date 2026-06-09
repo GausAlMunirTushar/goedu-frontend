@@ -14,9 +14,12 @@ export const topBarData = {
 
 export const webHeaderData = {
     establishedLabelKey: "established",
-    establishedYear: "২০২৫",
-    schoolName: "ডিভাইন ইন্টারন্যাশনাল স্কুল",
-    address: "ডোমার রোড, নীলফামারী, ডোমার, নীলফামারী",
+    establishedYear: "2025",
+    schoolName: "ePathshala",
+    schoolNameEn: "ePathshala",
+    schoolNameBn: "ই-পাঠশালা",
+    address: "Dhaka, Bangladesh",
+    addressBn: "ঢাকা, বাংলাদেশ",
     infoColumns: [
         { labelKey: "institution_bin", value: "১৫০০০৫৩০", defaultLabel: "প্রতিষ্ঠান বিন নং" },
         { labelKey: "institution_code", value: "N/A", defaultLabel: "শিক্ষা প্রতিষ্ঠান কোড" },

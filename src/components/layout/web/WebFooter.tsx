@@ -1,8 +1,9 @@
 "use client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslationClient } from "@/lib/i18n/client";
-import { Mail, MapPin, Phone, Facebook, Twitter, Instagram, Youtube, GraduationCap, ChevronRight } from "lucide-react";
+import { Mail, MapPin, Phone, Facebook, Twitter, Instagram, Youtube, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { topBarData, webHeaderData } from "@/data/webData";
 
 export default function WebFooter() {
@@ -22,11 +23,13 @@ export default function WebFooter() {
                 {/* Column 1: About */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
-                            <GraduationCap className="w-7 h-7" />
+                        <div className="flex items-center justify-center">
+                            <Image src="/logo.svg" alt="ePathshala Logo" width={48} height={48} className="w-12 h-12 object-contain" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-xl text-gray-900 leading-tight">{webHeaderData.schoolName}</h3>
+                            <h3 className="font-bold text-xl text-gray-900 leading-tight">
+                                {lng === "bn" ? webHeaderData.schoolNameBn : webHeaderData.schoolNameEn}
+                            </h3>
                         </div>
                     </div>
                     <p className="text-sm text-gray-600 leading-relaxed">
@@ -48,7 +51,9 @@ export default function WebFooter() {
                             <div className="mt-1 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
                                 <MapPin className="w-4 h-4" />
                             </div>
-                            <p className="leading-relaxed">{webHeaderData.address}</p>
+                            <p className="leading-relaxed">
+                                {lng === "bn" ? webHeaderData.addressBn : webHeaderData.address}
+                            </p>
                         </div>
                         <div className="flex items-center gap-3 group">
                             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
@@ -101,7 +106,7 @@ export default function WebFooter() {
                                 P
                             </div>
                             <div>
-                                <h4 className="font-bold text-xl text-gray-900 leading-tight">Pathshala</h4>
+                                <h4 className="font-bold text-xl text-gray-900 leading-tight">ePathshala</h4>
                                 <p className="text-[11px] text-gray-500 font-medium uppercase tracking-wider mt-1">Education Management System</p>
                             </div>
                         </div>
@@ -111,7 +116,7 @@ export default function WebFooter() {
 
             {/* Bottom Footer */}
             <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 gap-4 relative z-10">
-                <p>&copy; {new Date().getFullYear()} {webHeaderData.schoolName}. All rights reserved.</p>
+                <p>&copy; {new Date().getFullYear()} {lng === "bn" ? webHeaderData.schoolNameBn : webHeaderData.schoolNameEn}. All rights reserved.</p>
                 <p className="flex items-center gap-1">
                     Developed by <a href="#" className="text-primary hover:text-primary/80 font-medium transition-colors">IngoTech</a>
                 </p>

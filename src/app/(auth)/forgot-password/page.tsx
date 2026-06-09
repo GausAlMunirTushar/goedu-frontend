@@ -1,7 +1,7 @@
 import ForgotPasswordForm from "@/components/pages/auth/ForgotPasswordForm";
 
 export const metadata = {
-    title: "Forgot Password - BdREN University Management System",
+    title: "Forgot Password - ePathshala University Management System",
     description: "Reset your password",
 };
 export default function ForgotPasswordPage() {

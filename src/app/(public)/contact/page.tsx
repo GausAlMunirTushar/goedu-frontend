@@ -54,7 +54,7 @@ export default function ContactPage() {
         {
             icon: MapPin,
             title: "visit_us",
-            value: webHeaderData.address,
+            value: lng === "bn" ? webHeaderData.addressBn : webHeaderData.address,
             href: null,
             color: "text-primary",
             bgColor: "bg-primary/10",
@@ -271,14 +271,16 @@ export default function ContactPage() {
                                     <h4 className="font-semibold text-sm text-gray-500 mb-1">
                                         {t("name") || "Institution Name"}
                                     </h4>
-                                    <p className="text-gray-800 font-medium">{webHeaderData.schoolName}</p>
+                                    <p className="text-gray-800 font-medium">
+                                        {lng === "bn" ? webHeaderData.schoolNameBn : webHeaderData.schoolNameEn}
+                                    </p>
                                 </div>
                                 <div>
                                     <h4 className="font-semibold text-sm text-gray-500 mb-1">
                                         {t("location") || "Location"}
                                     </h4>
                                     <p className="text-gray-800 font-medium">
-                                        {webHeaderData.address}
+                                        {lng === "bn" ? webHeaderData.addressBn : webHeaderData.address}
                                     </p>
                                 </div>
                             </CardContent>
@@ -299,9 +301,11 @@ export default function ContactPage() {
                                 <div className="text-center text-gray-500">
                                     <MapPin className="w-12 h-12 mx-auto mb-4 text-primary" />
                                     <p className="text-lg font-medium text-gray-800 mb-1">
-                                        {webHeaderData.schoolName}
+                                        {lng === "bn" ? webHeaderData.schoolNameBn : webHeaderData.schoolNameEn}
                                     </p>
-                                    <p className="text-sm">{webHeaderData.address}</p>
+                                    <p className="text-sm">
+                                        {lng === "bn" ? webHeaderData.addressBn : webHeaderData.address}
+                                    </p>
                                 </div>
                             </div>
                         </CardContent>

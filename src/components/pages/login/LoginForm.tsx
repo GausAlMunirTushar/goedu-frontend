@@ -102,7 +102,7 @@ const LoginForm = () => {
                         <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
                             {t("welcome_back") || "Welcome Back"}
                         </h1>
-                        <p className="text-muted-foreground text-base">{t("login_subtitle") || "Login to GoEdu MVP"}</p>
+                        <p className="text-muted-foreground text-base">{t("login_subtitle") || "Login to ePathshala"}</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
