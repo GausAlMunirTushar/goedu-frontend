@@ -1,2 +1,3 @@
 export { TeacherListView } from './TeacherListView';
-export { TeacherForm, TeacherData } from './TeacherForm';
+export { TeacherForm } from './TeacherForm';
+export type { TeacherData } from './TeacherForm';

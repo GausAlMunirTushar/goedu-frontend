@@ -36,9 +36,9 @@ export default function TeacherDashboard() {
         <ChartCard title="Teachers per Department" subtitle="Distribution across departments">
           <BarChart
             data={departmentCounts}
-            xKey="name"
-            yKey="count"
-            barColor="#3b82f6"
+            dataKey="name"
+            valueKey="count"
+            color="#3b82f6"
             height={300}
           />
         </ChartCard>
@@ -53,9 +53,9 @@ export default function TeacherDashboard() {
               { month: "May", count: 18 },
               { month: "Jun", count: 20 },
             ]}
-            xKey="month"
-            yKey="count"
-            lineColor="#10b981"
+            dataKey="month"
+            valueKey="count"
+            color="#10b981"
             height={300}
           />
         </ChartCard>

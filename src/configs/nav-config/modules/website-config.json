@@ -1,0 +1,45 @@
+{
+  "module": {
+    "id": "website",
+    "label": "Website CMS",
+    "icon": "Globe",
+    "base_path": "/website",
+    "menus": [
+      {
+        "id": "homepage-management",
+        "label": "Homepage Management",
+        "icon": "Home",
+        "path": "/website/homepage",
+        "permissions": ["website.view"]
+      },
+      {
+        "id": "about-us",
+        "label": "About Us",
+        "icon": "FileText",
+        "path": "/website/about",
+        "permissions": ["website.view"]
+      },
+      {
+        "id": "notices",
+        "label": "Notices",
+        "icon": "FileSpreadsheet",
+        "path": "/website/notices",
+        "permissions": ["website.view"]
+      },
+      {
+        "id": "gallery",
+        "label": "Gallery",
+        "icon": "Image",
+        "path": "/website/gallery",
+        "permissions": ["website.view"]
+      },
+      {
+        "id": "contact-info",
+        "label": "Contact Information",
+        "icon": "Phone",
+        "path": "/website/contact",
+        "permissions": ["website.view"]
+      }
+    ]
+  }
+}

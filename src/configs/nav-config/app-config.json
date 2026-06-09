@@ -272,24 +272,23 @@
             ]
         },
         {
-            "id": "cms",
-            "name": "CMS",
-            "label": "Website CMS",
-            "icon": "LayoutDashboardIcon",
+            "id": "website",
+            "name": "Website",
+            "label": "Website Management",
+            "icon": "LayoutTemplate",
             "color": "bg-sky-600",
-            "path": "/cms",
+            "path": "/website",
             "order": 14,
             "enabled": true,
             "required_permissions": [],
-            "config_file": "cms-config.json",
+            "config_file": "website-config.json",
             "has_sidebar": true,
             "contain_menus": [
-                "homepage-management",
-                "about-us",
-                "notice-publish",
-                "result-publish",
+                "homepage",
+                "about",
+                "notices",
                 "gallery",
-                "contact-info"
+                "contact"
             ]
         },
         {
@@ -325,7 +324,7 @@
         "EXAMINATION_MODULE_ACCESS": "Access Examination module",
         "RESULT_MODULE_ACCESS": "Access Result module",
         "NOTICE_MODULE_ACCESS": "Access Notice module",
-        "CMS_MODULE_ACCESS": "Access CMS module",
+        "WEBSITE_MODULE_ACCESS": "Access Website module",
         "REPORTS_MODULE_ACCESS": "Access Reports module",
         "SUPER_ADMIN": "Full system access"
     },
@@ -351,7 +350,7 @@
                 "EXAMINATION_MODULE_ACCESS",
                 "RESULT_MODULE_ACCESS",
                 "NOTICE_MODULE_ACCESS",
-                "CMS_MODULE_ACCESS",
+                "WEBSITE_MODULE_ACCESS",
                 "REPORTS_MODULE_ACCESS"
             ]
         }

@@ -28,13 +28,14 @@ const translations = {
 }
 
 interface HomeGalleryProps {
-  /** Language code – "en" or "bn" */
-  locale?: "en" | "bn"
+  /** Language code */
+  locale?: string
 }
 
 export default function HomeGallery({ locale = "en" }: HomeGalleryProps) {
   const swiperRef = useRef<any>(null);
-  const t = translations[locale]
+  const currentLocale = locale === "bn" ? "bn" : "en";
+  const t = translations[currentLocale]
   return (
     <section className="my-12">
       <h2 className="text-2xl font-semibold mb-6 text-center">{t.title}</h2>
