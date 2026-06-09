@@ -92,7 +92,8 @@
                 "class",
                 "section",
                 "group",
-                "shift"
+                "shift",
+                "subject"
             ]
         },
         {
@@ -156,24 +157,7 @@
                 "monthly-report"
             ]
         },
-        {
-            "id": "subject",
-            "name": "Subject",
-            "label": "Subject Management",
-            "icon": "BookOpen",
-            "color": "bg-pink-600",
-            "path": "/subject",
-            "order": 9,
-            "enabled": true,
-            "required_permissions": [],
-            "config_file": "subject-config.json",
-            "has_sidebar": true,
-            "contain_menus": [
-                "subject-creation",
-                "subject-assignment",
-                "subject-teacher-mapping"
-            ]
-        },
+
         {
             "id": "routine",
             "name": "Routine",

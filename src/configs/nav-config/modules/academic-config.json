@@ -38,6 +38,12 @@
                 "label": "Shift",
                 "path": "/academic/shift",
                 "icon": "SwatchBook"
+            },
+            {
+                "id": "subject",
+                "label": "Subject",
+                "path": "/academic/subject",
+                "icon": "BookOpen"
             }
         ]
     }
