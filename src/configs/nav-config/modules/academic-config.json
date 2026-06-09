@@ -1,9 +1,44 @@
 {
-    "module":  {
-                   "label":  "Academic Management",
-                   "id":  "academic",
-                   "menus":  [
-
-                             ]
-               }
+    "module": {
+        "label": "Academic Management",
+        "id": "academic",
+        "menus": [
+            {
+                "id": "academic-year",
+                "label": "Academic Year",
+                "path": "/academic/academic-year",
+                "icon": "CalendarDays"
+            },
+            {
+                "id": "session",
+                "label": "Session",
+                "path": "/academic/session",
+                "icon": "Calendar"
+            },
+            {
+                "id": "class",
+                "label": "Class",
+                "path": "/academic/class",
+                "icon": "BookOpen"
+            },
+            {
+                "id": "section",
+                "label": "Section",
+                "path": "/academic/section",
+                "icon": "ClipboardList"
+            },
+            {
+                "id": "group",
+                "label": "Group",
+                "path": "/academic/group",
+                "icon": "Users2Icon"
+            },
+            {
+                "id": "shift",
+                "label": "Shift",
+                "path": "/academic/shift",
+                "icon": "SwatchBook"
+            }
+        ]
+    }
 }
