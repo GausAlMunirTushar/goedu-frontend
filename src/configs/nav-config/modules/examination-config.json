@@ -1,9 +1,7 @@
 {
-    "module":  {
-                   "label":  "Examination Management",
-                   "id":  "examination",
-                   "menus":  [
-
-                             ]
-               }
+    "module": {
+        "label": "Examination",
+        "id": "examination",
+        "menus": []
+    }
 }

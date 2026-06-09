@@ -14,7 +14,7 @@
             "width": "64px",
             "position": "fixed",
             "logo": {
-                "text": "GO",
+                "text": "ePathshala",
                 "gradient": "from-blue-500 to-purple-600"
             }
         },
@@ -182,7 +182,7 @@
         {
             "id": "examination",
             "name": "Examination",
-            "label": "Examination Management",
+            "label": "Exam",
             "icon": "FileText",
             "color": "bg-violet-600",
             "path": "/examination",
@@ -203,7 +203,7 @@
         {
             "id": "result",
             "name": "Result",
-            "label": "Result Management",
+            "label": "Result",
             "icon": "Award",
             "color": "bg-emerald-600",
             "path": "/result",
@@ -225,7 +225,7 @@
         {
             "id": "website",
             "name": "Website",
-            "label": "Website Management",
+            "label": "Website",
             "icon": "Globe",
             "color": "bg-sky-600",
             "path": "/website",

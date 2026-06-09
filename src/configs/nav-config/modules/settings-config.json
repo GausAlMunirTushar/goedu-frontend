@@ -6,10 +6,17 @@
     "base_path": "/settings",
     "menus": [
       {
-        "id": "settings-dashboard",
-        "label": "Dashboard",
+        "id": "global-settings",
+        "label": "Global Settings",
         "icon": "LayoutDashboard",
-        "path": "/dashboard",
+        "path": "/settings",
+        "permissions": ["dashboard.view"]
+      },
+      {
+        "id": "settings-dashboard",
+        "label": "Settings Dashboard",
+        "icon": "LayoutDashboard",
+        "path": "/settings/dashboard",
         "permissions": ["dashboard.view"]
       }
     ]

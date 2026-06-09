@@ -1,9 +1,7 @@
 {
-    "module":  {
-                   "label":  "Dashboard Management",
-                   "id":  "dashboard",
-                   "menus":  [
-
-                             ]
-               }
+    "module": {
+        "label": "Dashboard",
+        "id": "dashboard",
+        "menus": []
+    }
 }
