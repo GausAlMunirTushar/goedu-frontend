@@ -57,7 +57,7 @@
         {
             "id": "institution",
             "name": "Institution",
-            "label": "Institution Management",
+            "label": "Institution",
             "icon": "BuildingIcon",
             "color": "bg-purple-600",
             "path": "/institution",
@@ -138,11 +138,10 @@
                 "teacher-documents"
             ]
         },
-
         {
             "id": "attendance",
             "name": "Attendance",
-            "label": "Attendance Management",
+            "label": "Attendance",
             "icon": "Calendar",
             "color": "bg-red-600",
             "path": "/attendance",
@@ -159,11 +158,10 @@
                 "monthly-report"
             ]
         },
-
         {
             "id": "routine",
             "name": "Routine",
-            "label": "Routine Management",
+            "label": "Routine",
             "icon": "LayoutDashboardIcon",
             "color": "bg-cyan-600",
             "path": "/routine/dashboard",
@@ -181,11 +179,11 @@
         },
         {
             "id": "examination",
-            "name": "Examination",
+            "name": "Exam",
             "label": "Exam",
             "icon": "FileText",
             "color": "bg-violet-600",
-            "path": "/examination",
+            "path": "/exam/dashboard",
             "order": 11,
             "enabled": true,
             "required_permissions": [],
@@ -221,7 +219,6 @@
                 "result-publish"
             ]
         },
-
         {
             "id": "website",
             "name": "Website",

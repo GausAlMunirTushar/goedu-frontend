@@ -1,7 +1,36 @@
 {
     "module": {
-        "label": "Examination",
+        "label": "Exam",
         "id": "examination",
-        "menus": []
+        "menus": [
+            {
+                "id": "exam-dashboard",
+                "label": "Exam Dashboard",
+                "icon": "LayoutDashboard",
+                "path": "/exam/dashboard",
+                "permissions": []
+            },
+            {
+                "id": "exam",
+                "label": "Exam",
+                "icon": "ClipboardList",
+                "path": "/exam",
+                "permissions": []
+            },
+            {
+                "id": "seat-plan",
+                "label": "Seat Plan",
+                "icon": "LayoutTemplate",
+                "path": "/exam/seat-plan",
+                "permissions": []
+            },
+            {
+                "id": "admit-card",
+                "label": "Admit Card",
+                "icon": "IdCardIcon",
+                "path": "/exam/admit-card",
+                "permissions": []
+            }
+        ]
     }
 }
