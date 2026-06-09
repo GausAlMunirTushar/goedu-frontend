@@ -41,7 +41,8 @@ export const webHeaderData = {
             href: "#", 
             defaultLabel: "একাডেমিক",
             children: [
-                { labelKey: "teachers", href: "#", defaultLabel: "শিক্ষকমণ্ডলী" },
+                { labelKey: "notices", href: "/academic/notices", defaultLabel: "নোটিশ বোর্ড" },
+                { labelKey: "teachers", href: "/academic/teachers", defaultLabel: "শিক্ষকমণ্ডলী" },
                 { labelKey: "class_routine", href: "#", defaultLabel: "ক্লাস রুটিন" },
                 { labelKey: "syllabus", href: "#", defaultLabel: "সিলেবাস" },
                 { labelKey: "facilities", href: "#", defaultLabel: "সুযোগ-সুবিধা" }
