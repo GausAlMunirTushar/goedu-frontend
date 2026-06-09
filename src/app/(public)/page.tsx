@@ -4,6 +4,7 @@ import Slider from "@/components/layout/web/Slider";
 import { Building, GraduationCap, Clock, FileCheck, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslationClient } from "@/lib/i18n/client";
+import HomeGallery from "@/components/pages/home/HomeGallery";
 
 export default function Home() {
     const { lng } = useLanguage();
@@ -128,6 +129,7 @@ export default function Home() {
                     <button className="mt-12 bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3.5 rounded-full font-bold shadow-sm shadow-primary/30 transition-all hover:shadow-md hover:-translate-y-0.5">
                         {t("view_all_teachers") || "View All Teachers"}
                     </button>
+                    <HomeGallery locale={lng} />
                 </div>
             </div>
         </div>

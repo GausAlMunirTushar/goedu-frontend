@@ -1,0 +1,17 @@
+{
+  "module": {
+    "id": "settings",
+    "label": "Settings",
+    "icon": "Settings",
+    "base_path": "/settings",
+    "menus": [
+      {
+        "id": "settings-dashboard",
+        "label": "Dashboard",
+        "icon": "LayoutDashboard",
+        "path": "/dashboard",
+        "permissions": ["dashboard.view"]
+      }
+    ]
+  }
+}

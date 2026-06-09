@@ -2,6 +2,7 @@
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { Mail, Lock, ArrowRight } from "lucide-react";
+import Logo from "@/components/common/Logo";
 import Input from "@/components/form/Input";
 import Cookies from "js-cookie";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -102,7 +103,7 @@ const LoginForm = () => {
                         <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
                             {t("welcome_back") || "Welcome Back"}
                         </h1>
-                        <p className="text-muted-foreground text-base">{t("login_subtitle") || "Login to ePathshala"}</p>
+                        <Logo text={t("login_subtitle") || "Login to ePathshala"} showText={true} />
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
