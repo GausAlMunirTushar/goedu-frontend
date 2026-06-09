@@ -6,15 +6,15 @@
         "base_path": "/teacher",
         "menus": [
             {
-                "id": "teacher-list",
-                "label": "All Teachers",
-                "icon": "User",
-                "path": "/teacher",
+                "id": "teacher-dashboard",
+                "label": "Teacher Dashboard",
+                "icon": "LayoutDashboard",
+                "path": "/teacher/dashboard",
                 "permissions": [
-                    "teacher.view"
+                    "teacher.dashboard.view"
                 ]
             },
-            {
+                        {
                 "id": "teacher-designations",
                 "label": "Teacher Designations",
                 "icon": "UserCog",
@@ -22,7 +22,17 @@
                 "permissions": [
                     "teacher.designation.view"
                 ]
+            },
+            {
+                "id": "teacher-list",
+                "label": "Teachers",
+                "icon": "Users",
+                "path": "/teacher",
+                "permissions": [
+                    "teacher.view"
+                ]
             }
+
         ]
     }
 }

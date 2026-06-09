@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/ui/custom-ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -8,7 +9,7 @@ import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
 import { teachers } from "@/data/teachers";
-import { TeacherForm, TeacherData } from "./TeacherForm";
+import { TeacherData } from "./TeacherForm";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -22,9 +23,8 @@ import {
 
 export function TeacherListView() {
   const [search, setSearch] = useState("");
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [formMode, setFormMode] = useState<"create" | "edit">("create");
-  const [editingData, setEditingData] = useState<TeacherData | undefined>(undefined);
+  const router = useRouter();
+
 
   const [data, setData] = useState<TeacherData[]>(teachers);
   // pagination
@@ -33,29 +33,22 @@ export function TeacherListView() {
   const pageCount = Math.ceil(data.length / pageSize) || 1;
   const paginatedData = data.slice((page - 1) * pageSize, page * pageSize);
 
-  // view dialog state
-  const [viewData, setViewData] = useState<TeacherData | undefined>(undefined);
-  const [isViewOpen, setIsViewOpen] = useState(false);
+
 
   // delete confirmation state
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const handleCreate = () => {
-    setFormMode("create");
-    setEditingData(undefined);
-    setIsFormOpen(true);
+    router.push("/teacher/create");
   };
 
   const handleEdit = (item: TeacherData) => {
-    setFormMode("edit");
-    setEditingData(item);
-    setIsFormOpen(true);
+    router.push(`/teacher/edit/${item.id}`);
   };
 
   const handleView = (item: TeacherData) => {
-    setViewData(item);
-    setIsViewOpen(true);
+    router.push(`/teacher/${item.id}`);
   };
 
   const openDeleteDialog = (id: string) => {
@@ -71,14 +64,7 @@ export function TeacherListView() {
     setDeleteId(null);
   };
 
-  const handleFormSubmit = (formData: TeacherData) => {
-    if (formMode === "create") {
-      const newId = (data.length + 1).toString();
-      setData([...data, { ...formData, id: newId }]);
-    } else {
-      setData(data.map((item) => (item.id === formData.id ? { ...item, ...formData } : item)));
-    }
-  };
+
 
   const columns: ColumnDef<TeacherData>[] = [
     { accessorKey: "name", header: "Name" },
@@ -138,28 +124,7 @@ export function TeacherListView() {
         </CardContent>
       </Card>
 
-      {/* View Dialog */}
-      <AlertDialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Teacher Details</AlertDialogTitle>
-          </AlertDialogHeader>
-          <AlertDialogDescription>
-            {viewData && (
-              <div className="space-y-2">
-                <p><strong>Name:</strong> {viewData.name}</p>
-                <p><strong>Designation:</strong> {viewData.designation}</p>
-                <p><strong>Department:</strong> {viewData.department}</p>
-                {viewData.email && <p><strong>Email:</strong> {viewData.email}</p>}
-                {viewData.phone && <p><strong>Phone:</strong> {viewData.phone}</p>}
-              </div>
-            )}
-          </AlertDialogDescription>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Close</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
@@ -178,13 +143,7 @@ export function TeacherListView() {
       </AlertDialog>
 
       {/* Form Dialog */}
-      <TeacherForm
-        mode={formMode}
-        initialData={editingData}
-        isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSubmit={handleFormSubmit}
-      />
+
     </div>
   );
 }
