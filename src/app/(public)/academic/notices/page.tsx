@@ -6,15 +6,7 @@ import { Bell } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslationClient } from "@/lib/i18n/client";
 
-// Dummy data
-const notices = [
-    { id: "1", title: "Class Routine for Academic Year 2026 Published", date: "11 January, 2026", description: "The class routine for the upcoming academic year has been finalized and published. All students and teachers are requested to download the routine.", isNew: true },
-    { id: "2", title: "Notice for Half-Yearly Examination 2026", date: "05 January, 2026", description: "The half-yearly examinations will commence from the 2nd week of next month. Syllabus and exam schedule are attached." },
-    { id: "3", title: "Winter Vacation Notice", date: "15 December, 2025", description: "The institution will remain closed for winter vacation from 20th December to 2nd January. Regular classes will resume on 3rd January." },
-    { id: "4", title: "Parent-Teacher Meeting for Class 10", date: "10 December, 2025", description: "A mandatory parent-teacher meeting will be held on the upcoming Saturday to discuss student progress and exam preparations." },
-    { id: "5", title: "Annual Sports Competition Registration", date: "01 December, 2025", description: "Registration for the annual sports competition is now open. Interested students must register their names with their respective house masters." },
-    { id: "6", title: "Library Book Return Notice", date: "25 November, 2025", description: "Students who have borrowed books from the library are requested to return them before the term ends to avoid late fines." }
-];
+import { notices } from "@/data/notices";
 
 export default function NoticesPage() {
     const { lng } = useLanguage();
