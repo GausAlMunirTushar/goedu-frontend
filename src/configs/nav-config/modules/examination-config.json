@@ -18,6 +18,48 @@
                 "permissions": []
             },
             {
+                "id": "exam-setup",
+                "label": "Exam Setup",
+                "icon": "Settings",
+                "path": "/exam/setup",
+                "permissions": []
+            },
+            {
+                "id": "exam-schedule",
+                "label": "Exam Schedule",
+                "icon": "CalendarDays",
+                "path": "/exam/schedule",
+                "permissions": []
+            },
+            {
+                "id": "mark-entry",
+                "label": "Mark Entry",
+                "icon": "FileSpreadsheet",
+                "path": "/exam/mark-entry",
+                "permissions": []
+            },
+            {
+                "id": "grade-setup",
+                "label": "Grade Setup",
+                "icon": "Award",
+                "path": "/exam/grade-setup",
+                "permissions": []
+            },
+            {
+                "id": "result-processing",
+                "label": "Result Processing",
+                "icon": "ChartLine",
+                "path": "/exam/result-processing",
+                "permissions": []
+            },
+            {
+                "id": "gpa-calculation",
+                "label": "GPA Calculation",
+                "icon": "CalculatorIcon",
+                "path": "/exam/gpa-calculation",
+                "permissions": []
+            },
+            {
                 "id": "seat-plan",
                 "label": "Seat Plan",
                 "icon": "LayoutTemplate",

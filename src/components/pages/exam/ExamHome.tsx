@@ -4,7 +4,7 @@ import React from "react";
 import Title from "@/components/ui/custom-ui/title";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Grid3X3, IdCard, ArrowRight } from "lucide-react";
+import { LayoutDashboard, Settings, CalendarDays, FileSpreadsheet, Award, ChartLine, CalculatorIcon, LayoutTemplate, IdCardIcon, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export function ExamHomePage() {
@@ -14,27 +14,54 @@ export function ExamHomePage() {
       desc: "Overview of exam statistics, upcoming schedules and performance insights.",
       icon: LayoutDashboard,
       path: "/exam/dashboard",
-      color: "text-violet-500",
-      bg: "bg-violet-500/10",
-      border: "border-violet-200/50",
+    },
+    {
+      title: "Exam Setup",
+      desc: "Create and manage examination configurations and basic settings.",
+      icon: Settings,
+      path: "/exam/setup",
+    },
+    {
+      title: "Exam Schedule",
+      desc: "Manage and view the timetable for all upcoming examinations.",
+      icon: CalendarDays,
+      path: "/exam/schedule",
+    },
+    {
+      title: "Mark Entry",
+      desc: "Enter and manage student marks for various exam components.",
+      icon: FileSpreadsheet,
+      path: "/exam/mark-entry",
+    },
+    {
+      title: "Grade Setup",
+      desc: "Configure grading scales, points and marking systems.",
+      icon: Award,
+      path: "/exam/grade-setup",
+    },
+    {
+      title: "Result Processing",
+      desc: "Calculate final results, positions and publish performance data.",
+      icon: ChartLine,
+      path: "/exam/result-processing",
+    },
+    {
+      title: "GPA Calculation",
+      desc: "Individual student GPA breakdown and automated calculations.",
+      icon: CalculatorIcon,
+      path: "/exam/gpa-calculation",
     },
     {
       title: "Seat Plan",
-      desc: "Create, manage and generate seating arrangements for all examinations.",
-      icon: Grid3X3,
+      desc: "Create, manage and generate seating arrangements for examinations.",
+      icon: LayoutTemplate,
       path: "/exam/seat-plan",
-      color: "text-teal-500",
-      bg: "bg-teal-500/10",
-      border: "border-teal-200/50",
     },
     {
       title: "Admit Card",
       desc: "Generate, preview and distribute admit cards for enrolled students.",
-      icon: IdCard,
+      icon: IdCardIcon,
       path: "/exam/admit-card",
-      color: "text-orange-500",
-      bg: "bg-orange-500/10",
-      border: "border-orange-200/50",
     },
   ];
 
@@ -48,9 +75,9 @@ export function ExamHomePage() {
         {cards.map((card, i) => {
           const Icon = card.icon;
           return (
-            <Card key={i} className={`shadow-sm ${card.border} hover:shadow-lg transition-all duration-300 group cursor-pointer`}>
+            <Card key={i} className="shadow-sm border-primary/10 hover:shadow-lg transition-all duration-300 group cursor-pointer">
               <CardHeader className="pb-3">
-                <div className={`w-12 h-12 rounded-xl ${card.bg} ${card.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                   <Icon className="w-6 h-6" />
                 </div>
                 <CardTitle className="text-base font-bold">{card.title}</CardTitle>

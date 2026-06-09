@@ -46,32 +46,11 @@
             "config_file": "dashboard-config.json",
             "has_sidebar": true,
             "contain_menus": [
-                "institution-stats",
                 "student-stats",
                 "teacher-stats",
                 "attendance-overview",
                 "recent-activities",
                 "quick-actions"
-            ]
-        },
-        {
-            "id": "institution",
-            "name": "Institution",
-            "label": "Institution",
-            "icon": "BuildingIcon",
-            "color": "bg-purple-600",
-            "path": "/institution",
-            "order": 3,
-            "enabled": true,
-            "required_permissions": [],
-            "config_file": "institution-config.json",
-            "has_sidebar": true,
-            "contain_menus": [
-                "institution-profile",
-                "academic-info",
-                "contact-info",
-                "logo-branding",
-                "website-settings"
             ]
         },
         {
@@ -277,7 +256,6 @@
     ],
     "global_permissions": {
         "DASHBOARD_VIEW": "Access main dashboard",
-        "INSTITUTION_MODULE_ACCESS": "Access Institution module",
         "ACADEMIC_MODULE_ACCESS": "Access Academic module",
         "STUDENT_MODULE_ACCESS": "Access Student module",
         "TEACHER_MODULE_ACCESS": "Access Teacher module",
@@ -303,7 +281,6 @@
             "label": "Administrator",
             "permissions": [
                 "DASHBOARD_VIEW",
-                "INSTITUTION_MODULE_ACCESS",
                 "ACADEMIC_MODULE_ACCESS",
                 "STUDENT_MODULE_ACCESS",
                 "TEACHER_MODULE_ACCESS",
