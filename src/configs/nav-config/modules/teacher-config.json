@@ -1,9 +1,28 @@
 {
-    "module":  {
-                   "label":  "Teacher Management",
-                   "id":  "teacher",
-                   "menus":  [
-
-                             ]
-               }
+    "module": {
+        "id": "teacher",
+        "label": "Teacher",
+        "icon": "User",
+        "base_path": "/teacher",
+        "menus": [
+            {
+                "id": "teacher-list",
+                "label": "All Teachers",
+                "icon": "User",
+                "path": "/teacher",
+                "permissions": [
+                    "teacher.view"
+                ]
+            },
+            {
+                "id": "teacher-designations",
+                "label": "Teacher Designations",
+                "icon": "UserCog",
+                "path": "/teacher/designations",
+                "permissions": [
+                    "teacher.designation.view"
+                ]
+            }
+        ]
+    }
 }

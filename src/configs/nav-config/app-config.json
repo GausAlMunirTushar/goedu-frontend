@@ -77,7 +77,7 @@
         {
             "id": "academic",
             "name": "Academic",
-            "label": "Academic Management",
+            "label": "Academic",
             "icon": "BookOpen",
             "color": "bg-green-600",
             "path": "/academic",
@@ -98,7 +98,7 @@
         {
             "id": "student",
             "name": "Student",
-            "label": "Student Management",
+            "label": "Student",
             "icon": "UsersIcon",
             "color": "bg-teal-600",
             "path": "/student",
@@ -118,7 +118,7 @@
         {
             "id": "teacher",
             "name": "Teacher",
-            "label": "Teacher Management",
+            "label": "Teacher",
             "icon": "UserCheck",
             "color": "bg-orange-600",
             "path": "/teacher",

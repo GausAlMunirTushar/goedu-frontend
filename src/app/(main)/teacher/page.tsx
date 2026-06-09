@@ -1,5 +1,5 @@
-import { TeacherPage } from '@/components/pages/teacher';
+import { TeacherListView } from '@/components/pages/teacher/TeacherListView';
 
 export default function Page() {
-  return <TeacherPage />;
+  return <TeacherListView />;
 }

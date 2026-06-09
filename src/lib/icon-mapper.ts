@@ -111,18 +111,22 @@ type IconName =
     | "LiaClipboardListSolid"
     | "ChartPie"
     | "Landmark"
-    | "CalendarDays"
     | "ClipboardList"
+    | "CalendarDays"
     | "BarChart"
     | "FaBangladeshiTakaSign"
     | "MdOutlinePayments"
-    | "SwatchBook";
+    | "SwatchBook"
+    | "TeacherIcon"
+    | "TeacherDesignationsIcon";
 
 const iconMap: Record<IconName, LucideIcon> = {
     UsersIcon: Users,
     LayoutDashboardIcon: LayoutDashboard,
     DatabaseIcon: Database,
     BuildingIcon: Building,
+    TeacherIcon: Users as unknown as LucideIcon,
+    TeacherDesignationsIcon: UserCog as unknown as LucideIcon,
     IdCardIcon: IdCard,
     Users2Icon: Users2,
     BriefcaseIcon: Briefcase,

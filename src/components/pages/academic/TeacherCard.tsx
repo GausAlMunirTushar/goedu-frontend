@@ -20,7 +20,7 @@ export default function TeacherCard({ name, designation, department, email, phon
     return (
         <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden hover:border-primary/30 transition-all duration-300 group">
             <div className="bg-primary/5 pt-6 pb-3 flex justify-center relative">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/50"></div>
+                <div className="absolute inset-0 bg-linear-to-b from-transparent to-white/50"></div>
                 <div className="w-28 h-28 bg-white rounded-full border-4 border-white flex items-center justify-center overflow-hidden relative z-10">
                     {imageUrl ? (
                         <Image src={imageUrl} alt={name} width={112} height={112} className="object-cover w-full h-full" />
@@ -33,7 +33,7 @@ export default function TeacherCard({ name, designation, department, email, phon
                 <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-primary transition-colors">{name}</h3>
                 <p className="text-sm font-medium text-primary mb-1">{designation}</p>
                 <p className="text-xs text-gray-500 mb-3">{department}</p>
-                
+
                 <div className="space-y-1.5 text-xs text-gray-600 mt-3 border-t border-gray-50 pt-3">
                     {email && (
                         <div className="flex items-center justify-center gap-2">

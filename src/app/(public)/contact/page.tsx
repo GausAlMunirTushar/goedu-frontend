@@ -13,7 +13,6 @@ import {
     Send,
     Building2,
     Headphones,
-    Globe,
 } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -297,7 +296,7 @@ export default function ContactPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-0">
-                            <div className="w-full h-[400px] bg-gray-100 rounded-b-xl flex items-center justify-center border-t border-gray-200">
+                            <div className="w-full h-100 bg-gray-100 rounded-b-xl flex items-center justify-center border-t border-gray-200">
                                 <div className="text-center text-gray-500">
                                     <MapPin className="w-12 h-12 mx-auto mb-4 text-primary" />
                                     <p className="text-lg font-medium text-gray-800 mb-1">
