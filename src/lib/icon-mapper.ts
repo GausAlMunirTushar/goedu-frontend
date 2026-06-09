@@ -20,6 +20,7 @@ import {
     DollarSign,
     Droplets,
     FileCheck,
+    Globe,
     FileSpreadsheet,
     FileText,
     FileUser,
@@ -69,6 +70,7 @@ type IconName =
     | "BanknoteIcon"
     | "CoinsIcon"
     | "Home"
+    | "Globe"
     | "Users"
     | "GraduationCap"
     | "DollarSign"
@@ -135,6 +137,7 @@ const iconMap: Record<IconName, LucideIcon> = {
     BanknoteIcon: Banknote,
     CoinsIcon: Coins,
     Home: Home,
+    Globe: Globe,
     Users: Users,
     GraduationCap: GraduationCap,
     DollarSign: DollarSign,

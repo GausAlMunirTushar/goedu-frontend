@@ -135,25 +135,7 @@
                 "teacher-documents"
             ]
         },
-        {
-            "id": "staff",
-            "name": "Staff",
-            "label": "Staff Management",
-            "icon": "UserCog",
-            "color": "bg-slate-600",
-            "path": "/staff",
-            "order": 7,
-            "enabled": true,
-            "required_permissions": [],
-            "config_file": "staff-config.json",
-            "has_sidebar": true,
-            "contain_menus": [
-                "staff-registration",
-                "staff-profile",
-                "department",
-                "designation"
-            ]
-        },
+
         {
             "id": "attendance",
             "name": "Attendance",
@@ -252,30 +234,12 @@
                 "result-publish"
             ]
         },
-        {
-            "id": "notice",
-            "name": "Notice",
-            "label": "Notice & Communication",
-            "icon": "Award",
-            "color": "bg-yellow-600",
-            "path": "/notice",
-            "order": 13,
-            "enabled": true,
-            "required_permissions": [],
-            "config_file": "notice-config.json",
-            "has_sidebar": true,
-            "contain_menus": [
-                "notice-board",
-                "announcement",
-                "circular",
-                "event-notice"
-            ]
-        },
+
         {
             "id": "website",
             "name": "Website",
             "label": "Website Management",
-            "icon": "LayoutTemplate",
+            "icon": "Globe",
             "color": "bg-sky-600",
             "path": "/website",
             "order": 14,
@@ -308,6 +272,22 @@
                 "teacher-reports",
                 "attendance-reports",
                 "result-reports"
+            ]
+        },
+        {
+            "id": "settings",
+            "name": "Settings",
+            "label": "System Settings",
+            "icon": "Settings",
+            "color": "bg-slate-700",
+            "path": "/settings",
+            "order": 16,
+            "enabled": true,
+            "required_permissions": [],
+            "config_file": "settings-config.json",
+            "has_sidebar": true,
+            "contain_menus": [
+                "settings-dashboard"
             ]
         }
     ],

@@ -6,8 +6,8 @@
     "base_path": "/website",
     "menus": [
       {
-        "id": "homepage-management",
-        "label": "Homepage Management",
+        "id": "homepage",
+        "label": "Homepage",
         "icon": "Home",
         "path": "/website/homepage",
         "permissions": ["website.view"]
@@ -35,7 +35,7 @@
       },
       {
         "id": "contact-info",
-        "label": "Contact Information",
+        "label": "Contact Info",
         "icon": "Phone",
         "path": "/website/contact",
         "permissions": ["website.view"]
