@@ -1,7 +1,4 @@
-export function RoutinePage() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Routine Module</h1>
-    </div>
-  );
-}
+export { ClassRoutine } from "./ClassRoutine";
+export { TeacherRoutine } from "./TeacherRoutine";
+export { ExamRoutine } from "./ExamRoutine";
+export { RoutineDashboard } from "./RoutineDashboard";

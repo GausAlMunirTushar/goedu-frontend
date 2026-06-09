@@ -1,9 +1,38 @@
 {
-    "module":  {
-                   "label":  "Routine Management",
-                   "id":  "routine",
-                   "menus":  [
-
-                             ]
-               }
+  "module": {
+    "id": "routine",
+    "label": "Routine Management",
+    "icon": "Calendar",
+    "base_path": "/routine",
+    "menus": [
+      {
+        "id": "routine-dashboard",
+        "label": "Routine Dashboard",
+        "icon": "LayoutDashboard",
+        "path": "/routine/dashboard",
+        "permissions": ["routine.view"]
+      },
+      {
+        "id": "class-routine",
+        "label": "Class Routine",
+        "icon": "Calendar",
+        "path": "/routine/class",
+        "permissions": ["routine.view"]
+      },
+      {
+        "id": "teacher-routine",
+        "label": "Teacher Routine",
+        "icon": "Users",
+        "path": "/routine/teacher",
+        "permissions": ["routine.view"]
+      },
+      {
+        "id": "exam-routine",
+        "label": "Exam Routine",
+        "icon": "FileText",
+        "path": "/routine/exam",
+        "permissions": ["routine.view"]
+      }
+    ]
+  }
 }

@@ -1,5 +1,5 @@
-import { RoutinePage } from '@/components/pages/routine';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <RoutinePage />;
+  redirect('/routine/dashboard');
 }

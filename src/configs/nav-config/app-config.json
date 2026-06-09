@@ -180,13 +180,14 @@
             "label": "Routine Management",
             "icon": "LayoutDashboardIcon",
             "color": "bg-cyan-600",
-            "path": "/routine",
+            "path": "/routine/dashboard",
             "order": 10,
             "enabled": true,
             "required_permissions": [],
             "config_file": "routine-config.json",
             "has_sidebar": true,
             "contain_menus": [
+                "routine-dashboard",
                 "class-routine",
                 "teacher-routine",
                 "exam-routine"
