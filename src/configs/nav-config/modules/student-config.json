@@ -6,46 +6,67 @@
     "base_path": "/student",
     "menus": [
       {
+        "id": "student-dashboard",
+        "label": "Student Dashboard",
+        "icon": "LayoutDashboard",
+        "path": "/student/dashboard",
+        "permissions": [
+          "student.view"
+        ]
+      },
+      {
         "id": "student-list",
-        "label": "All Students",
+        "label": "Students",
         "icon": "Users",
-        "path": "/student",
-        "permissions": ["student.view"]
+        "path": "/student/list",
+        "permissions": [
+          "student.view"
+        ]
       },
       {
         "id": "student-registration",
         "label": "Student Registration",
         "icon": "UserPlus",
         "path": "/student/registration",
-        "permissions": ["student.create"]
+        "permissions": [
+          "student.create"
+        ]
       },
       {
         "id": "student-profile",
         "label": "Student Profile",
         "icon": "User",
         "path": "/student/profile",
-        "permissions": ["student.view"]
+        "permissions": [
+          "student.view"
+        ]
       },
       {
         "id": "student-promotion",
         "label": "Student Promotion",
         "icon": "TrendingUp",
         "path": "/student/promotion",
-        "permissions": ["student.update"]
+        "permissions": [
+          "student.update"
+        ]
       },
       {
         "id": "student-transfer",
         "label": "Student Transfer",
         "icon": "Repeat",
         "path": "/student/transfer",
-        "permissions": ["student.update"]
+        "permissions": [
+          "student.update"
+        ]
       },
       {
         "id": "student-documents",
         "label": "Student Documents",
         "icon": "FileText",
         "path": "/student/documents",
-        "permissions": ["student.view"]
+        "permissions": [
+          "student.view"
+        ]
       }
     ]
   }

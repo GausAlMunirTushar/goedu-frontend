@@ -48,6 +48,9 @@ import {
     Users,
     Users2,
     SwatchBook,
+    UserPlus,
+    User,
+    Repeat,
 } from "lucide-react";
 
 import { LiaClipboardListSolid, LiaLandmarkSolid } from "react-icons/lia";
@@ -72,6 +75,9 @@ type IconName =
     | "Home"
     | "Globe"
     | "Users"
+    | "UserPlus"
+    | "User"
+    | "Repeat"
     | "GraduationCap"
     | "DollarSign"
     | "BookOpen"
@@ -139,6 +145,9 @@ const iconMap: Record<IconName, LucideIcon> = {
     Home: Home,
     Globe: Globe,
     Users: Users,
+    UserPlus: UserPlus,
+    User: User,
+    Repeat: Repeat,
     GraduationCap: GraduationCap,
     DollarSign: DollarSign,
     BookOpen: BookOpen,

@@ -1,5 +1,5 @@
-import { StudentListView } from '@/components/pages/student/StudentListView';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <StudentListView />;
+  redirect('/student/dashboard');
 }

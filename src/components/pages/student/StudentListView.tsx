@@ -70,6 +70,8 @@ export function StudentListView() {
     const [search, setSearch] = useState("");
     const [classFilter, setClassFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     const filteredData = mockData.filter(d => {
         const matchesSearch = d.name.toLowerCase().includes(search.toLowerCase());
@@ -77,6 +79,9 @@ export function StudentListView() {
         const matchesStatus = statusFilter === "all" || d.status === statusFilter;
         return matchesSearch && matchesClass && matchesStatus;
     });
+
+    const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
+    const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
     return (
         <div className="p-2 space-y-4">
@@ -88,7 +93,7 @@ export function StudentListView() {
                             <p className="text-sm text-gray-500">A comprehensive list of students enrolled.</p>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-                            <Select value={classFilter} onValueChange={setClassFilter}>
+                            <Select value={classFilter} onValueChange={(val) => { setClassFilter(val); setPage(1); }}>
                                 <SelectTrigger className="h-9 w-full sm:w-[150px] bg-gray-50 border-gray-200">
                                     <SelectValue placeholder="Class" />
                                 </SelectTrigger>
@@ -100,7 +105,7 @@ export function StudentListView() {
                                 </SelectContent>
                             </Select>
 
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <Select value={statusFilter} onValueChange={(val) => { setStatusFilter(val); setPage(1); }}>
                                 <SelectTrigger className="h-9 w-full sm:w-[150px] bg-gray-50 border-gray-200">
                                     <SelectValue placeholder="Status" />
                                 </SelectTrigger>
@@ -120,14 +125,25 @@ export function StudentListView() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="bg-white rounded-b-xl">
+                <CardContent className="bg-white rounded-b-xl pt-3">
                     <DataTable
                         columns={columns}
-                        data={filteredData}
+                        data={paginatedData}
                         searchKey="name"
                         searchValue={search}
-                        onSearch={setSearch}
+                        onSearch={(val) => { setSearch(val); setPage(1); }}
                         searchPlaceholder="Search students by name..."
+                        pagination={{
+                          page,
+                          pageCount,
+                          pageSize,
+                          totalCount: filteredData.length,
+                          onPageChange: setPage,
+                          onPageSizeChange: (size) => {
+                            setPageSize(size);
+                            setPage(1);
+                          },
+                        }}
                     />
                 </CardContent>
             </Card>

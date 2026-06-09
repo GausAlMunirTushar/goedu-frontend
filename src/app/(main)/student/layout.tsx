@@ -17,9 +17,9 @@ function getBreadcrumbs(pathname: string) {
 
 const staticTabs: Tab[] = [
     {
-        id: "student-list",
+        id: "student-dashboard",
         label: "Student Dashboard",
-        path: "/student",
+        path: "/student/dashboard",
         type: "list",
         permission: "student.view",
     },
