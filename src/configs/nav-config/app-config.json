@@ -37,14 +37,12 @@
             "id": "dashboard",
             "name": "Dashboard",
             "label": "Dashboard",
-            "icon": "Home",
+            "icon": "LayoutDashboardIcon",
             "color": "bg-indigo-600",
             "path": "/dashboard",
             "order": 2,
             "enabled": true,
-            "required_permissions": [
-                "dashboard.view"
-            ],
+            "required_permissions": [],
             "config_file": "dashboard-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -60,14 +58,12 @@
             "id": "institution",
             "name": "Institution",
             "label": "Institution Management",
-            "icon": "Building",
+            "icon": "BuildingIcon",
             "color": "bg-purple-600",
             "path": "/institution",
             "order": 3,
             "enabled": true,
-            "required_permissions": [
-                "institution.view"
-            ],
+            "required_permissions": [],
             "config_file": "institution-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -87,9 +83,7 @@
             "path": "/academic",
             "order": 4,
             "enabled": true,
-            "required_permissions": [
-                "academic.view"
-            ],
+            "required_permissions": [],
             "config_file": "academic-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -105,14 +99,12 @@
             "id": "student",
             "name": "Student",
             "label": "Student Management",
-            "icon": "Users",
+            "icon": "UsersIcon",
             "color": "bg-teal-600",
             "path": "/student",
             "order": 5,
             "enabled": true,
-            "required_permissions": [
-                "chart_of_account.view"
-            ],
+            "required_permissions": [],
             "config_file": "student-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -132,9 +124,7 @@
             "path": "/teacher",
             "order": 6,
             "enabled": true,
-            "required_permissions": [
-                "teacher.view"
-            ],
+            "required_permissions": [],
             "config_file": "teacher-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -154,9 +144,7 @@
             "path": "/staff",
             "order": 7,
             "enabled": true,
-            "required_permissions": [
-                "staff.view"
-            ],
+            "required_permissions": [],
             "config_file": "staff-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -170,14 +158,12 @@
             "id": "attendance",
             "name": "Attendance",
             "label": "Attendance Management",
-            "icon": "CalendarCheck",
+            "icon": "Calendar",
             "color": "bg-red-600",
             "path": "/attendance",
             "order": 8,
             "enabled": true,
-            "required_permissions": [
-                "attendance.view"
-            ],
+            "required_permissions": [],
             "config_file": "attendance-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -192,14 +178,12 @@
             "id": "subject",
             "name": "Subject",
             "label": "Subject Management",
-            "icon": "Library",
+            "icon": "BookOpen",
             "color": "bg-pink-600",
             "path": "/subject",
             "order": 9,
             "enabled": true,
-            "required_permissions": [
-                "subject.view"
-            ],
+            "required_permissions": [],
             "config_file": "subject-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -212,14 +196,12 @@
             "id": "routine",
             "name": "Routine",
             "label": "Routine Management",
-            "icon": "Clock",
+            "icon": "LayoutDashboardIcon",
             "color": "bg-cyan-600",
             "path": "/routine",
             "order": 10,
             "enabled": true,
-            "required_permissions": [
-                "routine.view"
-            ],
+            "required_permissions": [],
             "config_file": "routine-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -237,9 +219,7 @@
             "path": "/examination",
             "order": 11,
             "enabled": true,
-            "required_permissions": [
-                "examination.view"
-            ],
+            "required_permissions": [],
             "config_file": "examination-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -260,9 +240,7 @@
             "path": "/result",
             "order": 12,
             "enabled": true,
-            "required_permissions": [
-                "result.view"
-            ],
+            "required_permissions": [],
             "config_file": "result-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -278,14 +256,12 @@
             "id": "notice",
             "name": "Notice",
             "label": "Notice & Communication",
-            "icon": "Bell",
+            "icon": "Award",
             "color": "bg-yellow-600",
             "path": "/notice",
             "order": 13,
             "enabled": true,
-            "required_permissions": [
-                "notice.view"
-            ],
+            "required_permissions": [],
             "config_file": "notice-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -299,14 +275,12 @@
             "id": "cms",
             "name": "CMS",
             "label": "Website CMS",
-            "icon": "Globe",
+            "icon": "LayoutDashboardIcon",
             "color": "bg-sky-600",
             "path": "/cms",
             "order": 14,
             "enabled": true,
-            "required_permissions": [
-                "cms.view"
-            ],
+            "required_permissions": [],
             "config_file": "cms-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -327,9 +301,7 @@
             "path": "/reports",
             "order": 15,
             "enabled": true,
-            "required_permissions": [
-                "reports.view"
-            ],
+            "required_permissions": [],
             "config_file": "reports-config.json",
             "has_sidebar": true,
             "contain_menus": [

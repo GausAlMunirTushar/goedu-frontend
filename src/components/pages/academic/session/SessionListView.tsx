@@ -57,7 +57,7 @@ export function SessionListView() {
                 const status = row.original.status;
                 return (
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
+                        status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
                     }`}>
                         {status}
                     </span>

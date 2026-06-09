@@ -18,6 +18,11 @@ export function ShiftListView() {
     const [editingData, setEditingData] = useState<ShiftData | undefined>(undefined);
 
     const [data, setData] = useState<ShiftData[]>(shifts);
+    // Pagination state
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const pageCount = Math.ceil(data.length / pageSize) || 1;
+    const paginatedData = data.slice((page - 1) * pageSize, page * pageSize);
 
     const handleCreate = () => { setFormMode("create"); setEditingData(undefined); setIsFormOpen(true); };
     const handleEdit = (item: ShiftData) => { setFormMode("edit"); setEditingData(item); setIsFormOpen(true); };
@@ -38,7 +43,7 @@ export function ShiftListView() {
         {
             accessorKey: "status", header: "Status",
             cell: ({ row }) => (
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.original.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.original.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
                     {row.original.status}
                 </span>
             ),
@@ -70,7 +75,25 @@ export function ShiftListView() {
                     </div>
                 </CardHeader>
                 <CardContent className="bg-white rounded-b-xl pt-3">
-                    <DataTable columns={columns} data={data} searchKey="name" searchPlaceholder="Search shift..." searchValue={search} onSearch={setSearch} />
+                    <DataTable
+        columns={columns}
+        data={paginatedData}
+        searchKey="name"
+        searchPlaceholder="Search shift..."
+        searchValue={search}
+        onSearch={setSearch}
+        pagination={{
+          page,
+          pageCount,
+          pageSize,
+          totalCount: data.length,
+          onPageChange: setPage,
+          onPageSizeChange: (size) => {
+            setPageSize(size);
+            setPage(1);
+          },
+        }}
+      />
                 </CardContent>
             </Card>
             <ShiftForm mode={formMode} initialData={editingData} isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} onSubmit={handleFormSubmit} />

@@ -28,7 +28,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 {/* Main Content Area */}
                 <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
                     {/* min-w-0 is mandatory in flex layouts */}
-                    <div className="flex flex-1 min-w-0 lg:ml-16">
+                    <div className="flex flex-1 min-w-0 lg:ml-20">
                         <Suspense fallback={<Loader />}>{children}</Suspense>
                     </div>
                 </SidebarProvider>

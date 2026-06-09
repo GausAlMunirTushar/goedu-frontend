@@ -126,9 +126,8 @@ export default function DynamicModuleSidebar({
                                 {IconComponent && <IconComponent className="w-3.5 h-3.5" />}
                                 <span>{t(menu.label)}</span>
                                 <ChevronRight
-                                    className={`ml-auto transition-transform w-3.5 h-3.5 ${
-                                        isExpanded ? "rotate-90" : ""
-                                    }`}
+                                    className={`ml-auto transition-transform w-3.5 h-3.5 ${isExpanded ? "rotate-90" : ""
+                                        }`}
                                 />
                             </div>
                         ) : (
@@ -176,7 +175,7 @@ export default function DynamicModuleSidebar({
 
     return (
         <>
-            <Sidebar collapsible="icon" className="ml-16 shadow-sm">
+            <Sidebar collapsible="icon" className="ml-20">
                 <SidebarHeader className="border-b">
                     <div className="p-2">
                         <h2 className="text-md font-semibold tracking-tight">

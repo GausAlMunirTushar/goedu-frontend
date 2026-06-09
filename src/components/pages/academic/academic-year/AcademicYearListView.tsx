@@ -18,6 +18,11 @@ export function AcademicYearListView() {
     const [editingData, setEditingData] = useState<AcademicYearData | undefined>(undefined);
 
     const [data, setData] = useState<AcademicYearData[]>(academicYears);
+    // Pagination state
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const pageCount = Math.ceil(data.length / pageSize) || 1;
+    const paginatedData = data.slice((page - 1) * pageSize, page * pageSize);
 
     const handleCreate = () => {
         setFormMode("create");
@@ -67,7 +72,7 @@ export function AcademicYearListView() {
                 return (
                     <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
+                            status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
                         }`}
                     >
                         {status}
@@ -105,11 +110,22 @@ export function AcademicYearListView() {
                 <CardContent className="bg-white rounded-b-xl pt-3">
                     <DataTable
                         columns={columns}
-                        data={data}
+                        data={paginatedData}
                         searchKey="year"
                         searchPlaceholder="Search year..."
                         searchValue={search}
                         onSearch={setSearch}
+                        pagination={{
+                          page,
+                          pageCount,
+                          pageSize,
+                          totalCount: data.length,
+                          onPageChange: setPage,
+                          onPageSizeChange: (size) => {
+                            setPageSize(size);
+                            setPage(1);
+                          },
+                        }}
                     />
                 </CardContent>
             </Card>

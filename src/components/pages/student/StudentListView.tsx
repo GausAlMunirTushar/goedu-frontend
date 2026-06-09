@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import Title from "@/components/ui/custom-ui/title";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { PlusCircle } from "lucide-react";
@@ -78,13 +79,13 @@ export function StudentListView() {
     });
 
     return (
-        <div className="p-4 space-y-6">
-            <Card className="">
-                <CardHeader className="bg-white border-b border-gray-100 pb-4">
+        <div className="p-2 space-y-4">
+            <Card>
+                <CardHeader className="bg-white border-b border-gray-100 pb-3">
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
-                            <CardTitle className="text-lg">All Students</CardTitle>
-                            <CardDescription>A comprehensive list of students enrolled.</CardDescription>
+                            <Title>Students</Title>
+                            <p className="text-sm text-gray-500">A comprehensive list of students enrolled.</p>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                             <Select value={classFilter} onValueChange={setClassFilter}>

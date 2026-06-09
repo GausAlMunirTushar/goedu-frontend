@@ -43,7 +43,7 @@ export default function ModuleBar({ isOpen = true, onClose }: ModuleBarProps) {
             {/* Module Bar */}
             <div
                 className={`
-        w-16
+        w-20
         bg-modularbar text-sidebar-foreground flex flex-col items-center py-3 h-screen fixed left-0 top-0 z-50
         transition-transform duration-300 ease-in-out
         border-r border-sidebar-border
