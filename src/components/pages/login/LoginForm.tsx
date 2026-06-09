@@ -100,10 +100,7 @@ const LoginForm = () => {
             <div className="w-full max-w-md">
                 <div className="bg-card rounded-2xl p-8 backdrop-blur-md transition-all duration-300 ring-1 ring-gray-200">
                     <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
-                            {t("welcome_back") || "Welcome Back"}
-                        </h1>
-                        <Logo text={t("login_subtitle") || "Login to ePathshala"} showText={true} />
+                        <Logo show={true} />
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
