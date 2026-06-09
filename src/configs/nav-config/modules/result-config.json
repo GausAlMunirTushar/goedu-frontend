@@ -1,9 +1,57 @@
 {
-    "module":  {
-                   "label":  "Result Management",
-                   "id":  "result",
-                   "menus":  [
-
-                             ]
-               }
+    "module": {
+        "label": "Result",
+        "id": "result",
+        "menus": [
+            {
+                "id": "result-home",
+                "label": "Result Management",
+                "icon": "LayoutDashboard",
+                "path": "/result",
+                "permissions": []
+            },
+            {
+                "id": "marksheet",
+                "label": "Marksheet",
+                "icon": "FileText",
+                "path": "/result/marksheet",
+                "permissions": []
+            },
+            {
+                "id": "tabulation-sheet",
+                "label": "Tabulation Sheet",
+                "icon": "FileSpreadsheet",
+                "path": "/result/tabulation-sheet",
+                "permissions": []
+            },
+            {
+                "id": "merit-list",
+                "label": "Merit List",
+                "icon": "Award",
+                "path": "/result/merit-list",
+                "permissions": []
+            },
+            {
+                "id": "pass-list",
+                "label": "Pass List",
+                "icon": "ShieldCheck",
+                "path": "/result/pass-list",
+                "permissions": []
+            },
+            {
+                "id": "fail-list",
+                "label": "Fail List",
+                "icon": "ChartLine",
+                "path": "/result/fail-list",
+                "permissions": []
+            },
+            {
+                "id": "result-publish",
+                "label": "Result Publish",
+                "icon": "Globe",
+                "path": "/result/result-publish",
+                "permissions": []
+            }
+        ]
+    }
 }
