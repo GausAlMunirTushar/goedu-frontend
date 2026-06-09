@@ -44,6 +44,18 @@
                 "label": "Subject",
                 "path": "/academic/subject",
                 "icon": "BookOpen"
+            },
+            {
+                "id": "room",
+                "label": "Room",
+                "path": "/academic/room",
+                "icon": "Home"
+            },
+            {
+                "id": "admission",
+                "label": "Admission",
+                "path": "/academic/admission",
+                "icon": "UserPlus"
             }
         ]
     }

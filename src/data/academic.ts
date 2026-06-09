@@ -85,3 +85,30 @@ export const shifts = [
     { id: "5", name: "Evening Shift", start_time: "17:30", end_time: "21:00", status: "Inactive" },
     { id: "6", name: "Special Shift", start_time: "10:00", end_time: "15:00", status: "Inactive" },
 ];
+
+export const rooms = [
+    { id: "1", name: "Room 101", building: "Main Building", capacity: "60", type: "Classroom", status: "Active" },
+    { id: "2", name: "Room 102", building: "Main Building", capacity: "60", type: "Classroom", status: "Active" },
+    { id: "3", name: "Room 103", building: "Main Building", capacity: "60", type: "Classroom", status: "Active" },
+    { id: "4", name: "Room 201", building: "Science Lab", capacity: "40", type: "Laboratory", status: "Active" },
+    { id: "5", name: "Room 202", building: "Science Lab", capacity: "40", type: "Laboratory", status: "Active" },
+    { id: "6", name: "Auditorium", building: "Main Building", capacity: "500", type: "Other", status: "Active" },
+];
+
+export const subjects = [
+    { id: "1", name: "Mathematics", code: "MAT-101", type: "Core", class: "Class 10", status: "Active" },
+    { id: "2", name: "English", code: "ENG-101", type: "Core", class: "Class 10", status: "Active" },
+    { id: "3", name: "Physics", code: "PHY-101", type: "Elective", class: "Class 10", status: "Active" },
+    { id: "4", name: "Chemistry", code: "CHE-101", type: "Elective", class: "Class 10", status: "Active" },
+    { id: "5", name: "Biology", code: "BIO-101", type: "Elective", class: "Class 10", status: "Active" },
+    { id: "6", name: "History", code: "HIS-101", type: "Core", class: "Class 9", status: "Active" },
+    { id: "7", name: "Geography", code: "GEO-101", type: "Core", class: "Class 9", status: "Active" },
+];
+
+export const admissions = [
+    { id: "1", applicant_name: "John Doe", class: "Class 10", mobile: "01711111111", application_date: "2026-05-01", status: "Pending" },
+    { id: "2", applicant_name: "Jane Smith", class: "Class 9", mobile: "01811111111", application_date: "2026-05-02", status: "Approved" },
+    { id: "3", applicant_name: "Robert Brown", class: "Class 10", mobile: "01911111111", application_date: "2026-05-03", status: "Rejected" },
+    { id: "4", applicant_name: "Emily White", class: "Class 8", mobile: "01611111111", application_date: "2026-05-04", status: "Pending" },
+    { id: "5", applicant_name: "Michael Green", class: "Class 7", mobile: "01511111111", application_date: "2026-05-05", status: "Approved" },
+];

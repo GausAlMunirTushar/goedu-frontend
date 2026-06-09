@@ -1,9 +1,69 @@
 {
-    "module":  {
-                   "label":  "Attendance Management",
-                   "id":  "attendance",
-                   "menus":  [
-
-                             ]
-               }
+    "module": {
+        "id": "attendance",
+        "label": "Attendance",
+        "icon": "Calendar",
+        "base_path": "/attendance",
+        "menus": [
+            {
+                "id": "attendance-dashboard",
+                "label": "Dashboard",
+                "icon": "LayoutDashboard",
+                "path": "/attendance/dashboard",
+                "permissions": [
+                    "attendance.view"
+                ]
+            },
+            {
+                "id": "student-attendance",
+                "label": "Student Attendance",
+                "icon": "Users",
+                "path": "/attendance/student",
+                "permissions": [
+                    "attendance.student.view"
+                ]
+            },
+            {
+                "id": "teacher-attendance",
+                "label": "Teacher Attendance",
+                "icon": "UserCheck",
+                "path": "/attendance/teacher",
+                "permissions": [
+                    "attendance.teacher.view"
+                ]
+            },
+            {
+                "id": "staff-attendance",
+                "label": "Staff Attendance",
+                "icon": "Users",
+                "path": "/attendance/staff",
+                "permissions": [
+                    "attendance.staff.view"
+                ]
+            },
+            {
+                "id": "attendance-reports",
+                "label": "Reports",
+                "icon": "BarChart",
+                "submenus": [
+                    {
+                        "id": "daily-report",
+                        "label": "Daily Report",
+                        "path": "/attendance/reports/daily",
+                        "permissions": [
+                            "attendance.report.view"
+                        ]
+                    },
+                    {
+                        "id": "monthly-report",
+                        "label": "Monthly Report",
+                        "path": "/attendance/reports/monthly",
+                        "permissions": [
+                            "attendance.report.view"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
 }

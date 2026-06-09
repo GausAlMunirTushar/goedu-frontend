@@ -130,6 +130,7 @@
             "config_file": "attendance-config.json",
             "has_sidebar": true,
             "contain_menus": [
+                "attendance-dashboard",
                 "student-attendance",
                 "teacher-attendance",
                 "staff-attendance",

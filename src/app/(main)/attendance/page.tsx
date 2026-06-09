@@ -1,5 +1,5 @@
-import { AttendancePage } from '@/components/pages/attendance';
+import { AttendanceHome } from '@/components/pages/attendance/AttendanceHome';
 
 export default function Page() {
-  return <AttendancePage />;
+  return <AttendanceHome />;
 }
