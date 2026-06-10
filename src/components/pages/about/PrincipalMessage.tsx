@@ -104,10 +104,15 @@ export default function PrincipalMessage() {
                     : "I believe that through the combined efforts of teachers, parents, and students, we will be able to build a bright future. We seek your cooperation and prayers."}
                 </p>
 
-                <div className="pt-8 border-t border-gray-100">
-                  <p className="font-bold text-gray-900 mb-1">Harish</p>
-                  <p className="text-sm text-gray-500">Principal</p>
-                  <p className="text-sm text-gray-500 font-medium">Demo International High School</p>
+                <div className="pt-8 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-end gap-4">
+                  <div>
+                    <p className="font-bold text-gray-900 mb-1">Harish</p>
+                    <p className="text-sm text-gray-500">Principal</p>
+                    <p className="text-sm text-gray-500 font-medium">Demo International High School</p>
+                  </div>
+                  <a href="/about/head-teacher-message" className="text-emerald-600 font-bold text-sm hover:underline flex items-center gap-1">
+                    {lng === "bn" ? "প্রধান শিক্ষকের বাণী দেখুন" : "View Head Teacher's Message"} →
+                  </a>
                 </div>
               </div>
             </div>

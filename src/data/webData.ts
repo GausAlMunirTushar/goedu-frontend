@@ -33,11 +33,12 @@ export const webHeaderData = {
             href: "/about", 
             defaultLabel: "আমাদের সম্পর্কে",
             children: [
-                { labelKey: "institution_info", href: "/about", defaultLabel: "প্রতিষ্ঠানের তথ্য" },
-                { labelKey: "principal_message", href: "/about/principal-message", defaultLabel: "অধ্যক্ষের বাণী" },
-                { labelKey: "history", href: "/about/history", defaultLabel: "ইতিহাস" },
-                { labelKey: "mission_vision", href: "/about/mission-vision", defaultLabel: "লক্ষ্য ও উদ্দেশ্য" },
-                { labelKey: "managing_committee", href: "/about/managing-committee", defaultLabel: "ব্যবস্থাপনা কমিটি" }
+                { labelKey: "principal_message", href: "/about/principal-message", defaultLabel: "অধ্যক্ষের বাণী", group: "Leadership" },
+                { labelKey: "head_teacher_message", href: "/about/head-teacher-message", defaultLabel: "প্রধান শিক্ষকের বাণী", group: "Leadership" },
+                { labelKey: "institution_info", href: "/about", defaultLabel: "প্রতিষ্ঠানের তথ্য", group: "Institution", separator: true },
+                { labelKey: "history", href: "/about/history", defaultLabel: "ইতিহাস", group: "Institution" },
+                { labelKey: "mission_vision", href: "/about/mission-vision", defaultLabel: "লক্ষ্য ও উদ্দেশ্য", group: "Institution" },
+                { labelKey: "managing_committee", href: "/about/managing-committee", defaultLabel: "ব্যবস্থাপনা কমিটি", group: "Governance", separator: true }
             ]
         },
         { 
@@ -45,12 +46,12 @@ export const webHeaderData = {
             href: "#", 
             defaultLabel: "একাডেমিক",
             children: [
-                { labelKey: "notices", href: "/academic/notices", defaultLabel: "নোটিশ বোর্ড", group: "Information" },
-                { labelKey: "teachers", href: "/academic/teachers", defaultLabel: "শিক্ষকমণ্ডলী", group: "Information" },
-                { labelKey: "class_schedule", href: "/academic/class-schedule", defaultLabel: "ক্লাস রুটিন", group: "Schedule", separator: true },
-                { labelKey: "academic_calendar", href: "/academic/academic-calendar", defaultLabel: "একাডেমিক ক্যালেন্ডার", group: "Schedule" },
-                { labelKey: "syllabus", href: "/academic/syllabus", defaultLabel: "সিলেবাস", group: "Resources", separator: true },
-                { labelKey: "facilities", href: "/academic/facilities", defaultLabel: "সুযোগ-সুবিধা", group: "Resources" }
+                { labelKey: "notices", href: "/academic/notices", defaultLabel: "নোটিশ বোর্ড" },
+                { labelKey: "teachers", href: "/academic/teachers", defaultLabel: "শিক্ষকমণ্ডলী" },
+                { labelKey: "class_schedule", href: "/academic/class-schedule", defaultLabel: "ক্লাস রুটিন", separator: true },
+                { labelKey: "academic_calendar", href: "/academic/academic-calendar", defaultLabel: "একাডেমিক ক্যালেন্ডার" },
+                { labelKey: "syllabus", href: "/academic/syllabus", defaultLabel: "সিলেবাস", separator: true },
+                { labelKey: "facilities", href: "/academic/facilities", defaultLabel: "সুযোগ-সুবিধা" }
             ]
         },
         { 

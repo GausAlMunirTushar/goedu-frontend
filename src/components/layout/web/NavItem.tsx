@@ -69,7 +69,7 @@ export default function NavItem({ link }: NavItemProps) {
       {/* Panel */}
       <div
         className={cn(
-          "absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-50 min-w-[210px]",
+          "absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-50 min-w-[280px]",
           "opacity-0 invisible pointer-events-none translate-y-2",
           "group-hover:opacity-100 group-hover:visible group-hover:pointer-events-auto group-hover:translate-y-0",
           "transition-all duration-200 ease-out"
@@ -79,7 +79,7 @@ export default function NavItem({ link }: NavItemProps) {
         <div className="absolute -top-[6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-gray-200 rotate-45" />
 
         {/* Dropdown box */}
-        <div className="bg-white rounded-lg shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-gray-200 overflow-hidden py-1">
+        <div className="bg-white rounded-lg shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-gray-200 overflow-hidden py-1 min-w-[280px]">
           {link.children.map((child, idx) => {
             const isChildActive = pathname === child.href;
             const isPlaceholder = child.href === "#";
@@ -102,7 +102,7 @@ export default function NavItem({ link }: NavItemProps) {
                       : "text-gray-700 hover:bg-gray-50 hover:text-primary"
                   )}
                 >
-                  {t(child.labelKey) || child.defaultLabel}
+                  <span>{t(child.labelKey) || child.defaultLabel}</span>
 
                   {!isPlaceholder && (
                     <ArrowRight
