@@ -36,9 +36,15 @@ const LoginForm = () => {
         e.preventDefault();
 
         try {
-            const response = await submit();
-            if (!response) {
-                toast.error(t("invalid_credentials") || "Invalid username or password.");
+            const isPhone = /^0\d+$/.test(data.username);
+            const payload = {
+                password: data.password,
+                ...(isPhone ? { phone: data.username } : { username: data.username }),
+            };
+
+            const response = await submit(undefined, payload as any);
+            if (!response || !response.success) {
+                toast.error(response?.message || t("invalid_credentials") || "Invalid username or password.");
                 return;
             }
 

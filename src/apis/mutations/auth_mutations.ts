@@ -15,28 +15,27 @@ export type LoginFormType = {
 };
 
 export type RefreshTokenFormType = {
-    refresh: string;
+    refresh: string | InitialOptions;
 };
 
 export type LogoutFormType = {
-    refresh_token: string;
+    refresh: string | InitialOptions;
 };
 
 export type ForgotPasswordFormType = {
-    email: string | InitialOptions;
+    identifier: string | InitialOptions;
 };
 
 export type ResetPasswordFormType = {
-    uid: string | InitialOptions;
     token: string | InitialOptions;
-    new_password: string | InitialOptions;
-    re_new_password: string | InitialOptions;
+    password: string | InitialOptions;
+    confirmPassword: string | InitialOptions;
 };
 
 export type ChangePasswordFormType = {
-    old_password: string | InitialOptions;
-    new_password: string | InitialOptions;
-    confirm_password: string | InitialOptions;
+    oldPassword: string | InitialOptions;
+    newPassword: string | InitialOptions;
+    confirmPassword: string | InitialOptions;
 };
 
 export const useLoginMutation = () =>
@@ -76,7 +75,10 @@ export const useLogoutMutation = () =>
     useForm<LogoutFormType>(
         logout,
         {
-            refresh_token: "",
+            refresh: {
+                value: "",
+                validation: "required",
+            },
         },
         {
             method: "POST",
@@ -87,9 +89,9 @@ export const useForgotPasswordMutation = () =>
     useForm<ForgotPasswordFormType>(
         forgotPassword,
         {
-            email: {
+            identifier: {
                 value: "",
-                validation: "required|email",
+                validation: "required",
             },
         },
         {
@@ -101,21 +103,17 @@ export const useResetPasswordMutation = () =>
     useForm<ResetPasswordFormType>(
         resetPassword,
         {
-            uid: {
-                value: "",
-                validation: "required",
-            },
             token: {
                 value: "",
                 validation: "required",
             },
-            new_password: {
+            password: {
                 value: "",
-                validation: "required|min:8",
+                validation: "required|min:6",
             },
-            re_new_password: {
+            confirmPassword: {
                 value: "",
-                validation: "required|same:new_password",
+                validation: "required|confirmed:password",
             },
         },
         {
@@ -127,17 +125,17 @@ export const useChangePasswordMutation = () =>
     useForm<ChangePasswordFormType>(
         changePassword,
         {
-            old_password: {
+            oldPassword: {
                 value: "",
                 validation: "required|min:6",
             },
-            new_password: {
+            newPassword: {
                 value: "",
-                validation: "required|min:8",
+                validation: "required|min:6",
             },
-            confirm_password: {
+            confirmPassword: {
                 value: "",
-                validation: "required|confirmed:new_password",
+                validation: "required|confirmed:newPassword",
             },
         },
         {
