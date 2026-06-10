@@ -104,7 +104,7 @@ AxiosAPI.interceptors.response.use(
             }
 
             try {
-                const response = await axios.post(`${NEXT_PUBLIC_API_BASE_URL}/auth/refresh/`, {
+                const response = await axios.post(`${NEXT_PUBLIC_API_BASE_URL}/auth/refresh`, {
                     refresh: refreshToken,
                 });
 

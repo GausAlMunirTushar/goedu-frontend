@@ -34,8 +34,10 @@ export const webHeaderData = {
             defaultLabel: "আমাদের সম্পর্কে",
             children: [
                 { labelKey: "institution_info", href: "/about", defaultLabel: "প্রতিষ্ঠানের তথ্য" },
+                { labelKey: "principal_message", href: "/about/principal-message", defaultLabel: "অধ্যক্ষের বাণী" },
                 { labelKey: "history", href: "/about/history", defaultLabel: "ইতিহাস" },
-                { labelKey: "mission_vision", href: "/about/our-mision-vission", defaultLabel: "লক্ষ্য ও উদ্দেশ্য" }
+                { labelKey: "mission_vision", href: "/about/mission-vision", defaultLabel: "লক্ষ্য ও উদ্দেশ্য" },
+                { labelKey: "managing_committee", href: "/about/managing-committee", defaultLabel: "ব্যবস্থাপনা কমিটি" }
             ]
         },
         { 
@@ -47,8 +49,8 @@ export const webHeaderData = {
                 { labelKey: "teachers", href: "/academic/teachers", defaultLabel: "শিক্ষকমণ্ডলী", group: "Information" },
                 { labelKey: "class_schedule", href: "/academic/class-schedule", defaultLabel: "ক্লাস রুটিন", group: "Schedule", separator: true },
                 { labelKey: "academic_calendar", href: "/academic/academic-calendar", defaultLabel: "একাডেমিক ক্যালেন্ডার", group: "Schedule" },
-                { labelKey: "syllabus", href: "#", defaultLabel: "সিলেবাস", group: "Resources", separator: true },
-                { labelKey: "facilities", href: "#", defaultLabel: "সুযোগ-সুবিধা", group: "Resources" }
+                { labelKey: "syllabus", href: "/academic/syllabus", defaultLabel: "সিলেবাস", group: "Resources", separator: true },
+                { labelKey: "facilities", href: "/academic/facilities", defaultLabel: "সুযোগ-সুবিধা", group: "Resources" }
             ]
         },
         { 
@@ -57,8 +59,8 @@ export const webHeaderData = {
             defaultLabel: "ভর্তি",
             children: [
                 { labelKey: "admission_form", href: "/online-admission", defaultLabel: "ভর্তি আবেদন" },
-                { labelKey: "admission_rules", href: "#", defaultLabel: "ভর্তির নিয়মাবলী" },
-                { labelKey: "fees", href: "#", defaultLabel: "ফি সমূহ" }
+                { labelKey: "admission_rules", href: "/online-admission/rules", defaultLabel: "ভর্তির নিয়মাবলী" },
+                { labelKey: "fees", href: "/online-admission/fees", defaultLabel: "ফি সমূহ" }
             ]
         },
         { 
@@ -71,7 +73,7 @@ export const webHeaderData = {
                 { labelKey: "exam_schedule",  href: "/students/exam-schedule",  defaultLabel: "পরীক্ষার সময়সূচি" }
             ]
         },
-        { labelKey: "others", href: "#", defaultLabel: "অন্যান্য" },
+        { labelKey: "gallery", href: "/gallery", defaultLabel: "গ্যালারি" },
         { labelKey: "contact", href: "/contact", defaultLabel: "যোগাযোগ" },
     ]
 };

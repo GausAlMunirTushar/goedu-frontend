@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslationClient } from "@/lib/i18n/client";
 import HomeGallery from "@/components/pages/home/HomeGallery";
 import StudentGallery from "@/components/pages/home/StudentGallery";
+import Link from "next/link";
 
 export default function Home() {
     const { lng } = useLanguage();
@@ -59,7 +60,10 @@ export default function Home() {
                         <div className="absolute -top-6 -left-4 text-primary/20 text-6xl font-serif">&quot;</div>
                         <h3 className="text-2xl font-bold text-gray-800 mb-1 relative z-10">Harish</h3>
                         <p className="text-gray-600 font-medium mb-4 relative z-10">{t("principal") || "Principal"}</p>
-                        <p className="text-gray-600 italic leading-relaxed relative z-10">Welcome to Demo International High School. We are dedicated to providing excellence in education. Our mission is to empower students with knowledge, moral values, and skills necessary to face the challenges of tomorrow&apos;s world.</p>
+                        <p className="text-gray-600 italic leading-relaxed relative z-10 mb-4">Welcome to Demo International High School. We are dedicated to providing excellence in education. Our mission is to empower students with knowledge, moral values, and skills necessary to face the challenges of tomorrow&apos;s world.</p>
+                        <Link href="/about/principal-message" className="text-primary font-bold hover:underline inline-flex items-center gap-2">
+                            {t("read_more") || "Read More"}
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -79,9 +83,9 @@ export default function Home() {
                         <p className="text-gray-600 mb-6 line-clamp-3 leading-relaxed">
                             Demo International High School is a premier educational institution committed to fostering academic excellence, critical thinking, and character development in students. Our campus is equipped with modern facilities designed to create an engaging learning environment.
                         </p>
-                        <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-full text-sm font-bold shadow-sm shadow-primary/30 transition-all hover:shadow-md">
+                        <Link href="/about" className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-full text-sm font-bold shadow-sm shadow-primary/30 transition-all hover:shadow-md">
                             {t("read_more") || "Read More"}
-                        </button>
+                        </Link>
                     </div>
                 </div>
 
