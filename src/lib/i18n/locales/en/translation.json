@@ -99,6 +99,8 @@
     "center_code": "Center Code",
     "principal": "Principal",
     "class_routine": "Class Routine",
+    "class_schedule": "Class Schedule",
+    "academic_calendar": "Academic Calendar",
     "syllabus": "Syllabus",
     "admission_rules": "Admission Rules",
     "fees": "Fees",
@@ -111,5 +113,10 @@
     "toggle_columns": "Toggle Columns",
     "notices": "Notices",
     "changes_saved": "Changes saved successfully",
-    "save_failed": "Failed to save changes"
+    "save_failed": "Failed to save changes",
+    "change_password": "Change Password",
+    "support": "Support",
+    "students_list": "Students List",
+    "exam_result": "Exam Result",
+    "exam_schedule": "Exam Schedule"
 }

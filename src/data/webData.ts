@@ -41,11 +41,12 @@ export const webHeaderData = {
             href: "#", 
             defaultLabel: "একাডেমিক",
             children: [
-                { labelKey: "notices", href: "/academic/notices", defaultLabel: "নোটিশ বোর্ড" },
-                { labelKey: "teachers", href: "/academic/teachers", defaultLabel: "শিক্ষকমণ্ডলী" },
-                { labelKey: "class_routine", href: "#", defaultLabel: "ক্লাস রুটিন" },
-                { labelKey: "syllabus", href: "#", defaultLabel: "সিলেবাস" },
-                { labelKey: "facilities", href: "#", defaultLabel: "সুযোগ-সুবিধা" }
+                { labelKey: "notices", href: "/academic/notices", defaultLabel: "নোটিশ বোর্ড", group: "Information" },
+                { labelKey: "teachers", href: "/academic/teachers", defaultLabel: "শিক্ষকমণ্ডলী", group: "Information" },
+                { labelKey: "class_schedule", href: "/academic/class-schedule", defaultLabel: "ক্লাস রুটিন", group: "Schedule", separator: true },
+                { labelKey: "academic_calendar", href: "/academic/academic-calendar", defaultLabel: "একাডেমিক ক্যালেন্ডার", group: "Schedule" },
+                { labelKey: "syllabus", href: "#", defaultLabel: "সিলেবাস", group: "Resources", separator: true },
+                { labelKey: "facilities", href: "#", defaultLabel: "সুযোগ-সুবিধা", group: "Resources" }
             ]
         },
         { 
@@ -63,7 +64,9 @@ export const webHeaderData = {
             href: "#", 
             defaultLabel: "ছাত্র-ছাত্রী",
             children: [
-                { labelKey: "results", href: "#", defaultLabel: "ফলাফল" }
+                { labelKey: "students_list",  href: "/students/students-list",  defaultLabel: "শিক্ষার্থী তালিকা" },
+                { labelKey: "exam_result",    href: "/students/exam-result",    defaultLabel: "পরীক্ষার ফলাফল",  separator: true },
+                { labelKey: "exam_schedule",  href: "/students/exam-schedule",  defaultLabel: "পরীক্ষার সময়সূচি" }
             ]
         },
         { labelKey: "others", href: "#", defaultLabel: "অন্যান্য" },

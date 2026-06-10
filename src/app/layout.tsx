@@ -1,7 +1,7 @@
 import { fallbackLng } from "@/lib/i18n/settings";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
-import { Inter, Noto_Sans_Bengali } from "next/font/google";
+import { Noto_Sans, Noto_Sans_Bengali } from "next/font/google";
 import { cookies } from "next/headers";
 import React from "react";
 
@@ -9,9 +9,10 @@ import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "next-themes";
 
-const inter = Inter({
-    variable: "--font-inter",
+const notoSans = Noto_Sans({
+    variable: "--font-noto-sans",
     subsets: ["latin"],
+    weight: ["300", "400", "500", "600", "700", "800"],
     display: "swap",
     preload: true,
 });
@@ -19,6 +20,7 @@ const inter = Inter({
 const notoSansBengali = Noto_Sans_Bengali({
     variable: "--font-noto-bengali",
     subsets: ["bengali"],
+    weight: ["300", "400", "500", "600", "700", "800"],
     display: "swap",
     preload: true,
 });
@@ -41,7 +43,7 @@ export default async function RootLayout({
         <html suppressHydrationWarning lang={lng}>
             <head>
             </head>
-            <body suppressHydrationWarning className={`${inter.variable} ${notoSansBengali.variable} antialiased`}>
+            <body suppressHydrationWarning className={`${notoSans.variable} ${notoSansBengali.variable} antialiased`}>
                 <LanguageProvider>
                     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                         {children}

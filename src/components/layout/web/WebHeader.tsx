@@ -142,7 +142,20 @@ export default function WebHeader() {
     );
 }
 
-function MobileNavItem({ link, t }: { link: any, t: any }) {
+interface MobileNavChild {
+    labelKey: string;
+    href: string;
+    defaultLabel: string;
+    separator?: boolean;
+    group?: string;
+}
+interface MobileNavLink {
+    labelKey: string;
+    href: string;
+    defaultLabel: string;
+    children?: MobileNavChild[];
+}
+function MobileNavItem({ link, t }: { link: MobileNavLink, t: (key: string) => string }) {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
     const hasChildren = link.children && link.children.length > 0;
@@ -177,7 +190,7 @@ function MobileNavItem({ link, t }: { link: any, t: any }) {
 
             {hasChildren && isOpen && (
                 <div className="ml-4 pl-2 border-l-2 border-primary/10 flex flex-col gap-1 my-1">
-                    {link.children.map((child: any, idx: number) => {
+                    {link.children.map((child: MobileNavChild, idx: number) => {
                         const isChildActive = pathname === child.href;
                         return (
                             <Link 

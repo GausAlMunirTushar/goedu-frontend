@@ -99,6 +99,8 @@
     "center_code": "সেন্টার কোড",
     "principal": "অধ্যক্ষ",
     "class_routine": "ক্লাস রুটিন",
+    "class_schedule": "ক্লাস সময়সূচি",
+    "academic_calendar": "একাডেমিক ক্যালেন্ডার",
     "syllabus": "সিলেবাস",
     "admission_rules": "ভর্তির নিয়মাবলী",
     "fees": "ফি সমূহ",
@@ -111,5 +113,10 @@
     "toggle_columns": "কলাম টগল করুন",
     "notices": "নোটিশসমূহ",
     "changes_saved": "সফলভাবে সংরক্ষিত হয়েছে",
-    "save_failed": "সংরক্ষণ করতে ব্যর্থ হয়েছে"
+    "save_failed": "সংরক্ষণ করতে ব্যর্থ হয়েছে",
+    "change_password": "পাসওয়ার্ড পরিবর্তন",
+    "support": "সহায়তা",
+    "students_list": "শিক্ষার্থী তালিকা",
+    "exam_result": "পরীক্ষার ফলাফল",
+    "exam_schedule": "পরীক্ষার সময়সূচি"
 }

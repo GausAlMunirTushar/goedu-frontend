@@ -13,7 +13,7 @@ import { ApplicationContext } from "@/contexts/ApplicationContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslationClient } from "@/lib/i18n/client";
 import Cookies from "js-cookie";
-import { Bell, ChevronDown, Lock, Menu, Moon, Sun, User } from "lucide-react";
+import { Bell, ChevronDown, KeyRound, LifeBuoy, LogOut, Menu, Moon, Sun, User } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -237,24 +237,55 @@ export default function Topbar({
                     {profileOpen && (
                         <div
                             ref={dropdownRef}
-                            className="absolute right-0 mt-2 w-60 bg-popover border border-border rounded-md shadow-lg px-2 py-2 z-50 animate-fade-in font-[inherit] max-h-60 overflow-y-auto"
+                            className="absolute right-0 mt-2 w-64 bg-popover border border-border rounded-xl shadow-xl py-2 z-50 animate-fade-in font-[inherit]"
                         >
+                            {/* User info header */}
+                            <div className="px-4 py-2.5 mb-1">
+                                <p className="text-sm font-semibold text-foreground leading-tight">
+                                    {user?.first_name} {user?.last_name}
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                                    {user?.username || "Administrator"}
+                                </p>
+                            </div>
+                            <div className="h-px bg-border mx-3 mb-1" />
+
+                            {/* My Profile */}
                             <button
-                                onClick={() => {
-                                    setProfileOpen(false);
-                                    router.push("/profile");
-                                }}
-                                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-sidebar-accent rounded-md transition-colors flex items-center gap-2 cursor-pointer mb-1"
+                                onClick={() => { setProfileOpen(false); router.push("/profile"); }}
+                                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-sidebar-accent rounded-md transition-colors flex items-center gap-2.5 cursor-pointer mx-1 w-[calc(100%-8px)]"
                             >
-                                <User className="w-4 h-4 text-muted-foreground" />
+                                <User className="w-4 h-4 text-muted-foreground shrink-0" />
                                 <span>{t("my_profile")}</span>
                             </button>
-                            <div className="h-px bg-border/50 my-1 mx-2"></div>
+
+                            {/* Change Password */}
+                            <button
+                                onClick={() => { setProfileOpen(false); router.push("/change-password"); }}
+                                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-sidebar-accent rounded-md transition-colors flex items-center gap-2.5 cursor-pointer mx-1 w-[calc(100%-8px)]"
+                            >
+                                <KeyRound className="w-4 h-4 text-muted-foreground shrink-0" />
+                                <span>{t("change_password") || "Change Password"}</span>
+                            </button>
+
+                            {/* Support */}
+                            <button
+                                onClick={() => { setProfileOpen(false); router.push("/support"); }}
+                                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-sidebar-accent rounded-md transition-colors flex items-center gap-2.5 cursor-pointer mx-1 w-[calc(100%-8px)]"
+                            >
+                                <LifeBuoy className="w-4 h-4 text-muted-foreground shrink-0" />
+                                <span>{t("support") || "Support"}</span>
+                            </button>
+
+                            <div className="h-px bg-border mx-3 my-1" />
+
+                            {/* Logout */}
                             <button
                                 onClick={handleLogout}
                                 disabled={logoutLoading}
-                                className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors flex items-center gap-2 cursor-pointer"
+                                className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors flex items-center gap-2.5 cursor-pointer mx-1 w-[calc(100%-8px)]"
                             >
+                                <LogOut className="w-4 h-4 shrink-0" />
                                 <span>{t("logout")}</span>
                             </button>
                         </div>
