@@ -31,6 +31,15 @@
                 "permissions": [
                     "teacher.view"
                 ]
+            },
+            {
+                "id": "teacher-subject-assignment",
+                "label": "Subject Assignment",
+                "icon": "BookOpen",
+                "path": "/teacher/subject-assignment",
+                "permissions": [
+                    "teacher.subject.assign"
+                ]
             }
 
         ]
