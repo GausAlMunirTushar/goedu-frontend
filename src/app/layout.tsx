@@ -45,7 +45,7 @@ export default async function RootLayout({
             </head>
             <body suppressHydrationWarning className={`${notoSans.variable} ${notoSansBengali.variable} antialiased`}>
                 <LanguageProvider>
-                    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                    <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
                         {children}
                         <Toaster />
                     </ThemeProvider>

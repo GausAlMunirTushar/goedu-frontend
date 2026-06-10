@@ -13,8 +13,7 @@ import { ApplicationContext } from "@/contexts/ApplicationContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslationClient } from "@/lib/i18n/client";
 import Cookies from "js-cookie";
-import { Bell, ChevronDown, KeyRound, LifeBuoy, LogOut, Menu, Moon, Sun, User } from "lucide-react";
-import { useTheme } from "next-themes";
+import { Bell, ChevronDown, KeyRound, LifeBuoy, LogOut, Menu, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -43,7 +42,6 @@ export default function Topbar({
         : "AD";
     const { lng } = useLanguage();
     const { t } = useTranslationClient(lng);
-    const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
     const profileRef = useRef<HTMLButtonElement>(null);
@@ -113,9 +111,7 @@ export default function Topbar({
         return () => document.removeEventListener("mousedown", handleClick);
     }, [profileOpen]);
 
-    const toggleDarkMode = () => {
-        setTheme(theme === "dark" ? "light" : "dark");
-    };
+
 
     const handleLogout = async () => {
         Cookies.remove(COOKIES_KEYS.ACCESS_TOKEN);
@@ -195,19 +191,7 @@ export default function Topbar({
         </button> */}
                 {/* Language Switcher */}
                 <LanguageSwitcher />
-                {/* Dark/Light Mode Toggle */}
-                <button
-                    onClick={toggleDarkMode}
-                    className="hidden sm:flex items-center gap-1 p-2 hover:bg-sidebar-accent rounded-lg transition-colors transition-transform hover:scale-110 focus:ring-2 focus:ring-ring cursor-pointer text-sidebar-foreground"
-                    title={theme === "dark" ? t("login_successful") : t("operation_failed")}
-                    aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                >
-                    {theme === "dark" ? (
-                        <Sun className="w-5 h-5 text-yellow-400 hover:text-white transition-transform duration-200" />
-                    ) : (
-                        <Moon className="w-5 h-5 text-slate-600  transition-transform duration-200" />
-                    )}
-                </button>
+
 
                 {/* Notifications */}
                 <button
