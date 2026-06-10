@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useClassesQuery } from "@/apis/queries/academic_queries";
 
 export interface SectionData {
     id?: string;
     name: string;
-    class: string;
-    room_number: string;
+    classId: string;
+    className?: string;
+    capacity: number;
     status: string;
 }
 
@@ -25,14 +27,25 @@ interface SectionFormProps {
 
 export function SectionForm({ mode, initialData, isOpen, onClose, onSubmit }: SectionFormProps) {
     const { register, handleSubmit, reset } = useForm<SectionData>({
-        defaultValues: initialData || { name: "", class: "", room_number: "", status: "Active" },
+        defaultValues: initialData || { name: "", classId: "", capacity: 40, status: "Active" },
     });
 
-    React.useEffect(() => {
-        if (isOpen) reset(initialData || { name: "", class: "", room_number: "", status: "Active" });
-    }, [isOpen, initialData, reset]);
+    // Load active classes for the dropdown
+    const { data: classesResponse } = useClassesQuery();
+    const classesList = classesResponse?.data || [];
 
-    const handleFormSubmit = (data: SectionData) => { onSubmit(data); onClose(); };
+    React.useEffect(() => {
+        if (isOpen) {
+            reset(initialData || { name: "", classId: classesList[0]?.id || "", capacity: 40, status: "Active" });
+        }
+    }, [isOpen, initialData, reset, classesList]);
+
+    const handleFormSubmit = (data: SectionData) => {
+        // Coerce capacity to number
+        data.capacity = Number(data.capacity);
+        onSubmit(data);
+        onClose();
+    };
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -45,14 +58,32 @@ export function SectionForm({ mode, initialData, isOpen, onClose, onSubmit }: Se
                         <Label htmlFor="name">Section Name</Label>
                         <Input id="name" placeholder="e.g. Section A" {...register("name", { required: true })} />
                     </div>
+                    
                     <div className="space-y-2">
-                        <Label htmlFor="class">Class</Label>
-                        <Input id="class" placeholder="e.g. Class 10" {...register("class", { required: true })} />
+                        <Label htmlFor="classId">Class</Label>
+                        <select
+                            id="classId"
+                            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                            {...register("classId", { required: true })}
+                        >
+                            {classesList.map((cls: any) => (
+                                <option key={cls.id} value={cls.id}>
+                                    {cls.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
+
                     <div className="space-y-2">
-                        <Label htmlFor="room_number">Room Number</Label>
-                        <Input id="room_number" placeholder="e.g. 101" {...register("room_number", { required: true })} />
+                        <Label htmlFor="capacity">Capacity</Label>
+                        <Input 
+                            id="capacity" 
+                            type="number" 
+                            placeholder="e.g. 40" 
+                            {...register("capacity", { required: true, min: 1 })} 
+                        />
                     </div>
+
                     <div className="space-y-2">
                         <Label htmlFor="status">Status</Label>
                         <select id="status" className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm" {...register("status")}>
@@ -60,6 +91,7 @@ export function SectionForm({ mode, initialData, isOpen, onClose, onSubmit }: Se
                             <option value="Inactive">Inactive</option>
                         </select>
                     </div>
+
                     <DialogFooter className="mt-6">
                         <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
                         <Button type="submit">{mode === "create" ? "Create" : "Save Changes"}</Button>

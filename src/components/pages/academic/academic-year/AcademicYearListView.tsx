@@ -4,12 +4,15 @@ import React, { useState } from "react";
 import Title from "@/components/ui/custom-ui/title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { academicYears } from "@/data/academic";
 import { AcademicYearForm, AcademicYearData } from "./AcademicYearForm";
+import { useAcademicYearsQuery } from "@/apis/queries/academic_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { academicYearsUrl, academicYearDetailUrl } from "@/apis/endpoints/academic_apis";
+import { toast } from "sonner";
 
 export function AcademicYearListView() {
     const [search, setSearch] = useState("");
@@ -17,12 +20,32 @@ export function AcademicYearListView() {
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
     const [editingData, setEditingData] = useState<AcademicYearData | undefined>(undefined);
 
-    const [data, setData] = useState<AcademicYearData[]>(academicYears);
+    // Fetch live academic years from backend
+    const { data: response, isLoading, mutate } = useAcademicYearsQuery();
+
     // Pagination state
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const pageCount = Math.ceil(data.length / pageSize) || 1;
-    const paginatedData = data.slice((page - 1) * pageSize, page * pageSize);
+
+    const rawData = response?.data || [];
+    const mappedData = React.useMemo(() => {
+        return rawData.map((item: any) => ({
+            id: item.id,
+            year: item.title,
+            start_date: new Date(item.startDate).toISOString().split("T")[0],
+            end_date: new Date(item.endDate).toISOString().split("T")[0],
+            status: item.isActive ? "Active" : "Inactive",
+        }));
+    }, [rawData]);
+
+    const filteredData = React.useMemo(() => {
+        return mappedData.filter((item: any) =>
+            item.year.toLowerCase().includes(search.toLowerCase())
+        );
+    }, [mappedData, search]);
+
+    const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
+    const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
     const handleCreate = () => {
         setFormMode("create");
@@ -36,18 +59,47 @@ export function AcademicYearListView() {
         setIsFormOpen(true);
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (confirm("Are you sure you want to delete this academic year?")) {
-            setData(data.filter((item) => item.id !== id));
+            try {
+                const res = await AxiosAPI.delete(academicYearDetailUrl(id));
+                if (res.data?.success) {
+                    toast.success(res.data.message || "Academic year deleted successfully");
+                    mutate();
+                } else {
+                    toast.error(res.data?.message || "Failed to delete academic year");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "An error occurred while deleting");
+            }
         }
     };
 
-    const handleFormSubmit = (formData: AcademicYearData) => {
-        if (formMode === "create") {
-            const newId = (data.length + 1).toString();
-            setData([...data, { ...formData, id: newId }]);
-        } else {
-            setData(data.map((item) => (item.id === formData.id ? { ...item, ...formData } : item)));
+    const handleFormSubmit = async (formData: AcademicYearData) => {
+        const payload = {
+            title: formData.year,
+            startDate: new Date(formData.start_date).toISOString(),
+            endDate: new Date(formData.end_date).toISOString(),
+            isActive: formData.status === "Active",
+        };
+
+        try {
+            let res;
+            if (formMode === "create") {
+                res = await AxiosAPI.post(academicYearsUrl, payload);
+            } else {
+                res = await AxiosAPI.put(academicYearDetailUrl(formData.id!), payload);
+            }
+
+            if (res.data?.success) {
+                toast.success(res.data.message || `Academic year ${formMode === "create" ? "created" : "updated"} successfully`);
+                mutate();
+                setIsFormOpen(false);
+            } else {
+                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} academic year`);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred while saving");
         }
     };
 
@@ -115,11 +167,12 @@ export function AcademicYearListView() {
                         searchPlaceholder="Search year..."
                         searchValue={search}
                         onSearch={setSearch}
+                        isLoading={isLoading}
                         pagination={{
                           page,
                           pageCount,
                           pageSize,
-                          totalCount: data.length,
+                          totalCount: filteredData.length,
                           onPageChange: setPage,
                           onPageSizeChange: (size) => {
                             setPageSize(size);

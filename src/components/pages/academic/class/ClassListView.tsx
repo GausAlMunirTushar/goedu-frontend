@@ -4,13 +4,16 @@ import React, { useState } from "react";
 import Title from "@/components/ui/custom-ui/title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { classes } from "@/data/academic";
 import { ClassForm, ClassData } from "./ClassForm";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { useClassesQuery } from "@/apis/queries/academic_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { classesUrl, classDetailUrl } from "@/apis/endpoints/academic_apis";
+import { toast } from "sonner";
 
 export function ClassListView() {
     const [search, setSearch] = useState("");
@@ -18,36 +21,108 @@ export function ClassListView() {
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
     const [editingData, setEditingData] = useState<ClassData | undefined>(undefined);
 
-    const [data, setData] = useState<ClassData[]>(classes);
+    // Fetch classes using SWR
+    const { data: response, isLoading, mutate } = useClassesQuery();
+
     // Pagination state
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const pageCount = Math.ceil(data.length / pageSize) || 1;
-    const paginatedData = data.slice((page - 1) * pageSize, page * pageSize);
 
-    const handleCreate = () => { setFormMode("create"); setEditingData(undefined); setIsFormOpen(true); };
+    const rawData = response?.data || [];
+    const mappedData = React.useMemo(() => {
+        return rawData.map((item: any) => {
+            // Aggregate section capacities
+            const totalCapacity = item.sections?.reduce((sum: number, sec: any) => sum + (sec.capacity || 0), 0) || 0;
+            return {
+                id: item.id,
+                name: item.name,
+                code: item.code || "",
+                capacity: totalCapacity.toString(),
+                status: "Active", // Fallback status
+            };
+        });
+    }, [rawData]);
+
+    const filteredData = React.useMemo(() => {
+        return mappedData.filter((item: any) =>
+            item.name.toLowerCase().includes(search.toLowerCase())
+        );
+    }, [mappedData, search]);
+
+    const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
+    const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
+
+    const handleCreate = () => {
+        setFormMode("create");
+        setEditingData(undefined);
+        setIsFormOpen(true);
+    };
+
     // View dialog state
     const [viewData, setViewData] = useState<ClassData | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
+
     // Delete confirmation dialog state
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-    const handleEdit = (item: ClassData) => { setFormMode("edit"); setEditingData(item); setIsFormOpen(true); };
-    const handleView = (item: ClassData) => { setViewData(item); setIsViewOpen(true); };
-    const openDeleteDialog = (id: string) => { setDeleteId(id); setIsDeleteOpen(true); };
-    const handleDeleteConfirm = () => {
-        if (deleteId) {
-            setData(data.filter((item) => item.id !== deleteId));
-        }
-        setIsDeleteOpen(false);
-        setDeleteId(null);
+
+    const handleEdit = (item: ClassData) => {
+        setFormMode("edit");
+        setEditingData(item);
+        setIsFormOpen(true);
     };
 
-    const handleFormSubmit = (formData: ClassData) => {
-        if (formMode === "create") {
-            setData([...data, { ...formData, id: (data.length + 1).toString() }]);
-        } else {
-            setData(data.map((item) => (item.id === formData.id ? { ...item, ...formData } : item)));
+    const handleView = (item: ClassData) => {
+        setViewData(item);
+        setIsViewOpen(true);
+    };
+
+    const openDeleteDialog = (id: string) => {
+        setDeleteId(id);
+        setIsDeleteOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (deleteId) {
+            try {
+                const res = await AxiosAPI.delete(classDetailUrl(deleteId));
+                if (res.data?.success) {
+                    toast.success(res.data.message || "Class deleted successfully");
+                    mutate();
+                } else {
+                    toast.error(res.data?.message || "Failed to delete class");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "An error occurred while deleting class");
+            }
+            setIsDeleteOpen(false);
+            setDeleteId(null);
+        }
+    };
+
+    const handleFormSubmit = async (formData: ClassData) => {
+        const payload = {
+            name: formData.name,
+            code: formData.code || null,
+        };
+
+        try {
+            let res;
+            if (formMode === "create") {
+                res = await AxiosAPI.post(classesUrl, payload);
+            } else {
+                res = await AxiosAPI.put(classDetailUrl(formData.id!), payload);
+            }
+
+            if (res.data?.success) {
+                toast.success(res.data.message || `Class ${formMode === "create" ? "created" : "updated"} successfully`);
+                mutate();
+                setIsFormOpen(false);
+            } else {
+                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} class`);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred while saving class");
         }
     };
 
@@ -98,11 +173,12 @@ export function ClassListView() {
                         searchPlaceholder="Search class..."
                         searchValue={search}
                         onSearch={setSearch}
+                        isLoading={isLoading}
                         pagination={{
                           page,
                           pageCount,
                           pageSize,
-                          totalCount: data.length,
+                          totalCount: filteredData.length,
                           onPageChange: setPage,
                           onPageSizeChange: (size) => {
                             setPageSize(size);
@@ -116,9 +192,9 @@ export function ClassListView() {
                         <AlertDialogHeader>
                             <AlertDialogTitle>View Class</AlertDialogTitle>
                         </AlertDialogHeader>
-                        <AlertDialogDescription>
+                        <AlertDialogDescription asChild>
                             {viewData && (
-                                <div className="space-y-2">
+                                <div className="space-y-2 text-gray-700">
                                     <p><strong>Name:</strong> {viewData.name}</p>
                                     <p><strong>Code:</strong> {viewData.code}</p>
                                     <p><strong>Capacity:</strong> {viewData.capacity}</p>

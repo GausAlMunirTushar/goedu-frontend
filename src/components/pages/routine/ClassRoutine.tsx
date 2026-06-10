@@ -1,53 +1,94 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Title from "@/components/ui/custom-ui/title";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Printer, Download, Eye, Edit2, Trash2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Plus, Printer, Download, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { 
+    useClassesQuery, 
+    useSectionsQuery, 
+    useAcademicYearsQuery, 
+    useSubjectsQuery, 
+    useRoutinesQuery 
+} from "@/apis/queries/academic_queries";
+import { useUsersQuery } from "@/apis/queries/auth_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { routinesUrl, routineDetailUrl } from "@/apis/endpoints/academic_apis";
 
 interface RoutinePeriod {
     id: string;
-    day: string;
-    subject: string;
-    teacher: string;
-    room: string;
+    dayOfWeek: string;
     startTime: string;
     endTime: string;
+    roomId?: string | null;
+    subjectId: string;
+    subjectName?: string;
+    sectionId: string;
+    sectionName?: string;
+    teacherId: string;
+    teacherName?: string;
+    academicYearId: string;
 }
 
 export function ClassRoutine() {
-    const [selectedClass, setSelectedClass] = useState("Grade 6");
-    const [selectedSection, setSelectedSection] = useState("Section A");
+    const daysOfWeek = ["SATURDAY", "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
 
-    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
-    
-    // Sample periods
-    const [routineData, setRoutineData] = useState<RoutinePeriod[]>([
-        // Sunday
-        { id: "1", day: "Sunday", subject: "Mathematics", teacher: "Mr. Zaman", room: "Room 102", startTime: "09:00", endTime: "09:45" },
-        { id: "2", day: "Sunday", subject: "English Literature", teacher: "Ms. Rahman", room: "Room 102", startTime: "09:45", endTime: "10:30" },
-        { id: "3", day: "Sunday", subject: "General Science", teacher: "Dr. Kamal", room: "Lab B", startTime: "10:45", endTime: "11:30" },
-        { id: "4", day: "Sunday", subject: "History", teacher: "Mrs. Begum", room: "Room 102", startTime: "11:30", endTime: "12:15" },
-        
-        // Monday
-        { id: "5", day: "Monday", subject: "English Grammar", teacher: "Ms. Rahman", room: "Room 102", startTime: "09:00", endTime: "09:45" },
-        { id: "6", day: "Monday", subject: "Mathematics", teacher: "Mr. Zaman", room: "Room 102", startTime: "09:45", endTime: "10:30" },
-        { id: "7", day: "Monday", subject: "Geography", teacher: "Mrs. Begum", room: "Room 102", startTime: "10:45", endTime: "11:30" },
-        { id: "8", day: "Monday", subject: "Physical Education", teacher: "Mr. Rana", room: "Playground", startTime: "11:30", endTime: "12:15" },
+    // 1. Fetch academic structural data
+    const { data: classesResponse, isLoading: loadingClasses } = useClassesQuery();
+    const classesList = classesResponse?.data || [];
 
-        // Tuesday
-        { id: "9", day: "Tuesday", subject: "General Science", teacher: "Dr. Kamal", room: "Lab B", startTime: "09:00", endTime: "09:45" },
-        { id: "10", day: "Tuesday", subject: "Mathematics", teacher: "Mr. Zaman", room: "Room 102", startTime: "09:45", endTime: "10:30" },
-        { id: "11", day: "Tuesday", subject: "ICT", teacher: "Mr. Islam", room: "Computer Lab", startTime: "10:45", endTime: "11:30" },
-        { id: "12", day: "Tuesday", subject: "Bangla", teacher: "Mr. Haque", room: "Room 102", startTime: "11:30", endTime: "12:15" }
-    ]);
+    const [selectedClassId, setSelectedClassId] = useState<string>("");
+    const [selectedSectionId, setSelectedSectionId] = useState<string>("");
 
-    // Time slots
+    // Set defaults when classes list is loaded
+    useEffect(() => {
+        if (classesList.length > 0 && !selectedClassId) {
+            setSelectedClassId(classesList[0].id);
+        }
+    }, [classesList, selectedClassId]);
+
+    // Fetch sections for the selected class
+    const { data: sectionsResponse, isLoading: loadingSections } = useSectionsQuery(selectedClassId);
+    const sectionsList = sectionsResponse?.data || [];
+
+    // Set defaults when sections list is loaded
+    useEffect(() => {
+        if (sectionsList.length > 0) {
+            // If active section is not in the list, set to first
+            if (!sectionsList.some((s: any) => s.id === selectedSectionId)) {
+                setSelectedSectionId(sectionsList[0].id);
+            }
+        } else {
+            setSelectedSectionId("");
+        }
+    }, [sectionsList, selectedSectionId]);
+
+    // Fetch academic years
+    const { data: yearsResponse } = useAcademicYearsQuery();
+    const yearsList = yearsResponse?.data || [];
+    const activeYear = yearsList.find((y: any) => y.isActive) || yearsList[0];
+
+    // Fetch subjects for the selected class
+    const { data: subjectsResponse } = useSubjectsQuery(selectedClassId);
+    const subjectsList = subjectsResponse?.data || [];
+
+    // Fetch teachers (Users with role Teacher)
+    const { data: teachersResponse } = useUsersQuery("Teacher");
+    const teachersList = teachersResponse?.data || [];
+
+    // Fetch class routines filtered by section
+    const { data: routinesResponse, isLoading: loadingRoutines, mutate } = useRoutinesQuery({
+        sectionId: selectedSectionId || undefined,
+        academicYearId: activeYear?.id || undefined,
+    });
+    const routinesData = routinesResponse?.data || [];
+
+    // Time slots configuration
     const timeSlots = [
         { start: "09:00", end: "09:45", label: "1st Period" },
         { start: "09:45", end: "10:30", label: "2nd Period" },
@@ -59,64 +100,109 @@ export function ClassRoutine() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
     const [currentPeriod, setCurrentPeriod] = useState<Partial<RoutinePeriod>>({
-        day: "Sunday",
-        subject: "",
-        teacher: "",
-        room: "",
+        dayOfWeek: "SUNDAY",
+        roomId: "",
+        subjectId: "",
+        teacherId: "",
         startTime: "09:00",
-        endTime: "09:45"
+        endTime: "09:45",
+        academicYearId: "",
     });
 
-    const handleSavePeriod = () => {
-        if (!currentPeriod.subject || !currentPeriod.teacher || !currentPeriod.room) {
-            toast.error("Please fill in all details");
+    // Populate dropdown defaults when dialog opens
+    useEffect(() => {
+        if (isDialogOpen && dialogMode === "add") {
+            setCurrentPeriod(prev => ({
+                ...prev,
+                subjectId: subjectsList[0]?.id || "",
+                teacherId: teachersList[0]?.id || "",
+                academicYearId: activeYear?.id || "",
+            }));
+        }
+    }, [isDialogOpen, dialogMode, subjectsList, teachersList, activeYear]);
+
+    const handleSavePeriod = async () => {
+        if (!currentPeriod.subjectId || !currentPeriod.teacherId || !currentPeriod.academicYearId || !selectedSectionId) {
+            toast.error("Please ensure class, section, subject, teacher, and academic year are set");
             return;
         }
 
-        if (dialogMode === "add") {
-            setRoutineData([
-                ...routineData,
-                {
-                    id: Date.now().toString(),
-                    day: currentPeriod.day || "Sunday",
-                    subject: currentPeriod.subject,
-                    teacher: currentPeriod.teacher,
-                    room: currentPeriod.room,
-                    startTime: currentPeriod.startTime || "09:00",
-                    endTime: currentPeriod.endTime || "09:45"
-                }
-            ]);
-            toast.success("Period added to schedule");
-        } else {
-            setRoutineData(routineData.map(p => p.id === currentPeriod.id ? (currentPeriod as RoutinePeriod) : p));
-            toast.success("Period details updated");
+        const payload = {
+            dayOfWeek: currentPeriod.dayOfWeek,
+            startTime: currentPeriod.startTime,
+            endTime: currentPeriod.endTime,
+            roomId: currentPeriod.roomId || null,
+            subjectId: currentPeriod.subjectId,
+            sectionId: selectedSectionId,
+            teacherId: currentPeriod.teacherId,
+            academicYearId: currentPeriod.academicYearId,
+        };
+
+        try {
+            let res;
+            if (dialogMode === "add") {
+                res = await AxiosAPI.post(routinesUrl, payload);
+            } else {
+                res = await AxiosAPI.put(routineDetailUrl(currentPeriod.id!), payload);
+            }
+
+            if (res.data?.success) {
+                toast.success(res.data.message || "Period schedule saved successfully");
+                mutate();
+                setIsDialogOpen(false);
+            } else {
+                toast.error(res.data?.message || "Failed to save period schedule");
+            }
+        } catch (error: any) {
+            // Displays overlapping routine conflict message returned by backend validation
+            toast.error(error.response?.data?.message || "An error occurred while saving period schedule");
         }
-        setIsDialogOpen(false);
     };
 
     const handleCellClick = (day: string, slot: typeof timeSlots[0]) => {
-        const existing = routineData.find(p => p.day === day && p.startTime === slot.start);
+        const existing = routinesData.find((p: any) => p.dayOfWeek === day && p.startTime === slot.start);
         if (existing) {
-            setCurrentPeriod(existing);
+            setCurrentPeriod({
+                id: existing.id,
+                dayOfWeek: existing.dayOfWeek,
+                startTime: existing.startTime,
+                endTime: existing.endTime,
+                roomId: existing.roomId || "",
+                subjectId: existing.subjectId,
+                teacherId: existing.teacherId,
+                academicYearId: existing.academicYearId,
+            });
             setDialogMode("edit");
         } else {
             setCurrentPeriod({
-                day: day,
-                subject: "",
-                teacher: "",
-                room: "",
+                dayOfWeek: day,
                 startTime: slot.start,
-                endTime: slot.end
+                endTime: slot.end,
+                roomId: "",
+                subjectId: subjectsList[0]?.id || "",
+                teacherId: teachersList[0]?.id || "",
+                academicYearId: activeYear?.id || "",
             });
             setDialogMode("add");
         }
         setIsDialogOpen(true);
     };
 
-    const handleDeletePeriod = (id: string) => {
-        setRoutineData(routineData.filter(p => p.id !== id));
-        setIsDialogOpen(false);
-        toast.success("Period removed from timetable");
+    const handleDeletePeriod = async (id: string) => {
+        if (confirm("Are you sure you want to remove this period?")) {
+            try {
+                const res = await AxiosAPI.delete(routineDetailUrl(id));
+                if (res.data?.success) {
+                    toast.success(res.data.message || "Period removed from timetable");
+                    mutate();
+                    setIsDialogOpen(false);
+                } else {
+                    toast.error(res.data?.message || "Failed to remove period");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "An error occurred while deleting period");
+            }
+        }
     };
 
     return (
@@ -130,7 +216,19 @@ export function ClassRoutine() {
                 <div className="flex gap-2">
                     <Button variant="outline" className="flex items-center gap-2"><Printer className="w-4 h-4" /> Print</Button>
                     <Button variant="outline" className="flex items-center gap-2"><Download className="w-4 h-4" /> Export PDF</Button>
-                    <Button onClick={() => { setCurrentPeriod({ day: "Sunday", subject: "", teacher: "", room: "", startTime: "09:00", endTime: "09:45" }); setDialogMode("add"); setIsDialogOpen(true); }} className="flex items-center gap-1 shadow-md hover:shadow-lg transition-all duration-300">
+                    <Button onClick={() => {
+                        setCurrentPeriod({
+                            dayOfWeek: "SUNDAY",
+                            roomId: "",
+                            startTime: "09:00",
+                            endTime: "09:45",
+                            subjectId: subjectsList[0]?.id || "",
+                            teacherId: teachersList[0]?.id || "",
+                            academicYearId: activeYear?.id || "",
+                        });
+                        setDialogMode("add");
+                        setIsDialogOpen(true);
+                    }} className="flex items-center gap-1 shadow-md hover:shadow-lg transition-all duration-300">
                         <Plus className="w-4 h-4" /> Add Period
                     </Button>
                 </div>
@@ -144,13 +242,14 @@ export function ClassRoutine() {
                         <select
                             id="class-select"
                             className="bg-white border border-gray-200 rounded-md p-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                            value={selectedClass}
-                            onChange={(e) => setSelectedClass(e.target.value)}
+                            value={selectedClassId}
+                            onChange={(e) => setSelectedClassId(e.target.value)}
+                            disabled={loadingClasses}
                         >
-                            <option value="Grade 6">Grade 6</option>
-                            <option value="Grade 7">Grade 7</option>
-                            <option value="Grade 8">Grade 8</option>
-                            <option value="Grade 9">Grade 9</option>
+                            {loadingClasses && <option>Loading...</option>}
+                            {classesList.map((cls: any) => (
+                                <option key={cls.id} value={cls.id}>{cls.name}</option>
+                            ))}
                         </select>
                     </div>
                     <div className="flex items-center gap-2">
@@ -158,12 +257,15 @@ export function ClassRoutine() {
                         <select
                             id="sec-select"
                             className="bg-white border border-gray-200 rounded-md p-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                            value={selectedSection}
-                            onChange={(e) => setSelectedSection(e.target.value)}
+                            value={selectedSectionId}
+                            onChange={(e) => setSelectedSectionId(e.target.value)}
+                            disabled={loadingSections}
                         >
-                            <option value="Section A">Section A</option>
-                            <option value="Section B">Section B</option>
-                            <option value="Section C">Section C</option>
+                            {loadingSections && <option>Loading...</option>}
+                            {sectionsList.length === 0 && !loadingSections && <option value="">No sections found</option>}
+                            {sectionsList.map((sec: any) => (
+                                <option key={sec.id} value={sec.id}>{sec.name}</option>
+                            ))}
                         </select>
                     </div>
                 </CardContent>
@@ -188,7 +290,7 @@ export function ClassRoutine() {
                             <tbody className="divide-y divide-gray-100">
                                 {daysOfWeek.map((day) => (
                                     <tr key={day} className="hover:bg-gray-50/10">
-                                        <td className="px-4 py-6 font-bold text-sm text-left bg-gray-50 text-gray-800">{day}</td>
+                                        <td className="px-4 py-6 font-bold text-xs text-left bg-gray-50 text-gray-800 uppercase tracking-wider">{day.toLowerCase()}</td>
                                         {timeSlots.map((slot, sIdx) => {
                                             if (slot.isBreak) {
                                                 return (
@@ -198,7 +300,7 @@ export function ClassRoutine() {
                                                 );
                                             }
                                             
-                                            const match = routineData.find(p => p.day === day && p.startTime === slot.start);
+                                            const match = routinesData.find((p: any) => p.dayOfWeek === day && p.startTime === slot.start);
                                             
                                             return (
                                                 <td
@@ -209,11 +311,12 @@ export function ClassRoutine() {
                                                     {match ? (
                                                         <div className="p-2.5 rounded-lg border border-primary/20 bg-primary/5 text-xs text-left space-y-1 relative shadow-sm group-hover:shadow transition-shadow">
                                                             <div className="font-bold text-primary flex items-center justify-between">
-                                                                <span>{match.subject}</span>
-                                                                <Edit2 className="w-3 h-3 text-primary/60 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                <span>{match.subject?.name}</span>
                                                             </div>
-                                                            <div className="text-gray-600 font-medium">{match.teacher}</div>
-                                                            <div className="text-gray-400 text-[10px]">{match.room}</div>
+                                                            <div className="text-gray-600 font-medium">
+                                                                {match.teacher?.firstName} {match.teacher?.lastName}
+                                                            </div>
+                                                            <div className="text-gray-400 text-[10px]">{match.roomId || "No room assigned"}</div>
                                                         </div>
                                                     ) : (
                                                         <span className="text-[10px] text-gray-300 font-medium uppercase group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all">+ Add Period</span>
@@ -234,7 +337,7 @@ export function ClassRoutine() {
                 <DialogContent className="max-w-md bg-white">
                     <DialogHeader>
                         <DialogTitle>{dialogMode === "add" ? "Add Period Schedule" : "Edit Period Details"}</DialogTitle>
-                        <DialogDescription>Input class subject, teacher name, classroom, and timings</DialogDescription>
+                        <DialogDescription>Input class subject, teacher, classroom, and timings</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-3">
                         <div className="grid grid-cols-2 gap-4">
@@ -243,40 +346,55 @@ export function ClassRoutine() {
                                 <select
                                     id="dialog-day"
                                     className="w-full bg-white border border-gray-200 rounded-md p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                                    value={currentPeriod.day}
-                                    onChange={(e) => setCurrentPeriod({ ...currentPeriod, day: e.target.value })}
+                                    value={currentPeriod.dayOfWeek}
+                                    onChange={(e) => setCurrentPeriod({ ...currentPeriod, dayOfWeek: e.target.value })}
                                 >
                                     {daysOfWeek.map(d => <option key={d} value={d}>{d}</option>)}
                                 </select>
                             </div>
                             <div className="space-y-1.5">
-                                <Label htmlFor="dialog-room">Room / Location *</Label>
+                                <Label htmlFor="dialog-room">Room / Location</Label>
                                 <Input
                                     id="dialog-room"
                                     placeholder="E.g., Room 102"
-                                    value={currentPeriod.room}
-                                    onChange={(e) => setCurrentPeriod({ ...currentPeriod, room: e.target.value })}
+                                    value={currentPeriod.roomId || ""}
+                                    onChange={(e) => setCurrentPeriod({ ...currentPeriod, roomId: e.target.value })}
                                 />
                             </div>
                         </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="dialog-subj">Subject Name *</Label>
-                            <Input
-                                id="dialog-subj"
-                                placeholder="E.g., Mathematics"
-                                value={currentPeriod.subject}
-                                onChange={(e) => setCurrentPeriod({ ...currentPeriod, subject: e.target.value })}
-                            />
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="dialog-subj">Subject Name *</Label>
+                                <select
+                                    id="dialog-subj"
+                                    className="w-full bg-white border border-gray-200 rounded-md p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                                    value={currentPeriod.subjectId}
+                                    onChange={(e) => setCurrentPeriod({ ...currentPeriod, subjectId: e.target.value })}
+                                >
+                                    {subjectsList.length === 0 && <option value="">No subjects found</option>}
+                                    {subjectsList.map((s: any) => (
+                                        <option key={s.id} value={s.id}>{s.name} ({s.code})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <Label htmlFor="dialog-teach">Teacher *</Label>
+                                <select
+                                    id="dialog-teach"
+                                    className="w-full bg-white border border-gray-200 rounded-md p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                                    value={currentPeriod.teacherId}
+                                    onChange={(e) => setCurrentPeriod({ ...currentPeriod, teacherId: e.target.value })}
+                                >
+                                    {teachersList.length === 0 && <option value="">No teachers found</option>}
+                                    {teachersList.map((t: any) => (
+                                        <option key={t.id} value={t.id}>{t.firstName} {t.lastName} ({t.username})</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="dialog-teach">Teacher Name *</Label>
-                            <Input
-                                id="dialog-teach"
-                                placeholder="E.g., Mr. Zaman"
-                                value={currentPeriod.teacher}
-                                onChange={(e) => setCurrentPeriod({ ...currentPeriod, teacher: e.target.value })}
-                            />
-                        </div>
+
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                                 <Label htmlFor="dialog-start">Start Time *</Label>
@@ -296,6 +414,20 @@ export function ClassRoutine() {
                                     onChange={(e) => setCurrentPeriod({ ...currentPeriod, endTime: e.target.value })}
                                 />
                             </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label htmlFor="dialog-year">Academic Year *</Label>
+                            <select
+                                id="dialog-year"
+                                className="w-full bg-white border border-gray-200 rounded-md p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                                value={currentPeriod.academicYearId}
+                                onChange={(e) => setCurrentPeriod({ ...currentPeriod, academicYearId: e.target.value })}
+                            >
+                                {yearsList.map((y: any) => (
+                                    <option key={y.id} value={y.id}>{y.title} {y.isActive ? "(Active)" : ""}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                     <DialogFooter className="flex justify-between items-center w-full">

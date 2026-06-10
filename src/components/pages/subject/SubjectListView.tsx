@@ -8,9 +8,12 @@ import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { subjects } from "@/data/academic";
 import { SubjectForm, SubjectData } from "./SubjectForm";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { useSubjectsQuery } from "@/apis/queries/academic_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { subjectsUrl, subjectDetailUrl } from "@/apis/endpoints/academic_apis";
+import { toast } from "sonner";
 
 export function SubjectListView() {
     const [search, setSearch] = useState("");
@@ -18,38 +21,109 @@ export function SubjectListView() {
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
     const [editingData, setEditingData] = useState<SubjectData | undefined>(undefined);
 
-    const [data, setData] = useState<SubjectData[]>(subjects);
+    // Fetch subjects using SWR
+    const { data: response, isLoading, mutate } = useSubjectsQuery();
+
     // Pagination state
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const pageCount = Math.ceil(data.length / pageSize) || 1;
-    const paginatedData = data.slice((page - 1) * pageSize, page * pageSize);
 
-    const handleCreate = () => { setFormMode("create"); setEditingData(undefined); setIsFormOpen(true); };
+    const rawData = response?.data || [];
+    const mappedData = React.useMemo(() => {
+        return rawData.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            code: item.code,
+            type: "Core", // Default type since backend doesn't store type yet
+            classId: item.classId,
+            className: item.class?.name || "N/A",
+            status: "Active", // Mock status
+        }));
+    }, [rawData]);
+
+    const filteredData = React.useMemo(() => {
+        return mappedData.filter((item: any) =>
+            item.name.toLowerCase().includes(search.toLowerCase()) ||
+            item.code.toLowerCase().includes(search.toLowerCase()) ||
+            item.className.toLowerCase().includes(search.toLowerCase())
+        );
+    }, [mappedData, search]);
+
+    const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
+    const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
+
+    const handleCreate = () => {
+        setFormMode("create");
+        setEditingData(undefined);
+        setIsFormOpen(true);
+    };
+
     // View dialog state
     const [viewData, setViewData] = useState<SubjectData | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
+
     // Delete confirmation dialog state
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-    
-    const handleEdit = (item: SubjectData) => { setFormMode("edit"); setEditingData(item); setIsFormOpen(true); };
-    const handleView = (item: SubjectData) => { setViewData(item); setIsViewOpen(true); };
-    const openDeleteDialog = (id: string) => { setDeleteId(id); setIsDeleteOpen(true); };
-    
-    const handleDeleteConfirm = () => {
-        if (deleteId) {
-            setData(data.filter((item) => item.id !== deleteId));
-        }
-        setIsDeleteOpen(false);
-        setDeleteId(null);
+
+    const handleEdit = (item: SubjectData) => {
+        setFormMode("edit");
+        setEditingData(item);
+        setIsFormOpen(true);
     };
 
-    const handleFormSubmit = (formData: SubjectData) => {
-        if (formMode === "create") {
-            setData([...data, { ...formData, id: (data.length + 1).toString() }]);
-        } else {
-            setData(data.map((item) => (item.id === formData.id ? { ...item, ...formData } : item)));
+    const handleView = (item: SubjectData) => {
+        setViewData(item);
+        setIsViewOpen(true);
+    };
+
+    const openDeleteDialog = (id: string) => {
+        setDeleteId(id);
+        setIsDeleteOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (deleteId) {
+            try {
+                const res = await AxiosAPI.delete(subjectDetailUrl(deleteId));
+                if (res.data?.success) {
+                    toast.success(res.data.message || "Subject deleted successfully");
+                    mutate();
+                } else {
+                    toast.error(res.data?.message || "Failed to delete subject");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "An error occurred while deleting subject");
+            }
+            setIsDeleteOpen(false);
+            setDeleteId(null);
+        }
+    };
+
+    const handleFormSubmit = async (formData: SubjectData) => {
+        const payload = {
+            name: formData.name,
+            code: formData.code,
+            classId: formData.classId,
+        };
+
+        try {
+            let res;
+            if (formMode === "create") {
+                res = await AxiosAPI.post(subjectsUrl, payload);
+            } else {
+                res = await AxiosAPI.put(subjectDetailUrl(formData.id!), payload);
+            }
+
+            if (res.data?.success) {
+                toast.success(res.data.message || `Subject ${formMode === "create" ? "created" : "updated"} successfully`);
+                mutate();
+                setIsFormOpen(false);
+            } else {
+                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} subject`);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred while saving subject");
         }
     };
 
@@ -57,7 +131,7 @@ export function SubjectListView() {
         { accessorKey: "name", header: "Subject Name" },
         { accessorKey: "code", header: "Subject Code" },
         { accessorKey: "type", header: "Type" },
-        { accessorKey: "class", header: "Class" },
+        { accessorKey: "className", header: "Class" },
         {
             accessorKey: "status", header: "Status",
             cell: ({ row }) => (
@@ -101,11 +175,12 @@ export function SubjectListView() {
                         searchPlaceholder="Search subject..."
                         searchValue={search}
                         onSearch={setSearch}
+                        isLoading={isLoading}
                         pagination={{
                           page,
                           pageCount,
                           pageSize,
-                          totalCount: data.length,
+                          totalCount: filteredData.length,
                           onPageChange: setPage,
                           onPageSizeChange: (size) => {
                             setPageSize(size);
@@ -119,13 +194,13 @@ export function SubjectListView() {
                         <AlertDialogHeader>
                             <AlertDialogTitle>View Subject</AlertDialogTitle>
                         </AlertDialogHeader>
-                        <AlertDialogDescription>
+                        <AlertDialogDescription asChild>
                             {viewData && (
-                                <div className="space-y-2">
+                                <div className="space-y-2 text-gray-700">
                                     <p><strong>Name:</strong> {viewData.name}</p>
                                     <p><strong>Code:</strong> {viewData.code}</p>
                                     <p><strong>Type:</strong> {viewData.type}</p>
-                                    <p><strong>Class:</strong> {viewData.class}</p>
+                                    <p><strong>Class:</strong> {viewData.className}</p>
                                     <p><strong>Status:</strong> {viewData.status}</p>
                                 </div>
                             )}

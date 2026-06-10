@@ -4,12 +4,15 @@ import React, { useState } from "react";
 import Title from "@/components/ui/custom-ui/title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { sections } from "@/data/academic";
 import { SectionForm, SectionData } from "./SectionForm";
+import { useSectionsQuery } from "@/apis/queries/academic_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { sectionsUrl, sectionDetailUrl } from "@/apis/endpoints/academic_apis";
+import { toast } from "sonner";
 
 export function SectionListView() {
     const [search, setSearch] = useState("");
@@ -17,29 +20,94 @@ export function SectionListView() {
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
     const [editingData, setEditingData] = useState<SectionData | undefined>(undefined);
 
-    const [data, setData] = useState<SectionData[]>(sections);
+    // Fetch live sections data
+    const { data: response, isLoading, mutate } = useSectionsQuery();
+
     // Pagination state
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const pageCount = Math.ceil(data.length / pageSize) || 1;
-    const paginatedData = data.slice((page - 1) * pageSize, page * pageSize);
 
-    const handleCreate = () => { setFormMode("create"); setEditingData(undefined); setIsFormOpen(true); };
-    const handleEdit = (item: SectionData) => { setFormMode("edit"); setEditingData(item); setIsFormOpen(true); };
-    const handleDelete = (id: string) => { if (confirm("Are you sure?")) setData(data.filter((item) => item.id !== id)); };
+    const rawData = response?.data || [];
+    const mappedData = React.useMemo(() => {
+        return rawData.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            classId: item.classId,
+            className: item.class?.name || "N/A",
+            capacity: item.capacity || 0,
+            status: "Active", // Default mock status
+        }));
+    }, [rawData]);
 
-    const handleFormSubmit = (formData: SectionData) => {
-        if (formMode === "create") {
-            setData([...data, { ...formData, id: (data.length + 1).toString() }]);
-        } else {
-            setData(data.map((item) => (item.id === formData.id ? { ...item, ...formData } : item)));
+    const filteredData = React.useMemo(() => {
+        return mappedData.filter((item: any) =>
+            item.name.toLowerCase().includes(search.toLowerCase()) ||
+            item.className.toLowerCase().includes(search.toLowerCase())
+        );
+    }, [mappedData, search]);
+
+    const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
+    const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
+
+    const handleCreate = () => {
+        setFormMode("create");
+        setEditingData(undefined);
+        setIsFormOpen(true);
+    };
+
+    const handleEdit = (item: SectionData) => {
+        setFormMode("edit");
+        setEditingData(item);
+        setIsFormOpen(true);
+    };
+
+    const handleDelete = async (id: string) => {
+        if (confirm("Are you sure you want to delete this section?")) {
+            try {
+                const res = await AxiosAPI.delete(sectionDetailUrl(id));
+                if (res.data?.success) {
+                    toast.success(res.data.message || "Section deleted successfully");
+                    mutate();
+                } else {
+                    toast.error(res.data?.message || "Failed to delete section");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "An error occurred while deleting section");
+            }
+        }
+    };
+
+    const handleFormSubmit = async (formData: SectionData) => {
+        const payload = {
+            name: formData.name,
+            capacity: formData.capacity,
+            classId: formData.classId,
+        };
+
+        try {
+            let res;
+            if (formMode === "create") {
+                res = await AxiosAPI.post(sectionsUrl, payload);
+            } else {
+                res = await AxiosAPI.put(sectionDetailUrl(formData.id!), payload);
+            }
+
+            if (res.data?.success) {
+                toast.success(res.data.message || `Section ${formMode === "create" ? "created" : "updated"} successfully`);
+                mutate();
+                setIsFormOpen(false);
+            } else {
+                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} section`);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred while saving section");
         }
     };
 
     const columns: ColumnDef<SectionData>[] = [
         { accessorKey: "name", header: "Section Name" },
-        { accessorKey: "class", header: "Class" },
-        { accessorKey: "room_number", header: "Room Number" },
+        { accessorKey: "className", header: "Class" },
+        { accessorKey: "capacity", header: "Capacity" },
         {
             accessorKey: "status", header: "Status",
             cell: ({ row }) => (
@@ -82,11 +150,12 @@ export function SectionListView() {
                         searchPlaceholder="Search section..."
                         searchValue={search}
                         onSearch={setSearch}
+                        isLoading={isLoading}
                         pagination={{
                           page,
                           pageCount,
                           pageSize,
-                          totalCount: data.length,
+                          totalCount: filteredData.length,
                           onPageChange: setPage,
                           onPageSizeChange: (size) => {
                             setPageSize(size);

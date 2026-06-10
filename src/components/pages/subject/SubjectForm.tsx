@@ -13,14 +13,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { classes } from "@/data/academic";
+import { useClassesQuery } from "@/apis/queries/academic_queries";
 
 export interface SubjectData {
     id?: string;
     name: string;
     code: string;
     type: string;
-    class: string;
+    classId: string;
+    className?: string;
     status: string;
 }
 
@@ -35,6 +36,10 @@ interface SubjectFormProps {
 export function SubjectForm({ mode, initialData, isOpen, onClose, onSubmit }: SubjectFormProps) {
     const { register, handleSubmit, reset, setValue, watch } = useForm<SubjectData>();
 
+    // Load active classes
+    const { data: classesResponse } = useClassesQuery();
+    const classesList = classesResponse?.data || [];
+
     useEffect(() => {
         if (initialData) {
             reset(initialData);
@@ -43,11 +48,11 @@ export function SubjectForm({ mode, initialData, isOpen, onClose, onSubmit }: Su
                 name: "",
                 code: "",
                 type: "Core",
-                class: classes[0].name,
+                classId: classesList[0]?.id || "",
                 status: "Active",
             });
         }
-    }, [initialData, reset, isOpen]);
+    }, [initialData, reset, isOpen, classesList]);
 
     const onFormSubmit = (data: SubjectData) => {
         onSubmit(data);
@@ -83,14 +88,14 @@ export function SubjectForm({ mode, initialData, isOpen, onClose, onSubmit }: Su
                         </Select>
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="class">Class</Label>
-                        <Select onValueChange={(v) => setValue("class", v)} value={watch("class")}>
+                        <Label htmlFor="classId">Class</Label>
+                        <Select onValueChange={(v) => setValue("classId", v)} value={watch("classId")}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select class" />
                             </SelectTrigger>
                             <SelectContent>
-                                {classes.map((c) => (
-                                    <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                                {classesList.map((c: any) => (
+                                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>

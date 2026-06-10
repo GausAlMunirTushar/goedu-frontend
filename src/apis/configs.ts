@@ -26,11 +26,41 @@ AxiosAPI.interceptors.request.use((config) => {
         config.headers.Authorization = `Bearer ${token}`;
     }
 
-    const locale = Cookies.get(COOKIES_KEYS.LOCALE) || "en";
-    // const fiscal_year = Cookies.get(COOKIES_KEYS.FISCAL_YEAR) || "";
+    // Attach active subdomain context if running in browser
+    if (typeof window !== "undefined") {
+        const hostname = window.location.hostname.toLowerCase();
+        const platformDomains = ["localhost", "epathshala.com"];
+        for (const plat of platformDomains) {
+            if (hostname.endsWith(`.${plat}`)) {
+                const subdomain = hostname.slice(0, -(plat.length + 1));
+                const firstSubdomain = subdomain.split(".")[0];
+                if (firstSubdomain && firstSubdomain !== "www" && firstSubdomain !== "api") {
+                    config.headers["X-Subdomain"] = firstSubdomain;
+                    break;
+                }
+            }
+        }
+    }
 
+    const activeInstitutionId = Cookies.get("institution_id");
+    if (activeInstitutionId) {
+        config.headers["X-Institution-ID"] = activeInstitutionId;
+    } else {
+        const userCookie = Cookies.get(COOKIES_KEYS.USER);
+        if (userCookie) {
+            try {
+                const user = JSON.parse(userCookie);
+                if (user?.institutionId) {
+                    config.headers["X-Institution-ID"] = user.institutionId;
+                }
+            } catch (e) {
+                // Ignore parsing errors
+            }
+        }
+    }
+
+    const locale = Cookies.get(COOKIES_KEYS.LOCALE) || "en";
     config.headers["Accept-Language"] = locale === "bn" ? "bn" : "en";
-    // config.headers["X-Fiscal-Year"] = fiscal_year;
 
     return config;
 });
