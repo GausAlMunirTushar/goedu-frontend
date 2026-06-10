@@ -8,7 +8,7 @@ export const topBarData = {
         instagram: "#",
         youtube: "#"
     },
-    admissionLink: "#",
+    admissionLink: "/online-admission",
     loginLink: "/login"
 };
 
@@ -54,7 +54,7 @@ export const webHeaderData = {
             href: "#", 
             defaultLabel: "ভর্তি তথ্য",
             children: [
-                { labelKey: "admission_form", href: "#", defaultLabel: "ভর্তি আবেদন" },
+                { labelKey: "admission_form", href: "/online-admission", defaultLabel: "ভর্তি আবেদন" },
                 { labelKey: "admission_rules", href: "#", defaultLabel: "ভর্তির নিয়মাবলী" },
                 { labelKey: "fees", href: "#", defaultLabel: "ফি সমূহ" }
             ]
