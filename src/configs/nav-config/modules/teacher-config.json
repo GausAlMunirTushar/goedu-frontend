@@ -14,7 +14,16 @@
                     "teacher.dashboard.view"
                 ]
             },
-                        {
+            {
+                "id": "teacher-departments",
+                "label": "Teacher Department",
+                "icon": "Building2",
+                "path": "/teacher/departments",
+                "permissions": [
+                    "teacher.department.view"
+                ]
+            },
+            {
                 "id": "teacher-designations",
                 "label": "Teacher Designations",
                 "icon": "UserCog",
@@ -33,6 +42,15 @@
                 ]
             },
             {
+                "id": "teacher-class-assignment",
+                "label": "Class Assignment",
+                "icon": "GraduationCap",
+                "path": "/teacher/class-assignment",
+                "permissions": [
+                    "teacher.class.assign"
+                ]
+            },
+            {
                 "id": "teacher-subject-assignment",
                 "label": "Subject Assignment",
                 "icon": "BookOpen",
@@ -41,7 +59,6 @@
                     "teacher.subject.assign"
                 ]
             }
-
         ]
     }
 }
