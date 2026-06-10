@@ -3,45 +3,42 @@
 import React, { useState } from "react";
 import Title from "@/components/ui/custom-ui/title";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plus, Users, UserCheck, ShieldCheck, ClipboardList, BookOpen } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { classes, subjects } from "@/data/academic";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+    useClassesQuery, 
+    useSectionsQuery, 
+    useShiftsQuery, 
+    useSubjectsQuery, 
+    useTeacherMappingsQuery 
+} from "@/apis/queries/academic_queries";
+import { useUsersQuery } from "@/apis/queries/auth_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { teacherMappingsUrl, teacherMappingDetailUrl } from "@/apis/endpoints/academic_apis";
 
 export interface TeacherMappingData {
     id?: string;
+    teacherId: string;
     teacherName: string;
-    class: string;
-    section: string;
-    subject: string;
-    shift: string;
+    classId: string;
+    className?: string;
+    sectionId: string;
+    sectionName?: string;
+    subjectId: string;
+    subjectName?: string;
+    shiftId: string;
+    shiftName?: string;
 }
 
-const mockMappings: TeacherMappingData[] = [
-    { id: "1", teacherName: "Anisur Rahman", class: "Class 10", section: "Section A", subject: "Physics", shift: "Morning (Boys)" },
-    { id: "2", teacherName: "Jamil Chowdhury", class: "Class 10", section: "Section A", subject: "Mathematics", shift: "Morning (Boys)" },
-    { id: "3", teacherName: "Farhana Yasmin", class: "Class 10", section: "Section B", subject: "English", shift: "Morning (Girls)" },
-    { id: "4", teacherName: "Rokeya Begum", class: "Class 9", section: "Section A", subject: "Chemistry", shift: "Day (Boys)" },
-];
-
-const facultyList = [
-    "Anisur Rahman",
-    "Farhana Yasmin",
-    "Jamil Chowdhury",
-    "Rokeya Begum",
-    "Imtiaz Ahmed",
-    "Shahana Chowdhury"
-];
-
 export function SubjectTeacherMapping() {
-    const [data, setData] = useState<TeacherMappingData[]>(mockMappings);
     const [search, setSearch] = useState("");
     const [selectedClassFilter, setSelectedClassFilter] = useState("All Classes");
 
@@ -49,12 +46,28 @@ export function SubjectTeacherMapping() {
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
     const [editingData, setEditingData] = useState<TeacherMappingData | undefined>(undefined);
 
+    // Backend Dynamic Option Queries
+    const { data: classesResponse } = useClassesQuery();
+    const { data: sectionsResponse } = useSectionsQuery();
+    const { data: shiftsResponse } = useShiftsQuery();
+    const { data: subjectsResponse } = useSubjectsQuery();
+    const { data: teachersResponse } = useUsersQuery("Teacher");
+
+    const classesList = classesResponse?.data || [];
+    const sectionsList = sectionsResponse?.data || [];
+    const shiftsList = shiftsResponse?.data || [];
+    const subjectsList = subjectsResponse?.data || [];
+    const teachersList = teachersResponse?.data || [];
+
+    // Live Mappings List
+    const { data: mappingsResponse, isLoading, mutate } = useTeacherMappingsQuery();
+
     // Form inputs
-    const [formTeacher, setFormTeacher] = useState(facultyList[0]);
-    const [formClass, setFormClass] = useState(classes[2].name);
-    const [formSection, setFormSection] = useState("Section A");
-    const [formSubject, setFormSubject] = useState(subjects[0].name);
-    const [formShift, setFormShift] = useState("Morning (Boys)");
+    const [formTeacherId, setFormTeacherId] = useState("");
+    const [formClassId, setFormClassId] = useState("");
+    const [formSectionId, setFormSectionId] = useState("");
+    const [formSubjectId, setFormSubjectId] = useState("");
+    const [formShiftId, setFormShiftId] = useState("");
 
     // View dialog
     const [viewData, setViewData] = useState<TeacherMappingData | undefined>(undefined);
@@ -68,35 +81,50 @@ export function SubjectTeacherMapping() {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
-    const filteredData = data.filter((item) => {
-        const matchesSearch = item.teacherName.toLowerCase().includes(search.toLowerCase()) || 
-                             item.subject.toLowerCase().includes(search.toLowerCase());
-        const matchesClass = selectedClassFilter === "All Classes" || item.class === selectedClassFilter;
-        return matchesSearch && matchesClass;
-    });
+    const rawMappings = mappingsResponse?.data || [];
+    const filteredData = React.useMemo(() => {
+        return rawMappings.filter((item: TeacherMappingData) => {
+            const matchesSearch = item.teacherName.toLowerCase().includes(search.toLowerCase()) || 
+                                 (item.subjectName && item.subjectName.toLowerCase().includes(search.toLowerCase()));
+            const matchesClass = selectedClassFilter === "All Classes" || item.classId === selectedClassFilter;
+            return matchesSearch && matchesClass;
+        });
+    }, [rawMappings, search, selectedClassFilter]);
 
     const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
     const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
+    // Form select options helpers
+    const classSections = React.useMemo(() => {
+        return sectionsList.filter((s: any) => s.classId === formClassId);
+    }, [sectionsList, formClassId]);
+
+    const classSubjects = React.useMemo(() => {
+        return subjectsList.filter((s: any) => s.classId === formClassId);
+    }, [subjectsList, formClassId]);
+
     const handleCreate = () => {
         setFormMode("create");
         setEditingData(undefined);
-        setFormTeacher(facultyList[0]);
-        setFormClass(classes[2].name);
-        setFormSection("Section A");
-        setFormSubject(subjects[0].name);
-        setFormShift("Morning (Boys)");
+        
+        setFormTeacherId(teachersList[0]?.id || "");
+        
+        const firstClassId = classesList[0]?.id || "";
+        setFormClassId(firstClassId);
+        setFormSectionId("");
+        setFormSubjectId("");
+        setFormShiftId(shiftsList[0]?.id || "");
         setIsFormOpen(true);
     };
 
     const handleEdit = (item: TeacherMappingData) => {
         setFormMode("edit");
         setEditingData(item);
-        setFormTeacher(item.teacherName);
-        setFormClass(item.class);
-        setFormSection(item.section);
-        setFormSubject(item.subject);
-        setFormShift(item.shift);
+        setFormTeacherId(item.teacherId);
+        setFormClassId(item.classId);
+        setFormSectionId(item.sectionId);
+        setFormSubjectId(item.subjectId);
+        setFormShiftId(item.shiftId);
         setIsFormOpen(true);
     };
 
@@ -110,42 +138,65 @@ export function SubjectTeacherMapping() {
         setIsDeleteOpen(true);
     };
 
-    const handleDeleteConfirm = () => {
+    const handleDeleteConfirm = async () => {
         if (deleteId) {
-            setData(data.filter((item) => item.id !== deleteId));
-            toast.success("Teacher mapping deleted successfully");
+            try {
+                const res = await AxiosAPI.delete(teacherMappingDetailUrl(deleteId));
+                if (res.data?.success) {
+                    toast.success(res.data.message || "Teacher mapping deleted successfully");
+                    mutate();
+                } else {
+                    toast.error(res.data?.message || "Failed to delete mapping");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "An error occurred while deleting");
+            }
         }
         setIsDeleteOpen(false);
         setDeleteId(null);
     };
 
-    const handleFormSubmit = (e: React.FormEvent) => {
+    const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        const payload: TeacherMappingData = {
-            teacherName: formTeacher,
-            class: formClass,
-            section: formSection,
-            subject: formSubject,
-            shift: formShift,
+        if (!formTeacherId || !formClassId || !formSectionId || !formSubjectId || !formShiftId) {
+            toast.error("Please fill in all mapping fields");
+            return;
+        }
+
+        const payload = {
+            teacherId: formTeacherId,
+            classId: formClassId,
+            sectionId: formSectionId,
+            subjectId: formSubjectId,
+            shiftId: formShiftId,
         };
 
-        if (formMode === "create") {
-            setData([...data, { ...payload, id: (data.length + 1).toString() }]);
-            toast.success("Teacher mapping created successfully");
-        } else {
-            setData(data.map((item) => (item.id === editingData?.id ? { ...item, ...payload } : item)));
-            toast.success("Teacher mapping updated successfully");
+        try {
+            let res;
+            if (formMode === "create") {
+                res = await AxiosAPI.post(teacherMappingsUrl, payload);
+            } else {
+                res = await AxiosAPI.put(teacherMappingDetailUrl(editingData?.id!), payload);
+            }
+
+            if (res.data?.success) {
+                toast.success(res.data.message || `Teacher mapping ${formMode === "create" ? "created" : "updated"} successfully`);
+                mutate();
+                setIsFormOpen(false);
+            } else {
+                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} mapping`);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred while saving");
         }
-        setIsFormOpen(false);
     };
 
     const columns: ColumnDef<TeacherMappingData>[] = [
         { accessorKey: "teacherName", header: "Teacher Name" },
-        { accessorKey: "class", header: "Class" },
-        { accessorKey: "section", header: "Section" },
-        { accessorKey: "subject", header: "Subject" },
-        { accessorKey: "shift", header: "Shift" },
+        { accessorKey: "className", header: "Class" },
+        { accessorKey: "sectionName", header: "Section" },
+        { accessorKey: "subjectName", header: "Subject" },
+        { accessorKey: "shiftName", header: "Shift" },
         {
             id: "actions",
             header: "Actions",
@@ -183,8 +234,8 @@ export function SubjectTeacherMapping() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="All Classes">All Classes</SelectItem>
-                                    {classes.map((c) => (
-                                        <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                                    {classesList.map((c: any) => (
+                                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -198,6 +249,7 @@ export function SubjectTeacherMapping() {
                         searchPlaceholder="Search mappings..."
                         searchValue={search}
                         onSearch={setSearch}
+                        isLoading={isLoading}
                         pagination={{
                             page,
                             pageCount,
@@ -222,74 +274,83 @@ export function SubjectTeacherMapping() {
                     <form onSubmit={handleFormSubmit} className="space-y-4 pt-4">
                         <div className="space-y-1">
                             <Label htmlFor="form-teacher">Select Teacher</Label>
-                            <Select onValueChange={setFormTeacher} value={formTeacher}>
-                                <SelectTrigger id="form-teacher">
-                                    <SelectValue placeholder="Select teacher" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {facultyList.map((f, idx) => (
-                                        <SelectItem key={idx} value={f}>{f}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <select
+                                id="form-teacher"
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                value={formTeacherId}
+                                onChange={(e) => setFormTeacherId(e.target.value)}
+                            >
+                                <option value="" disabled>Select teacher</option>
+                                {teachersList.map((f: any) => {
+                                    const name = `${f.firstName || ""} ${f.lastName || ""}`.trim() || f.username;
+                                    return <option key={f.id} value={f.id}>{name}</option>;
+                                })}
+                            </select>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <Label htmlFor="form-class">Class</Label>
-                                <Select onValueChange={setFormClass} value={formClass}>
-                                    <SelectTrigger id="form-class">
-                                        <SelectValue placeholder="Select class" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {classes.map((c) => (
-                                            <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <select
+                                    id="form-class"
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    value={formClassId}
+                                    onChange={(e) => {
+                                        setFormClassId(e.target.value);
+                                        setFormSectionId("");
+                                        setFormSubjectId("");
+                                    }}
+                                >
+                                    <option value="" disabled>Select class</option>
+                                    {classesList.map((c: any) => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="space-y-1">
                                 <Label htmlFor="form-section">Section</Label>
-                                <Select onValueChange={setFormSection} value={formSection}>
-                                    <SelectTrigger id="form-section">
-                                        <SelectValue placeholder="Select section" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Section A">Section A</SelectItem>
-                                        <SelectItem value="Section B">Section B</SelectItem>
-                                        <SelectItem value="Section C">Section C</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <select
+                                    id="form-section"
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    value={formSectionId}
+                                    onChange={(e) => setFormSectionId(e.target.value)}
+                                >
+                                    <option value="" disabled>Select section</option>
+                                    {classSections.map((s: any) => (
+                                        <option key={s.id} value={s.id}>{s.name}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <Label htmlFor="form-subject">Subject</Label>
-                                <Select onValueChange={setFormSubject} value={formSubject}>
-                                    <SelectTrigger id="form-subject">
-                                        <SelectValue placeholder="Select subject" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {subjects.map((sub) => (
-                                            <SelectItem key={sub.id} value={sub.name}>{sub.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <select
+                                    id="form-subject"
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    value={formSubjectId}
+                                    onChange={(e) => setFormSubjectId(e.target.value)}
+                                >
+                                    <option value="" disabled>Select subject</option>
+                                    {classSubjects.map((sub: any) => (
+                                        <option key={sub.id} value={sub.id}>{sub.name}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="space-y-1">
                                 <Label htmlFor="form-shift">Shift</Label>
-                                <Select onValueChange={setFormShift} value={formShift}>
-                                    <SelectTrigger id="form-shift">
-                                        <SelectValue placeholder="Select shift" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Morning (Boys)">Morning (Boys)</SelectItem>
-                                        <SelectItem value="Morning (Girls)">Morning (Girls)</SelectItem>
-                                        <SelectItem value="Day (Boys)">Day (Boys)</SelectItem>
-                                        <SelectItem value="Day (Girls)">Day (Girls)</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <select
+                                    id="form-shift"
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    value={formShiftId}
+                                    onChange={(e) => setFormShiftId(e.target.value)}
+                                >
+                                    <option value="" disabled>Select shift</option>
+                                    {shiftsList.map((s: any) => (
+                                        <option key={s.id} value={s.id}>{s.name}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
@@ -310,10 +371,10 @@ export function SubjectTeacherMapping() {
                     {viewData && (
                         <div className="space-y-2 text-sm">
                             <p><strong>Teacher Name:</strong> {viewData.teacherName}</p>
-                            <p><strong>Class:</strong> {viewData.class}</p>
-                            <p><strong>Section:</strong> {viewData.section}</p>
-                            <p><strong>Subject:</strong> {viewData.subject}</p>
-                            <p><strong>Shift:</strong> {viewData.shift}</p>
+                            <p><strong>Class:</strong> {viewData.className}</p>
+                            <p><strong>Section:</strong> {viewData.sectionName}</p>
+                            <p><strong>Subject:</strong> {viewData.subjectName}</p>
+                            <p><strong>Shift:</strong> {viewData.shiftName}</p>
                         </div>
                     )}
                     <AlertDialogFooter>

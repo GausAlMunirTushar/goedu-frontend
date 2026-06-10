@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useClassesQuery } from "@/apis/queries/academic_queries";
 
 export interface GroupData {
     id?: string;
     name: string;
-    class: string;
+    classId: string;
+    className?: string;
     status: string;
 }
 
@@ -23,15 +25,23 @@ interface GroupFormProps {
 }
 
 export function GroupForm({ mode, initialData, isOpen, onClose, onSubmit }: GroupFormProps) {
-    const { register, handleSubmit, reset } = useForm<GroupData>({
-        defaultValues: initialData || { name: "", class: "", status: "Active" },
+    const { register, handleSubmit, reset, setValue, watch } = useForm<GroupData>({
+        defaultValues: initialData || { name: "", classId: "", status: "Active" },
     });
 
-    React.useEffect(() => {
-        if (isOpen) reset(initialData || { name: "", class: "", status: "Active" });
-    }, [isOpen, initialData, reset]);
+    const { data: classesResponse } = useClassesQuery();
+    const classesList = classesResponse?.data || [];
 
-    const handleFormSubmit = (data: GroupData) => { onSubmit(data); onClose(); };
+    React.useEffect(() => {
+        if (isOpen) {
+            reset(initialData || { name: "", classId: classesList[0]?.id || "", status: "Active" });
+        }
+    }, [isOpen, initialData, reset, classesList]);
+
+    const handleFormSubmit = (data: GroupData) => { 
+        onSubmit(data); 
+        onClose(); 
+    };
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -44,13 +54,23 @@ export function GroupForm({ mode, initialData, isOpen, onClose, onSubmit }: Grou
                         <Label htmlFor="name">Group Name</Label>
                         <Input id="name" placeholder="e.g. Science" {...register("name", { required: true })} />
                     </div>
+                    
                     <div className="space-y-2">
-                        <Label htmlFor="class">Class</Label>
-                        <Input id="class" placeholder="e.g. Class 10" {...register("class", { required: true })} />
+                        <Label htmlFor="classId">Class</Label>
+                        <select 
+                            id="classId" 
+                            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            {...register("classId", { required: true })}
+                        >
+                            {classesList.map((c: any) => (
+                                <option key={c.id} value={c.id}>{c.name}</option>
+                            ))}
+                        </select>
                     </div>
+
                     <div className="space-y-2">
                         <Label htmlFor="status">Status</Label>
-                        <select id="status" className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm" {...register("status")}>
+                        <select id="status" className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none" {...register("status")}>
                             <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>
                         </select>

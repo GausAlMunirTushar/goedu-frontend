@@ -12,13 +12,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { classes } from "@/data/academic";
+import { useClassesQuery } from "@/apis/queries/academic_queries";
 
 export interface AdmissionData {
     id?: string;
     applicant_name: string;
-    class: string;
+    classId: string;
+    className?: string;
     mobile: string;
     application_date?: string;
     status: string;
@@ -33,20 +33,25 @@ interface AdmissionFormProps {
 }
 
 export function AdmissionForm({ mode, initialData, isOpen, onClose, onSubmit }: AdmissionFormProps) {
-    const { register, handleSubmit, reset, setValue, watch } = useForm<AdmissionData>();
+    const { register, handleSubmit, reset } = useForm<AdmissionData>();
+
+    const { data: classesResponse } = useClassesQuery();
+    const classesList = classesResponse?.data || [];
 
     useEffect(() => {
-        if (initialData) {
-            reset(initialData);
-        } else {
-            reset({
-                applicant_name: "",
-                class: classes[0].name,
-                mobile: "",
-                status: "Pending",
-            });
+        if (isOpen) {
+            if (initialData) {
+                reset(initialData);
+            } else {
+                reset({
+                    applicant_name: "",
+                    classId: classesList[0]?.id || "",
+                    mobile: "",
+                    status: "Pending",
+                });
+            }
         }
-    }, [initialData, reset, isOpen]);
+    }, [initialData, reset, isOpen, classesList]);
 
     const onFormSubmit = (data: AdmissionData) => {
         onSubmit(data);
@@ -65,17 +70,16 @@ export function AdmissionForm({ mode, initialData, isOpen, onClose, onSubmit }: 
                         <Input id="applicant_name" {...register("applicant_name", { required: true })} placeholder="e.g. John Doe" />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="class">Applied Class</Label>
-                        <Select onValueChange={(v) => setValue("class", v)} value={watch("class")}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select class" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {classes.map((c) => (
-                                    <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <Label htmlFor="classId">Applied Class</Label>
+                        <select 
+                            id="classId" 
+                            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            {...register("classId", { required: true })}
+                        >
+                            {classesList.map((c: any) => (
+                                <option key={c.id} value={c.id}>{c.name}</option>
+                            ))}
+                        </select>
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="mobile">Mobile Number</Label>
@@ -83,16 +87,15 @@ export function AdmissionForm({ mode, initialData, isOpen, onClose, onSubmit }: 
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="status">Status</Label>
-                        <Select onValueChange={(v) => setValue("status", v)} value={watch("status")}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Pending">Pending</SelectItem>
-                                <SelectItem value="Approved">Approved</SelectItem>
-                                <SelectItem value="Rejected">Rejected</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <select 
+                            id="status" 
+                            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none" 
+                            {...register("status")}
+                        >
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>

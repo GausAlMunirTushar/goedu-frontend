@@ -8,8 +8,11 @@ import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { rooms } from "@/data/academic";
 import { RoomForm, RoomData } from "./RoomForm";
+import { useRoomsQuery } from "@/apis/queries/academic_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { roomsUrl, roomDetailUrl } from "@/apis/endpoints/academic_apis";
+import { toast } from "sonner";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
 export function RoomListView() {
@@ -18,18 +21,36 @@ export function RoomListView() {
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
     const [editingData, setEditingData] = useState<RoomData | undefined>(undefined);
 
-    const [data, setData] = useState<RoomData[]>(rooms);
-    // Pagination state
+    const { data: response, isLoading, mutate } = useRoomsQuery();
+
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const pageCount = Math.ceil(data.length / pageSize) || 1;
-    const paginatedData = data.slice((page - 1) * pageSize, page * pageSize);
+
+    const rawData = response?.data || [];
+    const mappedData = React.useMemo(() => {
+        return rawData.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            building: item.building,
+            capacity: item.capacity.toString(),
+            type: item.type,
+            status: item.status,
+        }));
+    }, [rawData]);
+
+    const filteredData = React.useMemo(() => {
+        return mappedData.filter((item: any) =>
+            item.name.toLowerCase().includes(search.toLowerCase()) ||
+            item.building.toLowerCase().includes(search.toLowerCase())
+        );
+    }, [mappedData, search]);
+
+    const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
+    const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
     const handleCreate = () => { setFormMode("create"); setEditingData(undefined); setIsFormOpen(true); };
-    // View dialog state
     const [viewData, setViewData] = useState<RoomData | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
-    // Delete confirmation dialog state
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     
@@ -37,19 +58,50 @@ export function RoomListView() {
     const handleView = (item: RoomData) => { setViewData(item); setIsViewOpen(true); };
     const openDeleteDialog = (id: string) => { setDeleteId(id); setIsDeleteOpen(true); };
     
-    const handleDeleteConfirm = () => {
+    const handleDeleteConfirm = async () => {
         if (deleteId) {
-            setData(data.filter((item) => item.id !== deleteId));
+            try {
+                const res = await AxiosAPI.delete(roomDetailUrl(deleteId));
+                if (res.data?.success) {
+                    toast.success(res.data.message || "Room deleted successfully");
+                    mutate();
+                } else {
+                    toast.error(res.data?.message || "Failed to delete room");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "An error occurred while deleting");
+            }
         }
         setIsDeleteOpen(false);
         setDeleteId(null);
     };
 
-    const handleFormSubmit = (formData: RoomData) => {
-        if (formMode === "create") {
-            setData([...data, { ...formData, id: (data.length + 1).toString() }]);
-        } else {
-            setData(data.map((item) => (item.id === formData.id ? { ...item, ...formData } : item)));
+    const handleFormSubmit = async (formData: RoomData) => {
+        const payload = {
+            name: formData.name,
+            building: formData.building,
+            capacity: parseInt(formData.capacity, 10),
+            type: formData.type,
+            status: formData.status,
+        };
+
+        try {
+            let res;
+            if (formMode === "create") {
+                res = await AxiosAPI.post(roomsUrl, payload);
+            } else {
+                res = await AxiosAPI.put(roomDetailUrl(formData.id!), payload);
+            }
+
+            if (res.data?.success) {
+                toast.success(res.data.message || `Room ${formMode === "create" ? "created" : "updated"} successfully`);
+                mutate();
+                setIsFormOpen(false);
+            } else {
+                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} room`);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred while saving");
         }
     };
 
@@ -101,11 +153,12 @@ export function RoomListView() {
                         searchPlaceholder="Search room..."
                         searchValue={search}
                         onSearch={setSearch}
+                        isLoading={isLoading}
                         pagination={{
                           page,
                           pageCount,
                           pageSize,
-                          totalCount: data.length,
+                          totalCount: filteredData.length,
                           onPageChange: setPage,
                           onPageSizeChange: (size) => {
                             setPageSize(size);
@@ -119,17 +172,17 @@ export function RoomListView() {
                         <AlertDialogHeader>
                             <AlertDialogTitle>View Room</AlertDialogTitle>
                         </AlertDialogHeader>
-                        <AlertDialogDescription>
+                        <div className="text-sm space-y-2 text-muted-foreground my-4">
                             {viewData && (
                                 <div className="space-y-2">
-                                    <p><strong>Name:</strong> {viewData.name}</p>
-                                    <p><strong>Building:</strong> {viewData.building}</p>
-                                    <p><strong>Capacity:</strong> {viewData.capacity}</p>
-                                    <p><strong>Type:</strong> {viewData.type}</p>
-                                    <p><strong>Status:</strong> {viewData.status}</p>
+                                    <p><strong className="text-foreground">Name:</strong> {viewData.name}</p>
+                                    <p><strong className="text-foreground">Building:</strong> {viewData.building}</p>
+                                    <p><strong className="text-foreground">Capacity:</strong> {viewData.capacity}</p>
+                                    <p><strong className="text-foreground">Type:</strong> {viewData.type}</p>
+                                    <p><strong className="text-foreground">Status:</strong> {viewData.status}</p>
                                 </div>
                             )}
-                        </AlertDialogDescription>
+                        </div>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Close</AlertDialogCancel>
                         </AlertDialogFooter>

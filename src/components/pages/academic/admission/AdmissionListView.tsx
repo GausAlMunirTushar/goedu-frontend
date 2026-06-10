@@ -8,8 +8,11 @@ import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { admissions } from "@/data/academic";
 import { AdmissionForm, AdmissionData } from "./AdmissionForm";
+import { useAdmissionsQuery } from "@/apis/queries/academic_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { admissionsUrl, admissionDetailUrl } from "@/apis/endpoints/academic_apis";
+import { toast } from "sonner";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
 export function AdmissionListView() {
@@ -18,18 +21,38 @@ export function AdmissionListView() {
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
     const [editingData, setEditingData] = useState<AdmissionData | undefined>(undefined);
 
-    const [data, setData] = useState<AdmissionData[]>(admissions);
-    // Pagination state
+    const { data: response, isLoading, mutate } = useAdmissionsQuery();
+
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const pageCount = Math.ceil(data.length / pageSize) || 1;
-    const paginatedData = data.slice((page - 1) * pageSize, page * pageSize);
+
+    const rawData = response?.data || [];
+    const mappedData = React.useMemo(() => {
+        return rawData.map((item: any) => ({
+            id: item.id,
+            applicant_name: item.applicantName,
+            classId: item.classId,
+            className: item.class?.name || "",
+            mobile: item.mobile,
+            application_date: item.applicationDate ? new Date(item.applicationDate).toISOString().split('T')[0] : "",
+            status: item.status,
+        }));
+    }, [rawData]);
+
+    const filteredData = React.useMemo(() => {
+        return mappedData.filter((item: any) =>
+            item.applicant_name.toLowerCase().includes(search.toLowerCase()) ||
+            item.className.toLowerCase().includes(search.toLowerCase()) ||
+            item.mobile.includes(search)
+        );
+    }, [mappedData, search]);
+
+    const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
+    const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
     const handleCreate = () => { setFormMode("create"); setEditingData(undefined); setIsFormOpen(true); };
-    // View dialog state
     const [viewData, setViewData] = useState<AdmissionData | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
-    // Delete confirmation dialog state
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     
@@ -37,25 +60,55 @@ export function AdmissionListView() {
     const handleView = (item: AdmissionData) => { setViewData(item); setIsViewOpen(true); };
     const openDeleteDialog = (id: string) => { setDeleteId(id); setIsDeleteOpen(true); };
     
-    const handleDeleteConfirm = () => {
+    const handleDeleteConfirm = async () => {
         if (deleteId) {
-            setData(data.filter((item) => item.id !== deleteId));
+            try {
+                const res = await AxiosAPI.delete(admissionDetailUrl(deleteId));
+                if (res.data?.success) {
+                    toast.success(res.data.message || "Admission application deleted successfully");
+                    mutate();
+                } else {
+                    toast.error(res.data?.message || "Failed to delete admission application");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "An error occurred while deleting");
+            }
         }
         setIsDeleteOpen(false);
         setDeleteId(null);
     };
 
-    const handleFormSubmit = (formData: AdmissionData) => {
-        if (formMode === "create") {
-            setData([...data, { ...formData, id: (data.length + 1).toString(), application_date: new Date().toISOString().split('T')[0] }]);
-        } else {
-            setData(data.map((item) => (item.id === formData.id ? { ...item, ...formData } : item)));
+    const handleFormSubmit = async (formData: AdmissionData) => {
+        const payload = {
+            applicantName: formData.applicant_name,
+            classId: formData.classId,
+            mobile: formData.mobile,
+            status: formData.status,
+        };
+
+        try {
+            let res;
+            if (formMode === "create") {
+                res = await AxiosAPI.post(admissionsUrl, payload);
+            } else {
+                res = await AxiosAPI.put(admissionDetailUrl(formData.id!), payload);
+            }
+
+            if (res.data?.success) {
+                toast.success(res.data.message || `Admission application ${formMode === "create" ? "created" : "updated"} successfully`);
+                mutate();
+                setIsFormOpen(false);
+            } else {
+                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} admission application`);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred while saving");
         }
     };
 
     const columns: ColumnDef<AdmissionData>[] = [
         { accessorKey: "applicant_name", header: "Applicant Name" },
-        { accessorKey: "class", header: "Class" },
+        { accessorKey: "className", header: "Class" },
         { accessorKey: "mobile", header: "Mobile" },
         { accessorKey: "application_date", header: "Date" },
         {
@@ -105,11 +158,12 @@ export function AdmissionListView() {
                         searchPlaceholder="Search applicant..."
                         searchValue={search}
                         onSearch={setSearch}
+                        isLoading={isLoading}
                         pagination={{
                           page,
                           pageCount,
                           pageSize,
-                          totalCount: data.length,
+                          totalCount: filteredData.length,
                           onPageChange: setPage,
                           onPageSizeChange: (size) => {
                             setPageSize(size);
@@ -121,19 +175,19 @@ export function AdmissionListView() {
                 <AlertDialog open={isViewOpen} onOpenChange={setIsViewOpen}>
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                            <AlertDialogTitle>View Admission</AlertDialogTitle>
+                            <AlertDialogTitle>View Admission Application</AlertDialogTitle>
                         </AlertDialogHeader>
-                        <AlertDialogDescription>
+                        <div className="text-sm space-y-2 text-muted-foreground my-4">
                             {viewData && (
                                 <div className="space-y-2">
-                                    <p><strong>Applicant Name:</strong> {viewData.applicant_name}</p>
-                                    <p><strong>Class:</strong> {viewData.class}</p>
-                                    <p><strong>Mobile:</strong> {viewData.mobile}</p>
-                                    <p><strong>Application Date:</strong> {viewData.application_date}</p>
-                                    <p><strong>Status:</strong> {viewData.status}</p>
+                                    <p><strong className="text-foreground">Applicant Name:</strong> {viewData.applicant_name}</p>
+                                    <p><strong className="text-foreground">Class:</strong> {viewData.className}</p>
+                                    <p><strong className="text-foreground">Mobile:</strong> {viewData.mobile}</p>
+                                    <p><strong className="text-foreground">Application Date:</strong> {viewData.application_date}</p>
+                                    <p><strong className="text-foreground">Status:</strong> {viewData.status}</p>
                                 </div>
                             )}
-                        </AlertDialogDescription>
+                        </div>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Close</AlertDialogCancel>
                         </AlertDialogFooter>

@@ -5,6 +5,13 @@ import {
     sectionsUrl,
     subjectsUrl,
     routinesUrl,
+    sessionsUrl,
+    groupsUrl,
+    shiftsUrl,
+    roomsUrl,
+    admissionsUrl,
+    subjectAssignmentsUrl,
+    teacherMappingsUrl,
 } from "@/apis/endpoints/academic_apis";
 import type { TResponse } from "@/types/configs";
 
@@ -39,3 +46,22 @@ export const useRoutinesQuery = (filter?: {
     }
     return useQuery<TResponse<any>>(`${routinesUrl}${queryParams}`);
 };
+
+export const useSessionsQuery = () => useQuery<TResponse<any>>(sessionsUrl);
+
+export const useGroupsQuery = (classId?: string) => 
+    useQuery<TResponse<any>>(classId ? `${groupsUrl}?classId=${classId}` : groupsUrl);
+
+export const useShiftsQuery = () => useQuery<TResponse<any>>(shiftsUrl);
+
+export const useRoomsQuery = () => useQuery<TResponse<any>>(roomsUrl);
+
+export const useAdmissionsQuery = (classId?: string) => 
+    useQuery<TResponse<any>>(classId ? `${admissionsUrl}?classId=${classId}` : admissionsUrl);
+
+export const useSubjectAssignmentsQuery = (classId?: string) => 
+    useQuery<TResponse<any>>(classId ? `${subjectAssignmentsUrl}?classId=${classId}` : subjectAssignmentsUrl);
+
+export const useTeacherMappingsQuery = (classId?: string) => 
+    useQuery<TResponse<any>>(classId ? `${teacherMappingsUrl}?classId=${classId}` : teacherMappingsUrl);
+

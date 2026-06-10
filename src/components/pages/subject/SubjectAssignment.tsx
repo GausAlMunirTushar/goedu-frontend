@@ -3,36 +3,40 @@
 import React, { useState } from "react";
 import Title from "@/components/ui/custom-ui/title";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plus, BookOpen, Trash2, Pencil, Search, SlidersHorizontal } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { classes, subjects, sections } from "@/data/academic";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { 
+    useClassesQuery, 
+    useSectionsQuery, 
+    useShiftsQuery, 
+    useSubjectsQuery, 
+    useSubjectAssignmentsQuery 
+} from "@/apis/queries/academic_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { subjectAssignmentsUrl, subjectAssignmentDetailUrl } from "@/apis/endpoints/academic_apis";
 
 export interface AssignmentData {
-    id?: string;
-    class: string;
-    section: string;
-    shift: string;
+    id: string; // key "classId-sectionId-shiftId"
+    classId: string;
+    className: string;
+    sectionId: string;
+    sectionName: string;
+    shiftId: string;
+    shiftName: string;
     assignedSubjects: string[];
+    assignedSubjectIds: string[];
 }
 
-const mockAssignments: AssignmentData[] = [
-    { id: "1", class: "Class 10", section: "Section A", shift: "Morning (Boys)", assignedSubjects: ["Mathematics", "Physics", "Chemistry", "English"] },
-    { id: "2", class: "Class 10", section: "Section B", shift: "Morning (Girls)", assignedSubjects: ["Mathematics", "English", "Biology"] },
-    { id: "3", class: "Class 9", section: "Section A", shift: "Day (Boys)", assignedSubjects: ["History", "Geography", "English", "Mathematics"] },
-    { id: "4", class: "Class 8", section: "Section A", shift: "Day (Girls)", assignedSubjects: ["Mathematics", "English", "Bangla"] },
-];
-
 export function SubjectAssignment() {
-    const [data, setData] = useState<AssignmentData[]>(mockAssignments);
     const [search, setSearch] = useState("");
     const [selectedClassFilter, setSelectedClassFilter] = useState("All Classes");
 
@@ -40,51 +44,81 @@ export function SubjectAssignment() {
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
     const [editingData, setEditingData] = useState<AssignmentData | undefined>(undefined);
 
+    // Dynamic Options Queries
+    const { data: classesResponse } = useClassesQuery();
+    const { data: sectionsResponse } = useSectionsQuery();
+    const { data: shiftsResponse } = useShiftsQuery();
+    const { data: subjectsResponse } = useSubjectsQuery();
+
+    const classesList = classesResponse?.data || [];
+    const sectionsList = sectionsResponse?.data || [];
+    const shiftsList = shiftsResponse?.data || [];
+    const subjectsList = subjectsResponse?.data || [];
+
+    // Live Assignments List
+    const { data: assignmentsResponse, isLoading, mutate } = useSubjectAssignmentsQuery();
+
     // Form inputs
-    const [formClass, setFormClass] = useState(classes[2].name); // Class 10
-    const [formSection, setFormSection] = useState("Section A");
-    const [formShift, setFormShift] = useState("Morning (Boys)");
-    const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+    const [formClassId, setFormClassId] = useState("");
+    const [formSectionId, setFormSectionId] = useState("");
+    const [formShiftId, setFormShiftId] = useState("");
+    const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
 
     // View dialog
     const [viewData, setViewData] = useState<AssignmentData | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
 
     // Delete dialog
-    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [deleteData, setDeleteData] = useState<AssignmentData | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
     // Pagination
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
-    const filteredData = data.filter((item) => {
-        const matchesSearch = item.class.toLowerCase().includes(search.toLowerCase()) || 
-                             item.section.toLowerCase().includes(search.toLowerCase());
-        const matchesClass = selectedClassFilter === "All Classes" || item.class === selectedClassFilter;
-        return matchesSearch && matchesClass;
-    });
+    const rawAssignments = assignmentsResponse?.data || [];
+    const filteredData = React.useMemo(() => {
+        return rawAssignments.filter((item: AssignmentData) => {
+            const matchesSearch = item.className.toLowerCase().includes(search.toLowerCase()) || 
+                                 item.sectionName.toLowerCase().includes(search.toLowerCase()) ||
+                                 item.shiftName.toLowerCase().includes(search.toLowerCase());
+            const matchesClass = selectedClassFilter === "All Classes" || item.classId === selectedClassFilter;
+            return matchesSearch && matchesClass;
+        });
+    }, [rawAssignments, search, selectedClassFilter]);
 
     const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
     const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
+    // Sync form sections based on selected class
+    const classSections = React.useMemo(() => {
+        return sectionsList.filter((s: any) => s.classId === formClassId);
+    }, [sectionsList, formClassId]);
+
+    // Sync form subjects based on selected class
+    const classSubjects = React.useMemo(() => {
+        return subjectsList.filter((s: any) => s.classId === formClassId);
+    }, [subjectsList, formClassId]);
+
     const handleCreate = () => {
         setFormMode("create");
         setEditingData(undefined);
-        setFormClass(classes[2].name);
-        setFormSection("Section A");
-        setFormShift("Morning (Boys)");
-        setSelectedSubjects([]);
+        
+        const firstClassId = classesList[0]?.id || "";
+        setFormClassId(firstClassId);
+        setFormSectionId("");
+        setFormShiftId(shiftsList[0]?.id || "");
+        setSelectedSubjectIds([]);
         setIsFormOpen(true);
     };
 
     const handleEdit = (item: AssignmentData) => {
         setFormMode("edit");
         setEditingData(item);
-        setFormClass(item.class);
-        setFormSection(item.section);
-        setFormShift(item.shift);
-        setSelectedSubjects(item.assignedSubjects);
+        setFormClassId(item.classId);
+        setFormSectionId(item.sectionId);
+        setFormShiftId(item.shiftId);
+        setSelectedSubjectIds(item.assignedSubjectIds);
         setIsFormOpen(true);
     };
 
@@ -93,56 +127,75 @@ export function SubjectAssignment() {
         setIsViewOpen(true);
     };
 
-    const openDeleteDialog = (id: string) => {
-        setDeleteId(id);
+    const openDeleteDialog = (item: AssignmentData) => {
+        setDeleteData(item);
         setIsDeleteOpen(true);
     };
 
-    const handleDeleteConfirm = () => {
-        if (deleteId) {
-            setData(data.filter((item) => item.id !== deleteId));
-            toast.success("Assignment mapping deleted successfully");
+    const handleDeleteConfirm = async () => {
+        if (deleteData) {
+            try {
+                const res = await AxiosAPI.delete(
+                    subjectAssignmentDetailUrl(deleteData.classId, deleteData.sectionId, deleteData.shiftId)
+                );
+                if (res.data?.success) {
+                    toast.success(res.data.message || "Assignment mapping deleted successfully");
+                    mutate();
+                } else {
+                    toast.error(res.data?.message || "Failed to delete assignment");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "An error occurred while deleting");
+            }
         }
         setIsDeleteOpen(false);
-        setDeleteId(null);
+        setDeleteData(null);
     };
 
-    const handleSubjectToggle = (subjectName: string) => {
-        setSelectedSubjects((prev) => 
-            prev.includes(subjectName) 
-                ? prev.filter((s) => s !== subjectName) 
-                : [...prev, subjectName]
+    const handleSubjectToggle = (subjectId: string) => {
+        setSelectedSubjectIds((prev) => 
+            prev.includes(subjectId) 
+                ? prev.filter((id) => id !== subjectId) 
+                : [...prev, subjectId]
         );
     };
 
-    const handleFormSubmit = (e: React.FormEvent) => {
+    const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (selectedSubjects.length === 0) {
+        if (!formClassId || !formSectionId || !formShiftId) {
+            toast.error("Please select a Class, Section, and Shift");
+            return;
+        }
+        if (selectedSubjectIds.length === 0) {
             toast.error("Please select at least one subject to assign");
             return;
         }
 
-        const payload: AssignmentData = {
-            class: formClass,
-            section: formSection,
-            shift: formShift,
-            assignedSubjects: selectedSubjects,
+        const payload = {
+            classId: formClassId,
+            sectionId: formSectionId,
+            shiftId: formShiftId,
+            subjectIds: selectedSubjectIds,
         };
 
-        if (formMode === "create") {
-            setData([...data, { ...payload, id: (data.length + 1).toString() }]);
-            toast.success("Subject assignment created successfully");
-        } else {
-            setData(data.map((item) => (item.id === editingData?.id ? { ...item, ...payload } : item)));
-            toast.success("Subject assignment updated successfully");
+        try {
+            const res = await AxiosAPI.post(subjectAssignmentsUrl, payload);
+            if (res.data?.success) {
+                toast.success(res.data.message || "Subject assignments updated successfully");
+                mutate();
+                setIsFormOpen(false);
+            } else {
+                toast.error(res.data?.message || "Failed to update assignments");
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred while saving");
         }
-        setIsFormOpen(false);
     };
 
     const columns: ColumnDef<AssignmentData>[] = [
-        { accessorKey: "class", header: "Class" },
-        { accessorKey: "section", header: "Section" },
-        { accessorKey: "shift", header: "Shift" },
+        { accessorKey: "className", header: "Class" },
+        { accessorKey: "sectionName", header: "Section" },
+        { accessorKey: "shiftName", header: "Shift" },
         {
             accessorKey: "assignedSubjects",
             header: "Assigned Subjects",
@@ -163,7 +216,7 @@ export function SubjectAssignment() {
                 <TableActions 
                     onView={() => handleView(row.original)}
                     onEdit={() => handleEdit(row.original)} 
-                    onDelete={() => openDeleteDialog(row.original.id!)} 
+                    onDelete={() => openDeleteDialog(row.original)} 
                 />
             ),
         },
@@ -193,8 +246,8 @@ export function SubjectAssignment() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="All Classes">All Classes</SelectItem>
-                                    {classes.map((c) => (
-                                        <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                                    {classesList.map((c: any) => (
+                                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -204,10 +257,11 @@ export function SubjectAssignment() {
                     <DataTable
                         columns={columns}
                         data={paginatedData}
-                        searchKey="class"
+                        searchKey="className"
                         searchPlaceholder="Search assignments..."
                         searchValue={search}
                         onSearch={setSearch}
+                        isLoading={isLoading}
                         pagination={{
                             page,
                             pageCount,
@@ -233,63 +287,77 @@ export function SubjectAssignment() {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <Label htmlFor="form-class">Class</Label>
-                                <Select onValueChange={setFormClass} value={formClass}>
-                                    <SelectTrigger id="form-class">
-                                        <SelectValue placeholder="Select class" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {classes.map((c) => (
-                                            <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <select
+                                    id="form-class"
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    value={formClassId}
+                                    onChange={(e) => {
+                                        setFormClassId(e.target.value);
+                                        setFormSectionId("");
+                                    }}
+                                    disabled={formMode === "edit"}
+                                >
+                                    <option value="" disabled>Select class</option>
+                                    {classesList.map((c: any) => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="space-y-1">
                                 <Label htmlFor="form-section">Section</Label>
-                                <Select onValueChange={setFormSection} value={formSection}>
-                                    <SelectTrigger id="form-section">
-                                        <SelectValue placeholder="Select section" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Section A">Section A</SelectItem>
-                                        <SelectItem value="Section B">Section B</SelectItem>
-                                        <SelectItem value="Section C">Section C</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <select
+                                    id="form-section"
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    value={formSectionId}
+                                    onChange={(e) => setFormSectionId(e.target.value)}
+                                    disabled={formMode === "edit"}
+                                >
+                                    <option value="" disabled>Select section</option>
+                                    {classSections.map((s: any) => (
+                                        <option key={s.id} value={s.id}>{s.name}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
                         <div className="space-y-1">
                             <Label htmlFor="form-shift">Shift</Label>
-                            <Select onValueChange={setFormShift} value={formShift}>
-                                <SelectTrigger id="form-shift">
-                                    <SelectValue placeholder="Select shift" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Morning (Boys)">Morning (Boys)</SelectItem>
-                                    <SelectItem value="Morning (Girls)">Morning (Girls)</SelectItem>
-                                    <SelectItem value="Day (Boys)">Day (Boys)</SelectItem>
-                                    <SelectItem value="Day (Girls)">Day (Girls)</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <select
+                                id="form-shift"
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                value={formShiftId}
+                                onChange={(e) => setFormShiftId(e.target.value)}
+                                disabled={formMode === "edit"}
+                            >
+                                <option value="" disabled>Select shift</option>
+                                {shiftsList.map((s: any) => (
+                                    <option key={s.id} value={s.id}>{s.name} ({s.startTime} - {s.endTime})</option>
+                                ))}
+                            </select>
                         </div>
 
                         {/* Subject Checkbox List */}
                         <div className="space-y-2">
                             <Label className="text-sm font-semibold">Select Subjects to Assign</Label>
                             <div className="border border-gray-100 rounded-lg p-3 max-h-48 overflow-y-auto grid grid-cols-2 gap-2">
-                                {subjects.map((sub) => (
-                                    <div key={sub.id} className="flex items-center gap-2">
-                                        <Checkbox
-                                            id={`sub-${sub.id}`}
-                                            checked={selectedSubjects.includes(sub.name)}
-                                            onCheckedChange={() => handleSubjectToggle(sub.name)}
-                                        />
-                                        <label htmlFor={`sub-${sub.id}`} className="text-xs font-medium text-gray-700 cursor-pointer select-none">
-                                            {sub.name} <span className="text-gray-400 font-mono text-[10px]">({sub.code})</span>
-                                        </label>
-                                    </div>
-                                ))}
+                                {classSubjects.length === 0 ? (
+                                    <p className="text-xs text-muted-foreground col-span-2 py-4 text-center">
+                                        {!formClassId ? "Please select a Class first" : "No subjects defined for this Class"}
+                                    </p>
+                                ) : (
+                                    classSubjects.map((sub: any) => (
+                                        <div key={sub.id} className="flex items-center gap-2">
+                                            <Checkbox
+                                                id={`sub-${sub.id}`}
+                                                checked={selectedSubjectIds.includes(sub.id)}
+                                                onCheckedChange={() => handleSubjectToggle(sub.id)}
+                                            />
+                                            <label htmlFor={`sub-${sub.id}`} className="text-xs font-medium text-gray-700 cursor-pointer select-none">
+                                                {sub.name} <span className="text-gray-400 font-mono text-[10px]">({sub.code})</span>
+                                            </label>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
 
@@ -309,9 +377,9 @@ export function SubjectAssignment() {
                     </AlertDialogHeader>
                     {viewData && (
                         <div className="space-y-3 text-sm">
-                            <p><strong>Class:</strong> {viewData.class}</p>
-                            <p><strong>Section:</strong> {viewData.section}</p>
-                            <p><strong>Shift:</strong> {viewData.shift}</p>
+                            <p><strong>Class:</strong> {viewData.className}</p>
+                            <p><strong>Section:</strong> {viewData.sectionName}</p>
+                            <p><strong>Shift:</strong> {viewData.shiftName}</p>
                             <div>
                                 <strong>Assigned Subjects:</strong>
                                 <div className="flex flex-wrap gap-1.5 mt-2">

@@ -4,12 +4,15 @@ import React, { useState } from "react";
 import Title from "@/components/ui/custom-ui/title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { sessions } from "@/data/academic";
 import { SessionForm, SessionData } from "./SessionForm";
+import { useSessionsQuery } from "@/apis/queries/academic_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { sessionsUrl, sessionDetailUrl } from "@/apis/endpoints/academic_apis";
+import { toast } from "sonner";
 
 export function SessionListView() {
     const [search, setSearch] = useState("");
@@ -17,7 +20,30 @@ export function SessionListView() {
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
     const [editingData, setEditingData] = useState<SessionData | undefined>(undefined);
 
-    const [data, setData] = useState<SessionData[]>(sessions);
+    const { data: response, isLoading, mutate } = useSessionsQuery();
+
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+
+    const rawData = response?.data || [];
+    const mappedData = React.useMemo(() => {
+        return rawData.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            start_month: item.startMonth,
+            end_month: item.endMonth,
+            status: item.status,
+        }));
+    }, [rawData]);
+
+    const filteredData = React.useMemo(() => {
+        return mappedData.filter((item: any) =>
+            item.name.toLowerCase().includes(search.toLowerCase())
+        );
+    }, [mappedData, search]);
+
+    const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
+    const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
     const handleCreate = () => {
         setFormMode("create");
@@ -31,18 +57,47 @@ export function SessionListView() {
         setIsFormOpen(true);
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (confirm("Are you sure you want to delete this session?")) {
-            setData(data.filter((item) => item.id !== id));
+            try {
+                const res = await AxiosAPI.delete(sessionDetailUrl(id));
+                if (res.data?.success) {
+                    toast.success(res.data.message || "Session deleted successfully");
+                    mutate();
+                } else {
+                    toast.error(res.data?.message || "Failed to delete session");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "An error occurred while deleting");
+            }
         }
     };
 
-    const handleFormSubmit = (formData: SessionData) => {
-        if (formMode === "create") {
-            const newId = (data.length + 1).toString();
-            setData([...data, { ...formData, id: newId }]);
-        } else {
-            setData(data.map((item) => (item.id === formData.id ? { ...item, ...formData } : item)));
+    const handleFormSubmit = async (formData: SessionData) => {
+        const payload = {
+            name: formData.name,
+            startMonth: formData.start_month,
+            endMonth: formData.end_month,
+            status: formData.status,
+        };
+
+        try {
+            let res;
+            if (formMode === "create") {
+                res = await AxiosAPI.post(sessionsUrl, payload);
+            } else {
+                res = await AxiosAPI.put(sessionDetailUrl(formData.id!), payload);
+            }
+
+            if (res.data?.success) {
+                toast.success(res.data.message || `Session ${formMode === "create" ? "created" : "updated"} successfully`);
+                mutate();
+                setIsFormOpen(false);
+            } else {
+                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} session`);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred while saving");
         }
     };
 
@@ -92,7 +147,26 @@ export function SessionListView() {
                     </div>
                 </CardHeader>
                 <CardContent className="bg-white rounded-b-xl pt-3">
-                    <DataTable columns={columns} data={data} searchKey="name" searchPlaceholder="Search session..." searchValue={search} onSearch={setSearch} />
+                    <DataTable 
+                        columns={columns} 
+                        data={paginatedData} 
+                        searchKey="name" 
+                        searchPlaceholder="Search session..." 
+                        searchValue={search} 
+                        onSearch={setSearch} 
+                        isLoading={isLoading}
+                        pagination={{
+                            page,
+                            pageCount,
+                            pageSize,
+                            totalCount: filteredData.length,
+                            onPageChange: setPage,
+                            onPageSizeChange: (size) => {
+                                setPageSize(size);
+                                setPage(1);
+                            },
+                        }}
+                    />
                 </CardContent>
             </Card>
             <SessionForm mode={formMode} initialData={editingData} isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} onSubmit={handleFormSubmit} />
