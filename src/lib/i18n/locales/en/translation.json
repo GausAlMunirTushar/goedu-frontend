@@ -92,7 +92,7 @@
     "notice": "Notice",
     "admission_form": "Admission Form",
     "institution_info": "Institution Info",
-    "admission_info": "Admission Info",
+    "admission": "Admission",
     "others": "Others",
     "institution_bin": "Institution BIN",
     "institution_code": "Institution Code",
@@ -118,5 +118,7 @@
     "support": "Support",
     "students_list": "Students List",
     "exam_result": "Exam Result",
-    "exam_schedule": "Exam Schedule"
+    "exam_schedule": "Exam Schedule",
+    "history": "History",
+    "mission_vision": "Mission & Vision"
 }

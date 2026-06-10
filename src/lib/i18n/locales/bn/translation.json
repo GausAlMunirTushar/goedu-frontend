@@ -92,7 +92,7 @@
     "notice": "নোটিশ",
     "admission_form": "ভর্তি আবেদন",
     "institution_info": "প্রতিষ্ঠানের তথ্য",
-    "admission_info": "ভর্তি তথ্য",
+    "admission": "ভর্তি",
     "others": "অন্যান্য",
     "institution_bin": "প্রতিষ্ঠান বিন নং",
     "institution_code": "শিক্ষা প্রতিষ্ঠান কোড",
@@ -118,5 +118,7 @@
     "support": "সহায়তা",
     "students_list": "শিক্ষার্থী তালিকা",
     "exam_result": "পরীক্ষার ফলাফল",
-    "exam_schedule": "পরীক্ষার সময়সূচি"
+    "exam_schedule": "পরীক্ষার সময়সূচি",
+    "history": "ইতিহাস",
+    "mission_vision": "লক্ষ্য ও উদ্দেশ্য"
 }

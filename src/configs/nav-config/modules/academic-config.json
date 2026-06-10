@@ -42,8 +42,24 @@
             {
                 "id": "subject",
                 "label": "Subject",
-                "path": "/academic/subject",
-                "icon": "BookOpen"
+                "icon": "BookOpen",
+                "submenus": [
+                    {
+                        "id": "subject-creation",
+                        "label": "Subject Creation",
+                        "path": "/academic/subject"
+                    },
+                    {
+                        "id": "subject-assignment",
+                        "label": "Subject Assignment",
+                        "path": "/academic/subject/assignment"
+                    },
+                    {
+                        "id": "subject-teacher-mapping",
+                        "label": "Teacher Mapping",
+                        "path": "/academic/subject/teacher-mapping"
+                    }
+                ]
             },
             {
                 "id": "room",

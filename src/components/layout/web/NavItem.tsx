@@ -29,7 +29,6 @@ export default function NavItem({ link }: NavItemProps) {
   const { t } = useTranslationClient(lng);
   const pathname = usePathname();
 
-  const isHome = link.labelKey === "home" && !link.children;
   const isActive =
     pathname === link.href ||
     link.children?.some((c) => pathname === c.href);
@@ -40,24 +39,13 @@ export default function NavItem({ link }: NavItemProps) {
       <Link
         href={link.href}
         className={cn(
-          "px-3 py-1.5 transition-all duration-200",
-          isHome
-            ? "bg-primary text-primary-foreground px-4 rounded-full shadow-sm mx-1 hover:opacity-90 font-medium"
-            : cn(
-                "relative group hover:text-primary font-medium",
-                isActive ? "text-primary" : "text-gray-700"
-              )
+          "px-4 py-1.5 transition-all duration-200 rounded-full font-medium text-[14px]",
+          isActive
+            ? "bg-primary text-primary-foreground shadow-sm mx-1"
+            : "text-gray-700 hover:text-primary hover:bg-gray-100"
         )}
       >
         {t(link.labelKey) || link.defaultLabel}
-        {!isHome && (
-          <span
-            className={cn(
-              "absolute bottom-0 left-3 right-3 h-0.5 bg-primary rounded-full transition-transform duration-300 origin-left",
-              isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-            )}
-          />
-        )}
       </Link>
     );
   }
@@ -68,18 +56,14 @@ export default function NavItem({ link }: NavItemProps) {
       {/* Trigger */}
       <button
         className={cn(
-          "flex items-center gap-1 px-3 py-2 text-[14px] font-medium transition-all duration-200 relative select-none",
-          isActive ? "text-primary" : "text-gray-700 hover:text-primary"
+          "flex items-center gap-1.5 px-4 py-1.5 text-[14px] font-medium transition-all duration-200 rounded-full select-none",
+          isActive
+            ? "bg-primary text-primary-foreground shadow-sm mx-1"
+            : "text-gray-700 hover:text-primary hover:bg-gray-100"
         )}
       >
         {t(link.labelKey) || link.defaultLabel}
         <ChevronDown className="w-3.5 h-3.5 mt-px transition-transform duration-200 group-hover:rotate-180" />
-        <span
-          className={cn(
-            "absolute bottom-0.5 left-3 right-6 h-0.5 bg-primary rounded-full transition-transform duration-300 origin-left",
-            isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-          )}
-        />
       </button>
 
       {/* Panel */}

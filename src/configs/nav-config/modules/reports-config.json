@@ -1,9 +1,32 @@
 {
-    "module":  {
-                   "label":  "Reports Management",
-                   "id":  "reports",
-                   "menus":  [
-
-                             ]
-               }
+    "module": {
+        "label": "Reports",
+        "id": "reports",
+        "menus": [
+            {
+                "id": "student-reports",
+                "label": "Student Reports",
+                "path": "/reports/student-reports",
+                "icon": "GraduationCap"
+            },
+            {
+                "id": "teacher-reports",
+                "label": "Teacher Reports",
+                "path": "/reports/teacher-reports",
+                "icon": "Users"
+            },
+            {
+                "id": "attendance-reports",
+                "label": "Attendance Reports",
+                "path": "/reports/attendance-reports",
+                "icon": "Calendar"
+            },
+            {
+                "id": "result-reports",
+                "label": "Result Reports",
+                "path": "/reports/result-reports",
+                "icon": "Award"
+            }
+        ]
+    }
 }

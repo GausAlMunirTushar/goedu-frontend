@@ -33,7 +33,9 @@ export const webHeaderData = {
             href: "/about", 
             defaultLabel: "আমাদের সম্পর্কে",
             children: [
-                { labelKey: "institution_info", href: "/about", defaultLabel: "প্রতিষ্ঠানের তথ্য" }
+                { labelKey: "institution_info", href: "/about", defaultLabel: "প্রতিষ্ঠানের তথ্য" },
+                { labelKey: "history", href: "/about/history", defaultLabel: "ইতিহাস" },
+                { labelKey: "mission_vision", href: "/about/our-mision-vission", defaultLabel: "লক্ষ্য ও উদ্দেশ্য" }
             ]
         },
         { 
@@ -50,9 +52,9 @@ export const webHeaderData = {
             ]
         },
         { 
-            labelKey: "admission_info", 
+            labelKey: "admission", 
             href: "#", 
-            defaultLabel: "ভর্তি তথ্য",
+            defaultLabel: "ভর্তি",
             children: [
                 { labelKey: "admission_form", href: "/online-admission", defaultLabel: "ভর্তি আবেদন" },
                 { labelKey: "admission_rules", href: "#", defaultLabel: "ভর্তির নিয়মাবলী" },
