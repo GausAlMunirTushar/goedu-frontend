@@ -1,19 +1,26 @@
 "use client";
 
 import React from "react";
-import { useForm } from "react-hook-form";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useForm, Controller } from "react-hook-form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useDesignationsQuery, useDepartmentsQuery } from "@/apis/queries/teacher_queries";
 
 export interface TeacherData {
   id?: string;
-  name: string;
-  designation: string;
-  department?: string;
+  username: string;
+  phone: string;
   email?: string;
-  phone?: string;
+  password?: string;
+  firstName: string;
+  lastName: string;
+  designationId?: string | null;
+  departmentId?: string | null;
+  isActive: boolean;
+  designation?: { id: string; title: string };
+  department?: { id: string; name: string };
 }
 
 interface TeacherFormProps {
@@ -21,68 +28,244 @@ interface TeacherFormProps {
   initialData?: TeacherData;
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: TeacherData) => void;
-  inline?: boolean; // render form inline instead of modal
+  onSubmit: (data: any) => void;
+  inline?: boolean;
 }
 
 export function TeacherForm({ mode, initialData, isOpen, onClose, onSubmit, inline = false }: TeacherFormProps) {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<TeacherData>({
-    defaultValues: initialData || { name: "", designation: "", department: "", email: "", phone: "" },
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<any>({
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      username: "",
+      phone: "",
+      email: "",
+      password: "",
+      designationId: "none",
+      departmentId: "none",
+      isActive: "true",
+    },
   });
+
+  const { data: designationsRes } = useDesignationsQuery();
+  const { data: departmentsRes } = useDepartmentsQuery();
+
+  const designations = designationsRes?.data || [];
+  const departments = departmentsRes?.data || [];
+
+  const activeDesignations = React.useMemo(() => {
+    return designations.filter((d: any) => d.status === "Active" || d.id === initialData?.designation?.id);
+  }, [designations, initialData]);
+
+  const activeDepartments = React.useMemo(() => {
+    return departments.filter((d: any) => d.status === "Active" || d.id === initialData?.department?.id);
+  }, [departments, initialData]);
 
   React.useEffect(() => {
     if (isOpen) {
-      reset(initialData || { name: "", designation: "", department: "", email: "", phone: "" });
+      reset(
+        initialData
+          ? {
+              firstName: initialData.firstName || "",
+              lastName: initialData.lastName || "",
+              username: initialData.username || "",
+              phone: initialData.phone || "",
+              email: initialData.email || "",
+              password: "",
+              designationId: initialData.designation?.id || "none",
+              departmentId: initialData.department?.id || "none",
+              isActive: initialData.isActive ? "true" : "false",
+            }
+          : {
+              firstName: "",
+              lastName: "",
+              username: "",
+              phone: "",
+              email: "",
+              password: "",
+              designationId: "none",
+              departmentId: "none",
+              isActive: "true",
+            }
+      );
     }
   }, [isOpen, initialData, reset]);
 
-  const submit = (data: TeacherData) => {
-    onSubmit(data);
-    onClose();
+  const submit = (formData: any) => {
+    const payload: any = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      username: formData.username,
+      phone: formData.phone,
+      email: formData.email || null,
+      designationId: formData.designationId === "none" ? null : formData.designationId,
+      departmentId: formData.departmentId === "none" ? null : formData.departmentId,
+      isActive: formData.isActive === "true",
+    };
+
+    if (formData.password) {
+      payload.password = formData.password;
+    }
+
+    onSubmit(payload);
   };
 
   const formContent = (
-    <form onSubmit={handleSubmit(submit)} className="space-y-6">
+    <form onSubmit={handleSubmit(submit)} className="space-y-5">
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
-          <Input id="name" placeholder="e.g. Jane Doe" {...register("name", { required: true })} />
-          {errors.name && <p className="text-sm text-red-500">Name is required</p>}
+        <div className="space-y-1">
+          <Label htmlFor="firstName">First Name</Label>
+          <Input
+            id="firstName"
+            placeholder="e.g. John"
+            {...register("firstName", { required: "First name is required" })}
+          />
+          {errors.firstName && <p className="text-xs text-red-500">{errors.firstName.message as string}</p>}
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="designation">Designation</Label>
-          <Input id="designation" placeholder="e.g. Professor" {...register("designation", { required: true })} />
-          {errors.designation && <p className="text-sm text-red-500">Designation is required</p>}
+        <div className="space-y-1">
+          <Label htmlFor="lastName">Last Name</Label>
+          <Input
+            id="lastName"
+            placeholder="e.g. Doe"
+            {...register("lastName", { required: "Last name is required" })}
+          />
+          {errors.lastName && <p className="text-xs text-red-500">{errors.lastName.message as string}</p>}
         </div>
       </div>
+
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="department">Department</Label>
-          <Input id="department" placeholder="e.g. Mathematics" {...register("department")} />
+        <div className="space-y-1">
+          <Label htmlFor="username">Username</Label>
+          <Input
+            id="username"
+            placeholder="e.g. johndoe"
+            {...register("username", {
+              required: "Username is required",
+              minLength: { value: 3, message: "Username must be at least 3 characters" },
+              pattern: {
+                value: /^[a-zA-Z0-9_]+$/,
+                message: "Alphanumeric and underscores only",
+              },
+            })}
+          />
+          {errors.username && <p className="text-xs text-red-500">{errors.username.message as string}</p>}
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1">
+          <Label htmlFor="phone">Phone</Label>
+          <Input
+            id="phone"
+            placeholder="e.g. 01712345678"
+            {...register("phone", {
+              required: "Phone number is required",
+              pattern: {
+                value: /^0[0-9]+$/,
+                message: "Must start with 0 and contain numbers only",
+              },
+            })}
+          />
+          {errors.phone && <p className="text-xs text-red-500">{errors.phone.message as string}</p>}
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-1">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="e.g. jane@example.com" {...register("email")} />
+          <Input
+            id="email"
+            type="email"
+            placeholder="e.g. john@example.com"
+            {...register("email", {
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Invalid email address",
+              },
+            })}
+          />
+          {errors.email && <p className="text-xs text-red-500">{errors.email.message as string}</p>}
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            placeholder={mode === "create" ? "••••••" : "Leave empty to keep current password"}
+            {...register("password", {
+              required: mode === "create" ? "Password is required" : false,
+              minLength: {
+                value: 6,
+                message: "Password must be at least 6 characters",
+              },
+            })}
+          />
+          {errors.password && <p className="text-xs text-red-500">{errors.password.message as string}</p>}
         </div>
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="phone">Phone</Label>
-        <Input id="phone" placeholder="e.g. 1234567890" {...register("phone")} />
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-1">
+          <Label htmlFor="designationId">Designation</Label>
+          <select
+            id="designationId"
+            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            {...register("designationId")}
+          >
+            <option value="none">Not Selected</option>
+            {activeDesignations.map((d: any) => (
+              <option key={d.id} value={d.id}>
+                {d.title}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="departmentId">Department</Label>
+          <select
+            id="departmentId"
+            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            {...register("departmentId")}
+          >
+            <option value="none">Not Selected</option>
+            {activeDepartments.map((d: any) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-      <div className="flex justify-end space-x-2 mt-4">
-        <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-        <Button type="submit">{mode === "create" ? "Create" : "Save"}</Button>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-1">
+          <Label htmlFor="isActive">Status</Label>
+          <select
+            id="isActive"
+            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            {...register("isActive")}
+          >
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="flex justify-end space-x-2 pt-4 border-t border-gray-100">
+        <Button type="button" variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button type="submit">
+          {mode === "create" ? "Create Teacher" : "Save Changes"}
+        </Button>
       </div>
     </form>
   );
 
   if (inline) {
-    return <>{formContent}</>;
+    return <div className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm">{formContent}</div>;
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{mode === "create" ? "Add Teacher" : "Edit Teacher"}</DialogTitle>
         </DialogHeader>

@@ -4,26 +4,33 @@
 import { useParams, useRouter } from "next/navigation";
 import { TeacherForm } from "@/components/pages/teacher/TeacherForm";
 import Title from "@/components/ui/custom-ui/title";
-import { teachers } from "@/data/teachers";
-import { useState, useEffect } from "react";
+import { AxiosAPI } from "@/apis/configs";
+import { teacherProfileDetailUrl } from "@/apis/endpoints/teacher_apis";
+import { useTeacherProfileQuery } from "@/apis/queries/teacher_queries";
+import { toast } from "sonner";
 
 export default function EditTeacherPage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
-  const [teacher, setTeacher] = useState<any>(null);
+  const { data: response, isLoading } = useTeacherProfileQuery(id);
+  const teacher = response?.data;
 
-  useEffect(() => {
-    const found = teachers.find((t) => t.id === id);
-    if (found) setTeacher(found);
-    else router.replace("/teacher");
-  }, [id, router]);
-
-  const handleSubmit = (updated: any) => {
-    // In a real app, would call API. Here we just navigate back.
-    router.push("/teacher");
+  const handleSubmit = async (updated: any) => {
+    try {
+      const res = await AxiosAPI.put(teacherProfileDetailUrl(id), updated);
+      if (res.data?.success) {
+        toast.success(res.data.message || "Teacher profile updated successfully");
+        router.push("/teacher");
+      } else {
+        toast.error(res.data?.message || "Failed to update teacher profile");
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "An error occurred while updating teacher profile");
+    }
   };
 
-  if (!teacher) return null;
+  if (isLoading) return <div className="p-4">Loading teacher details...</div>;
+  if (!teacher) return <div className="p-4">Teacher profile not found.</div>;
 
   return (
     <div className="p-4 space-y-6">

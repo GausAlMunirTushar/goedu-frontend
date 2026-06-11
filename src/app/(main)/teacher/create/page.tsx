@@ -3,19 +3,26 @@
 
 import { TeacherForm } from "@/components/pages/teacher/TeacherForm";
 import Title from "@/components/ui/custom-ui/title";
-import { useState } from "react";
-import { teachers } from "@/data/teachers";
 import { useRouter } from "next/navigation";
+import { AxiosAPI } from "@/apis/configs";
+import { teachersProfilesUrl } from "@/apis/endpoints/teacher_apis";
+import { toast } from "sonner";
 
 export default function CreateTeacherPage() {
   const router = useRouter();
-  const [data, setData] = useState(teachers);
 
-  const handleSubmit = (newTeacher: any) => {
-    // In a real app this would call an API; here we just push to the local array.
-    const newId = (data.length + 1).toString();
-    setData([...data, { ...newTeacher, id: newId }]);
-    router.push("/teacher");
+  const handleSubmit = async (newTeacher: any) => {
+    try {
+      const res = await AxiosAPI.post(teachersProfilesUrl, newTeacher);
+      if (res.data?.success) {
+        toast.success(res.data.message || "Teacher profile created successfully");
+        router.push("/teacher");
+      } else {
+        toast.error(res.data?.message || "Failed to create teacher profile");
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "An error occurred while creating teacher profile");
+    }
   };
 
   return (

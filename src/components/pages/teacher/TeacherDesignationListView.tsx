@@ -1,4 +1,3 @@
-// src/components/pages/teacher/TeacherDesignationListView.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -10,9 +9,12 @@ import { PlusCircle } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { teacherDesignations, TeacherDesignationData } from "@/data/teacherDesignations";
 import { TeacherDesignationForm } from "./TeacherDesignationForm";
 import { Badge } from "@/components/ui/badge";
+import { useDesignationsQuery } from "@/apis/queries/teacher_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { designationsUrl, designationDetailUrl } from "@/apis/endpoints/teacher_apis";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -23,6 +25,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { TeacherDesignationData } from "@/data/teacherDesignations";
 
 export function TeacherDesignationListView() {
   const [search, setSearch] = useState("");
@@ -31,11 +34,36 @@ export function TeacherDesignationListView() {
   const [editingData, setEditingData] = useState<TeacherDesignationData | undefined>(undefined);
   const [statusFilter, setStatusFilter] = useState<string>("All");
 
-  const [data, setData] = useState<TeacherDesignationData[]>(teacherDesignations);
+  const { data: response, isLoading, mutate } = useDesignationsQuery();
 
-  // deletion dialog state
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  const rawData = response?.data || [];
+  const mappedData = React.useMemo(() => {
+    return rawData.map((item: any) => ({
+      id: item.id,
+      title: item.title,
+      description: item.description || "",
+      status: item.status,
+    }));
+  }, [rawData]);
+
+  const filteredData = React.useMemo(() => {
+    return mappedData.filter((item: any) => {
+      const matchesSearch =
+        item.title.toLowerCase().includes(search.toLowerCase()) ||
+        (item.description?.toLowerCase().includes(search.toLowerCase()) ?? false);
+      const matchesStatus = statusFilter === "All" || item.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [mappedData, search, statusFilter]);
+
+  const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
+  const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
   const handleCreate = () => {
     setFormMode("create");
@@ -54,22 +82,48 @@ export function TeacherDesignationListView() {
     setIsDeleteOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (deleteId) {
-      setData(data.filter((d) => d.id !== deleteId));
+      try {
+        const res = await AxiosAPI.delete(designationDetailUrl(deleteId));
+        if (res.data?.success) {
+          toast.success(res.data.message || "Designation deleted successfully");
+          mutate();
+        } else {
+          toast.error(res.data?.message || "Failed to delete designation");
+        }
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || "An error occurred while deleting");
+      }
     }
     setIsDeleteOpen(false);
     setDeleteId(null);
   };
 
-  const handleFormSubmit = (formData: TeacherDesignationData) => {
-    if (formMode === "create") {
-      const newId = (data.length + 1).toString();
-      setData([...data, { ...formData, id: newId }]);
-    } else {
-      setData(
-        data.map((d) => (d.id === formData.id ? { ...d, ...formData } : d))
-      );
+  const handleFormSubmit = async (formData: TeacherDesignationData) => {
+    const payload = {
+      title: formData.title,
+      description: formData.description,
+      status: formData.status,
+    };
+
+    try {
+      let res;
+      if (formMode === "create") {
+        res = await AxiosAPI.post(designationsUrl, payload);
+      } else {
+        res = await AxiosAPI.put(designationDetailUrl(formData.id!), payload);
+      }
+
+      if (res.data?.success) {
+        toast.success(res.data.message || `Designation ${formMode === "create" ? "created" : "updated"} successfully`);
+        mutate();
+        setIsFormOpen(false);
+      } else {
+        toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} designation`);
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "An error occurred while saving");
     }
   };
 
@@ -100,15 +154,6 @@ export function TeacherDesignationListView() {
     },
   ];
 
-  const filteredData = data.filter((d) => {
-    const matchesSearch =
-      d.title.toLowerCase().includes(search.toLowerCase()) ||
-      (d.description?.toLowerCase().includes(search.toLowerCase()) ?? false);
-    const matchesStatus =
-      statusFilter === "All" || d.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
   return (
     <div className="p-2 space-y-4">
       <Card>
@@ -138,11 +183,23 @@ export function TeacherDesignationListView() {
         <CardContent className="bg-white rounded-b-xl pt-3">
           <DataTable
             columns={columns}
-            data={filteredData}
+            data={paginatedData}
             searchKey="title"
             searchPlaceholder="Search designations..."
             searchValue={search}
             onSearch={setSearch}
+            isLoading={isLoading}
+            pagination={{
+              page,
+              pageCount,
+              pageSize,
+              totalCount: filteredData.length,
+              onPageChange: setPage,
+              onPageSizeChange: (size) => {
+                setPageSize(size);
+                setPage(1);
+              },
+            }}
           />
         </CardContent>
       </Card>

@@ -14,37 +14,24 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { useDepartmentsQuery, useTeachersProfilesQuery } from "@/apis/queries/teacher_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { departmentsUrl, departmentDetailUrl } from "@/apis/endpoints/teacher_apis";
 
 export interface DepartmentData {
     id?: string;
     code: string;
     name: string;
     headOfDept: string;
+    headOfDeptId: string | null;
     teacherCount: number;
     status: string;
 }
 
-const mockDepartments: DepartmentData[] = [
-    { id: "1", code: "SCI", name: "Science", headOfDept: "Anisur Rahman", teacherCount: 8, status: "Active" },
-    { id: "2", code: "ENG", name: "English", headOfDept: "Farhana Yasmin", teacherCount: 5, status: "Active" },
-    { id: "3", code: "MAT", name: "Mathematics", headOfDept: "Jamil Chowdhury", teacherCount: 6, status: "Active" },
-    { id: "4", code: "BAN", name: "Bangla", headOfDept: "Shahana Chowdhury", teacherCount: 4, status: "Active" },
-    { id: "5", code: "HUM", name: "Humanities / Arts", headOfDept: "Imtiaz Ahmed", teacherCount: 3, status: "Active" },
-    { id: "6", code: "COM", name: "Commerce", headOfDept: "Not Assigned", teacherCount: 0, status: "Inactive" },
-];
-
-const facultyList = [
-    "Not Assigned",
-    "Anisur Rahman",
-    "Farhana Yasmin",
-    "Jamil Chowdhury",
-    "Rokeya Begum",
-    "Imtiaz Ahmed",
-    "Shahana Chowdhury"
-];
-
 export function TeacherDepartment() {
-    const [data, setData] = useState<DepartmentData[]>(mockDepartments);
+    const { data: deptResponse, isLoading, mutate } = useDepartmentsQuery();
+    const { data: teacherResponse } = useTeachersProfilesQuery();
+
     const [search, setSearch] = useState("");
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -53,7 +40,7 @@ export function TeacherDepartment() {
     // Form inputs
     const [formCode, setFormCode] = useState("");
     const [formName, setFormName] = useState("");
-    const [formHead, setFormHead] = useState("Not Assigned");
+    const [formHeadId, setFormHeadId] = useState<string>("unassigned");
     const [formStatus, setFormStatus] = useState("Active");
 
     // View dialog
@@ -68,7 +55,28 @@ export function TeacherDepartment() {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
-    const filteredData = data.filter((item) => {
+    const facultyList = React.useMemo(() => {
+        const teachers = teacherResponse?.data || [];
+        return teachers.map((t: any) => ({
+            id: t.id,
+            name: `${t.firstName} ${t.lastName}`
+        }));
+    }, [teacherResponse]);
+
+    const mappedData: DepartmentData[] = React.useMemo(() => {
+        const rawDepts = deptResponse?.data || [];
+        return rawDepts.map((d: any) => ({
+            id: d.id,
+            code: d.code,
+            name: d.name,
+            headOfDept: d.headOfDept ? `${d.headOfDept.firstName} ${d.headOfDept.lastName}` : "Not Assigned",
+            headOfDeptId: d.headOfDept?.id || null,
+            teacherCount: d.users ? d.users.length : 0,
+            status: d.status,
+        }));
+    }, [deptResponse]);
+
+    const filteredData = mappedData.filter((item) => {
         return item.name.toLowerCase().includes(search.toLowerCase()) || 
                item.code.toLowerCase().includes(search.toLowerCase()) ||
                item.headOfDept.toLowerCase().includes(search.toLowerCase());
@@ -82,7 +90,7 @@ export function TeacherDepartment() {
         setEditingData(undefined);
         setFormCode("");
         setFormName("");
-        setFormHead("Not Assigned");
+        setFormHeadId("unassigned");
         setFormStatus("Active");
         setIsFormOpen(true);
     };
@@ -92,7 +100,7 @@ export function TeacherDepartment() {
         setEditingData(item);
         setFormCode(item.code);
         setFormName(item.name);
-        setFormHead(item.headOfDept);
+        setFormHeadId(item.headOfDeptId || "unassigned");
         setFormStatus(item.status);
         setIsFormOpen(true);
     };
@@ -107,38 +115,56 @@ export function TeacherDepartment() {
         setIsDeleteOpen(true);
     };
 
-    const handleDeleteConfirm = () => {
+    const handleDeleteConfirm = async () => {
         if (deleteId) {
-            setData(data.filter((item) => item.id !== deleteId));
-            toast.success("Department deleted successfully");
+            try {
+                const res = await AxiosAPI.delete(departmentDetailUrl(deleteId));
+                if (res.data?.success) {
+                    toast.success("Department deleted successfully");
+                    mutate();
+                } else {
+                    toast.error(res.data?.message || "Failed to delete department");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "An error occurred while deleting");
+            }
         }
         setIsDeleteOpen(false);
         setDeleteId(null);
     };
 
-    const handleFormSubmit = (e: React.FormEvent) => {
+    const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formCode || !formName) {
             toast.error("Please fill in all required fields");
             return;
         }
 
-        const payload: DepartmentData = {
+        const payload = {
             code: formCode,
             name: formName,
-            headOfDept: formHead,
-            teacherCount: formMode === "create" ? 0 : editingData?.teacherCount || 0,
+            headOfDeptId: formHeadId === "unassigned" ? null : formHeadId,
             status: formStatus,
         };
 
-        if (formMode === "create") {
-            setData([...data, { ...payload, id: (data.length + 1).toString() }]);
-            toast.success("Department created successfully");
-        } else {
-            setData(data.map((item) => (item.id === editingData?.id ? { ...item, ...payload } : item)));
-            toast.success("Department updated successfully");
+        try {
+            let res;
+            if (formMode === "create") {
+                res = await AxiosAPI.post(departmentsUrl, payload);
+            } else {
+                res = await AxiosAPI.put(departmentDetailUrl(editingData!.id!), payload);
+            }
+
+            if (res.data?.success) {
+                toast.success(`Department ${formMode === "create" ? "created" : "updated"} successfully`);
+                mutate();
+                setIsFormOpen(false);
+            } else {
+                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} department`);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred while saving");
         }
-        setIsFormOpen(false);
     };
 
     const columns: ColumnDef<DepartmentData>[] = [
@@ -170,9 +196,9 @@ export function TeacherDepartment() {
         },
     ];
 
-    const totalDepts = data.length;
-    const activeDepts = data.filter(d => d.status === "Active").length;
-    const totalTeachersMapped = data.reduce((acc, curr) => acc + curr.teacherCount, 0);
+    const totalDepts = mappedData.length;
+    const activeDepts = mappedData.filter(d => d.status === "Active").length;
+    const totalTeachersMapped = mappedData.reduce((acc, curr) => acc + curr.teacherCount, 0);
 
     return (
         <div className="p-2 space-y-4">
@@ -235,6 +261,7 @@ export function TeacherDepartment() {
                         searchPlaceholder="Search departments..."
                         searchValue={search}
                         onSearch={setSearch}
+                        isLoading={isLoading}
                         pagination={{
                             page,
                             pageCount,
@@ -267,13 +294,14 @@ export function TeacherDepartment() {
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="form-head">Head of Department</Label>
-                            <Select onValueChange={setFormHead} value={formHead}>
+                            <Select onValueChange={setFormHeadId} value={formHeadId}>
                                 <SelectTrigger id="form-head">
                                     <SelectValue placeholder="Select head of department" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {facultyList.map((f, idx) => (
-                                        <SelectItem key={idx} value={f}>{f}</SelectItem>
+                                    <SelectItem value="unassigned">Not Assigned</SelectItem>
+                                    {facultyList.map((f: any) => (
+                                        <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>

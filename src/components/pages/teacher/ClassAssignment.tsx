@@ -1,65 +1,49 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Title from "@/components/ui/custom-ui/title";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plus, Users, UserCheck, GraduationCap, ClipboardList } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Plus, Users, UserCheck, GraduationCap } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { classes, sessions } from "@/data/academic";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-
-export interface ClassAssignmentData {
-    id?: string;
-    teacherName: string;
-    class: string;
-    section: string;
-    shift: string;
-    session: string;
-    status: string;
-}
-
-const mockClassAssignments: ClassAssignmentData[] = [
-    { id: "1", teacherName: "Anisur Rahman", class: "Class 10", section: "Section A", shift: "Morning (Boys)", session: "2025-2026", status: "Active" },
-    { id: "2", teacherName: "Farhana Yasmin", class: "Class 10", section: "Section B", shift: "Morning (Girls)", session: "2025-2026", status: "Active" },
-    { id: "3", teacherName: "Jamil Chowdhury", class: "Class 9", section: "Section A", shift: "Day (Boys)", session: "2025-2026", status: "Active" },
-    { id: "4", teacherName: "Shahana Chowdhury", class: "Class 8", section: "Section A", shift: "Day (Girls)", session: "2024-2025", status: "Active" },
-];
-
-const facultyList = [
-    "Anisur Rahman",
-    "Farhana Yasmin",
-    "Jamil Chowdhury",
-    "Rokeya Begum",
-    "Imtiaz Ahmed",
-    "Shahana Chowdhury"
-];
+import { useClassAssignmentsQuery, useTeachersProfilesQuery } from "@/apis/queries/teacher_queries";
+import { useClassesQuery, useSectionsQuery, useShiftsQuery, useSessionsQuery } from "@/apis/queries/academic_queries";
+import { AxiosAPI } from "@/apis/configs";
+import { classAssignmentsUrl, classAssignmentDetailUrl } from "@/apis/endpoints/teacher_apis";
 
 export function ClassAssignment() {
-    const [data, setData] = useState<ClassAssignmentData[]>(mockClassAssignments);
+    const { data: assignmentsRes, isLoading, mutate } = useClassAssignmentsQuery();
+    const { data: teachersRes } = useTeachersProfilesQuery();
+    const { data: classesRes } = useClassesQuery();
+    const { data: shiftsRes } = useShiftsQuery();
+    const { data: sessionsRes } = useSessionsQuery();
+
     const [search, setSearch] = useState("");
-    const [selectedClassFilter, setSelectedClassFilter] = useState("All Classes");
+    const [selectedClassFilter, setSelectedClassFilter] = useState("All");
 
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
-    const [editingData, setEditingData] = useState<ClassAssignmentData | undefined>(undefined);
+    const [editingData, setEditingData] = useState<any | undefined>(undefined);
 
     // Form inputs
-    const [formTeacher, setFormTeacher] = useState(facultyList[0]);
-    const [formClass, setFormClass] = useState(classes[2].name);
-    const [formSection, setFormSection] = useState("Section A");
-    const [formShift, setFormShift] = useState("Morning (Boys)");
-    const [formSession, setFormSession] = useState(sessions[4]?.name || "2025-2026");
+    const [formTeacherId, setFormTeacherId] = useState("");
+    const [formClassId, setFormClassId] = useState("");
+    const [formSectionId, setFormSectionId] = useState("");
+    const [formShiftId, setFormShiftId] = useState("");
+    const [formSessionId, setFormSessionId] = useState("");
     const [formStatus, setFormStatus] = useState("Active");
 
+    // Dynamic sections query dependent on selected class in form
+    const { data: sectionsRes } = useSectionsQuery(formClassId && formClassId !== "none" ? formClassId : undefined);
+
     // View dialog
-    const [viewData, setViewData] = useState<ClassAssignmentData | undefined>(undefined);
+    const [viewData, setViewData] = useState<any | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
 
     // Delete dialog
@@ -70,41 +54,66 @@ export function ClassAssignment() {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
-    const filteredData = data.filter((item) => {
-        const matchesSearch = item.teacherName.toLowerCase().includes(search.toLowerCase()) || 
-                             item.section.toLowerCase().includes(search.toLowerCase());
-        const matchesClass = selectedClassFilter === "All Classes" || item.class === selectedClassFilter;
-        return matchesSearch && matchesClass;
-    });
+    const assignments = assignmentsRes?.data || [];
+    const teachers = teachersRes?.data || [];
+    const classesList = classesRes?.data || [];
+    const shifts = shiftsRes?.data || [];
+    const sessions = sessionsRes?.data || [];
+    const sections = sectionsRes?.data || [];
+
+    const activeTeachers = useMemo(() => {
+        return teachers.filter((t: any) => t.isActive || t.id === editingData?.teacher?.id);
+    }, [teachers, editingData]);
+
+    const filteredData = useMemo(() => {
+        return assignments.filter((item: any) => {
+            const teacherName = `${item.teacher?.firstName || ""} ${item.teacher?.lastName || ""}`.toLowerCase();
+            const sectionName = (item.section?.name || "").toLowerCase();
+            const className = (item.class?.name || "").toLowerCase();
+            const matchesSearch = teacherName.includes(search.toLowerCase()) || 
+                                 sectionName.includes(search.toLowerCase()) ||
+                                 className.includes(search.toLowerCase());
+
+            const matchesClass = selectedClassFilter === "All" || item.class?.id === selectedClassFilter;
+            return matchesSearch && matchesClass;
+        });
+    }, [assignments, search, selectedClassFilter]);
 
     const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
     const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
+    // Reset section selection when class changes
+    useEffect(() => {
+        if (formClassId && formMode === "create") {
+            setFormSectionId("");
+        }
+    }, [formClassId, formMode]);
+
     const handleCreate = () => {
         setFormMode("create");
         setEditingData(undefined);
-        setFormTeacher(facultyList[0]);
-        setFormClass(classes[2].name);
-        setFormSection("Section A");
-        setFormShift("Morning (Boys)");
-        setFormSession(sessions[4]?.name || "2025-2026");
+        setFormTeacherId("");
+        setFormClassId("");
+        setFormSectionId("");
+        setFormShiftId("");
+        setFormSessionId("");
         setFormStatus("Active");
         setIsFormOpen(true);
     };
 
-    const handleEdit = (item: ClassAssignmentData) => {
+    const handleEdit = (item: any) => {
         setFormMode("edit");
         setEditingData(item);
-        setFormTeacher(item.teacherName);
-        setFormClass(item.class);
-        setFormSection(item.section);
-        setFormShift(item.shift);
-        setFormSession(item.session);
+        setFormTeacherId(item.teacher?.id || "");
+        setFormClassId(item.class?.id || "");
+        setFormSectionId(item.section?.id || "");
+        setFormShiftId(item.shift?.id || "");
+        setFormSessionId(item.session?.id || "");
         setFormStatus(item.status);
         setIsFormOpen(true);
     };
 
-    const handleView = (item: ClassAssignmentData) => {
+    const handleView = (item: any) => {
         setViewData(item);
         setIsViewOpen(true);
     };
@@ -114,43 +123,91 @@ export function ClassAssignment() {
         setIsDeleteOpen(true);
     };
 
-    const handleDeleteConfirm = () => {
+    const handleDeleteConfirm = async () => {
         if (deleteId) {
-            setData(data.filter((item) => item.id !== deleteId));
-            toast.success("Class assignment deleted successfully");
+            try {
+                const res = await AxiosAPI.delete(classAssignmentDetailUrl(deleteId));
+                if (res.data?.success) {
+                    toast.success(res.data.message || "Class assignment deleted successfully");
+                    mutate();
+                } else {
+                    toast.error(res.data?.message || "Failed to delete class assignment");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "An error occurred while deleting");
+            }
         }
         setIsDeleteOpen(false);
         setDeleteId(null);
     };
 
-    const handleFormSubmit = (e: React.FormEvent) => {
+    const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        const payload: ClassAssignmentData = {
-            teacherName: formTeacher,
-            class: formClass,
-            section: formSection,
-            shift: formShift,
-            session: formSession,
+        if (!formTeacherId || formTeacherId === "none" ||
+            !formClassId || formClassId === "none" ||
+            !formSectionId || formSectionId === "none" ||
+            !formShiftId || formShiftId === "none" ||
+            !formSessionId || formSessionId === "none") {
+            toast.error("Please fill in all fields");
+            return;
+        }
+
+        const payload = {
+            teacherId: formTeacherId,
+            classId: formClassId,
+            sectionId: formSectionId,
+            shiftId: formShiftId,
+            sessionId: formSessionId,
             status: formStatus,
         };
 
-        if (formMode === "create") {
-            setData([...data, { ...payload, id: (data.length + 1).toString() }]);
-            toast.success("Class teacher assigned successfully");
-        } else {
-            setData(data.map((item) => (item.id === editingData?.id ? { ...item, ...payload } : item)));
-            toast.success("Class teacher assignment updated successfully");
+        try {
+            let res;
+            if (formMode === "create") {
+                res = await AxiosAPI.post(classAssignmentsUrl, payload);
+            } else {
+                res = await AxiosAPI.put(classAssignmentDetailUrl(editingData.id), payload);
+            }
+
+            if (res.data?.success) {
+                toast.success(res.data.message || `Class teacher ${formMode === "create" ? "assigned" : "updated"} successfully`);
+                mutate();
+                setIsFormOpen(false);
+            } else {
+                toast.error(res.data?.message || `Failed to save class assignment`);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred while saving class assignment");
         }
-        setIsFormOpen(false);
     };
 
-    const columns: ColumnDef<ClassAssignmentData>[] = [
-        { accessorKey: "teacherName", header: "Class Teacher" },
-        { accessorKey: "class", header: "Class" },
-        { accessorKey: "section", header: "Section" },
-        { accessorKey: "shift", header: "Shift" },
-        { accessorKey: "session", header: "Session" },
+    const columns: ColumnDef<any>[] = [
+        { 
+            header: "Class Teacher",
+            accessorFn: (row) => row.teacher ? `${row.teacher.firstName} ${row.teacher.lastName}` : "Not Assigned",
+            id: "teacherName"
+        },
+        { 
+            header: "Class",
+            accessorFn: (row) => row.class?.name || "N/A",
+            id: "class"
+        },
+        { 
+            header: "Section",
+            accessorFn: (row) => row.section?.name || "N/A",
+            id: "section" 
+        },
+        { 
+            header: "Shift",
+            accessorFn: (row) => row.shift?.name || "N/A",
+            id: "shift" 
+        },
+        { 
+            header: "Session",
+            accessorFn: (row) => row.session?.name || "N/A",
+            id: "session" 
+        },
         {
             accessorKey: "status",
             header: "Status",
@@ -175,9 +232,9 @@ export function ClassAssignment() {
         },
     ];
 
-    const totalAssigned = data.length;
-    const activeAssignments = data.filter(a => a.status === "Active").length;
-    const uniqueTeachers = new Set(data.map(a => a.teacherName)).size;
+    const totalAssigned = assignments.length;
+    const activeAssignments = assignments.filter((a: any) => a.status === "Active").length;
+    const uniqueTeachers = new Set(assignments.map((a: any) => a.teacher?.id).filter(Boolean)).size;
 
     return (
         <div className="p-2 space-y-4">
@@ -236,17 +293,16 @@ export function ClassAssignment() {
                     {/* Toolbar Filters */}
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-48">
-                            <Select onValueChange={setSelectedClassFilter} value={selectedClassFilter}>
-                                <SelectTrigger className="h-9">
-                                    <SelectValue placeholder="Filter by class" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="All Classes">All Classes</SelectItem>
-                                    {classes.map((c) => (
-                                        <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <select 
+                                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                onChange={(e) => setSelectedClassFilter(e.target.value)} 
+                                value={selectedClassFilter}
+                            >
+                                <option value="All">All Classes</option>
+                                {classesList.map((c: any) => (
+                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 
@@ -257,6 +313,7 @@ export function ClassAssignment() {
                         searchPlaceholder="Search mappings..."
                         searchValue={search}
                         onSearch={setSearch}
+                        isLoading={isLoading}
                         pagination={{
                             page,
                             pageCount,
@@ -281,88 +338,95 @@ export function ClassAssignment() {
                     <form onSubmit={handleFormSubmit} className="space-y-4 pt-4">
                         <div className="space-y-1">
                             <Label htmlFor="form-teacher">Select Teacher</Label>
-                            <Select onValueChange={setFormTeacher} value={formTeacher}>
-                                <SelectTrigger id="form-teacher">
-                                    <SelectValue placeholder="Select teacher" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {facultyList.map((f, idx) => (
-                                        <SelectItem key={idx} value={f}>{f}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <select 
+                                id="form-teacher"
+                                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                onChange={(e) => setFormTeacherId(e.target.value)} 
+                                value={formTeacherId}
+                            >
+                                <option value="none">Choose a teacher</option>
+                                {activeTeachers.map((f: any) => (
+                                    <option key={f.id} value={f.id}>{`${f.firstName} ${f.lastName} (${f.username})`}</option>
+                                ))}
+                            </select>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <Label htmlFor="form-class">Class</Label>
-                                <Select onValueChange={setFormClass} value={formClass}>
-                                    <SelectTrigger id="form-class">
-                                        <SelectValue placeholder="Select class" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {classes.map((c) => (
-                                            <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <select 
+                                    id="form-class"
+                                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    onChange={(e) => setFormClassId(e.target.value)} 
+                                    value={formClassId}
+                                >
+                                    <option value="none">Choose class</option>
+                                    {classesList.map((c: any) => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="space-y-1">
                                 <Label htmlFor="form-section">Section</Label>
-                                <Select onValueChange={setFormSection} value={formSection}>
-                                    <SelectTrigger id="form-section">
-                                        <SelectValue placeholder="Select section" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Section A">Section A</SelectItem>
-                                        <SelectItem value="Section B">Section B</SelectItem>
-                                        <SelectItem value="Section C">Section C</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <select 
+                                    id="form-section"
+                                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    onChange={(e) => setFormSectionId(e.target.value)} 
+                                    value={formSectionId}
+                                    disabled={!formClassId || formClassId === "none"}
+                                >
+                                    <option value="none">
+                                        {!formClassId || formClassId === "none" ? "Select class first" : "Choose section"}
+                                    </option>
+                                    {sections.map((s: any) => (
+                                        <option key={s.id} value={s.id}>{s.name}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <Label htmlFor="form-shift">Shift</Label>
-                                <Select onValueChange={setFormShift} value={formShift}>
-                                    <SelectTrigger id="form-shift">
-                                        <SelectValue placeholder="Select shift" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Morning (Boys)">Morning (Boys)</SelectItem>
-                                        <SelectItem value="Morning (Girls)">Morning (Girls)</SelectItem>
-                                        <SelectItem value="Day (Boys)">Day (Boys)</SelectItem>
-                                        <SelectItem value="Day (Girls)">Day (Girls)</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <select 
+                                    id="form-shift"
+                                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    onChange={(e) => setFormShiftId(e.target.value)} 
+                                    value={formShiftId}
+                                >
+                                    <option value="none">Choose shift</option>
+                                    {shifts.map((s: any) => (
+                                        <option key={s.id} value={s.id}>{s.name}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="space-y-1">
                                 <Label htmlFor="form-session">Session</Label>
-                                <Select onValueChange={setFormSession} value={formSession}>
-                                    <SelectTrigger id="form-session">
-                                        <SelectValue placeholder="Select session" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {sessions.map((s) => (
-                                            <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <select 
+                                    id="form-session"
+                                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    onChange={(e) => setFormSessionId(e.target.value)} 
+                                    value={formSessionId}
+                                >
+                                    <option value="none">Choose session</option>
+                                    {sessions.map((s: any) => (
+                                        <option key={s.id} value={s.id}>{s.name}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
                         <div className="space-y-1">
                             <Label htmlFor="form-status">Status</Label>
-                            <Select onValueChange={setFormStatus} value={formStatus}>
-                                <SelectTrigger id="form-status">
-                                    <SelectValue placeholder="Select status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Active">Active</SelectItem>
-                                    <SelectItem value="Inactive">Inactive</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <select 
+                                id="form-status"
+                                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                onChange={(e) => setFormStatus(e.target.value)} 
+                                value={formStatus}
+                            >
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
                         </div>
 
                         <DialogFooter className="pt-2">
@@ -377,15 +441,15 @@ export function ClassAssignment() {
             <AlertDialog open={isViewOpen} onOpenChange={setIsViewOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>View Class Assignment</AlertDialogTitle>
+                        <AlertDialogTitle>View Class Assignment Details</AlertDialogTitle>
                     </AlertDialogHeader>
                     {viewData && (
                         <div className="space-y-2 text-sm">
-                            <p><strong>Class Teacher:</strong> {viewData.teacherName}</p>
-                            <p><strong>Class:</strong> {viewData.class}</p>
-                            <p><strong>Section:</strong> {viewData.section}</p>
-                            <p><strong>Shift:</strong> {viewData.shift}</p>
-                            <p><strong>Session:</strong> {viewData.session}</p>
+                            <p><strong>Class Teacher:</strong> {viewData.teacher ? `${viewData.teacher.firstName} ${viewData.teacher.lastName}` : "Not Assigned"}</p>
+                            <p><strong>Class:</strong> {viewData.class?.name || "N/A"}</p>
+                            <p><strong>Section:</strong> {viewData.section?.name || "N/A"}</p>
+                            <p><strong>Shift:</strong> {viewData.shift?.name || "N/A"}</p>
+                            <p><strong>Session:</strong> {viewData.session?.name || "N/A"}</p>
                             <p><strong>Status:</strong> {viewData.status}</p>
                         </div>
                     )}
