@@ -18,7 +18,7 @@ import {
 } from "@/apis/queries/academic_queries";
 import { useUsersQuery } from "@/apis/queries/auth_queries";
 import { AxiosAPI } from "@/apis/configs";
-import { routinesUrl, routineDetailUrl } from "@/apis/endpoints/academic_apis";
+import { routinesUrl, routineDetailUrl, exportRoutinePdfUrl, exportRoutineExcelUrl } from "@/apis/endpoints/academic_apis";
 
 interface RoutinePeriod {
     id: string;
@@ -205,6 +205,82 @@ export function ClassRoutine() {
         }
     };
 
+    const handleExportPdf = async () => {
+        if (!selectedSectionId) {
+            toast.error("Please select a section to export the routine");
+            return;
+        }
+        try {
+            toast.loading("Generating PDF routine...", { id: "export-pdf" });
+            const res = await AxiosAPI.get(exportRoutinePdfUrl, {
+                responseType: "blob",
+                params: {
+                    classId: selectedClassId,
+                    sectionId: selectedSectionId,
+                    academicYearId: activeYear?.id,
+                }
+            });
+            
+            const activeClass = classesList.find((c: any) => c.id === selectedClassId);
+            const activeSection = sectionsList.find((s: any) => s.id === selectedSectionId);
+            const classNameStr = activeClass ? activeClass.name.replace(/\s+/g, "_") : "Class";
+            const sectionNameStr = activeSection ? activeSection.name.replace(/\s+/g, "_") : "Section";
+            const filename = `Routine_${classNameStr}_${sectionNameStr}.pdf`;
+
+            const blob = new Blob([res.data], { type: "application/pdf" });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+            toast.success("PDF Routine exported successfully", { id: "export-pdf" });
+        } catch (error: any) {
+            console.error(error);
+            toast.error("Failed to export PDF routine", { id: "export-pdf" });
+        }
+    };
+
+    const handleExportExcel = async () => {
+        if (!selectedSectionId) {
+            toast.error("Please select a section to export the routine");
+            return;
+        }
+        try {
+            toast.loading("Generating Excel routine...", { id: "export-excel" });
+            const res = await AxiosAPI.get(exportRoutineExcelUrl, {
+                responseType: "blob",
+                params: {
+                    classId: selectedClassId,
+                    sectionId: selectedSectionId,
+                    academicYearId: activeYear?.id,
+                }
+            });
+
+            const activeClass = classesList.find((c: any) => c.id === selectedClassId);
+            const activeSection = sectionsList.find((s: any) => s.id === selectedSectionId);
+            const classNameStr = activeClass ? activeClass.name.replace(/\s+/g, "_") : "Class";
+            const sectionNameStr = activeSection ? activeSection.name.replace(/\s+/g, "_") : "Section";
+            const filename = `Routine_${classNameStr}_${sectionNameStr}.xlsx`;
+
+            const blob = new Blob([res.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+            toast.success("Excel Routine exported successfully", { id: "export-excel" });
+        } catch (error: any) {
+            console.error(error);
+            toast.error("Failed to export Excel routine", { id: "export-excel" });
+        }
+    };
+
     return (
         <div className="p-6 space-y-6 max-w-6xl mx-auto">
             {/* Header */}
@@ -214,8 +290,12 @@ export function ClassRoutine() {
                     <p className="text-sm text-gray-500 mt-1">Configure, build, and publish weekly timetables for student classes</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" className="flex items-center gap-2"><Printer className="w-4 h-4" /> Print</Button>
-                    <Button variant="outline" className="flex items-center gap-2"><Download className="w-4 h-4" /> Export PDF</Button>
+                    <Button onClick={handleExportPdf} variant="outline" className="flex items-center gap-2">
+                        <Download className="w-4 h-4" /> Export PDF
+                    </Button>
+                    <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+                        <Download className="w-4 h-4" /> Export Excel
+                    </Button>
                     <Button onClick={() => {
                         setCurrentPeriod({
                             dayOfWeek: "SUNDAY",

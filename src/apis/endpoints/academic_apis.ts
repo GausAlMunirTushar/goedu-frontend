@@ -17,6 +17,8 @@ export const subjectDetailUrl = (id: string) => `/academic/subjects/${id}`;
 // Class Routines API Endpoints
 export const routinesUrl = "/academic/routines";
 export const routineDetailUrl = (id: string) => `/academic/routines/${id}`;
+export const exportRoutinePdfUrl = "/academic/routines/export/pdf";
+export const exportRoutineExcelUrl = "/academic/routines/export/excel";
 
 // Sessions API Endpoints
 export const sessionsUrl = "/academic/sessions";
