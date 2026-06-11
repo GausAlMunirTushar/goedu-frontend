@@ -190,7 +190,7 @@ function MobileNavItem({ link, t }: { link: MobileNavLink, t: (key: string) => s
 
             {hasChildren && isOpen && (
                 <div className="ml-4 pl-2 border-l-2 border-primary/10 flex flex-col gap-1 my-1">
-                    {link.children.map((child: MobileNavChild, idx: number) => {
+                    {link.children?.map((child: MobileNavChild, idx: number) => {
                         const isChildActive = pathname === child.href;
                         return (
                             <Link 

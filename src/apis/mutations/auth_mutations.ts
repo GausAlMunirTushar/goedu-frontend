@@ -6,36 +6,36 @@ import {
     logout,
     resetPassword,
 } from "@/apis/endpoints/auth_apis";
-import { useForm, type InitialOptions } from "@/hooks/useForm";
+import { useForm } from "@/hooks/useForm";
 
 export type LoginFormType = {
-    username: string | InitialOptions;
-    password: string | InitialOptions;
+    username: string;
+    password: string;
     remember_me: boolean;
 };
 
 export type RefreshTokenFormType = {
-    refresh: string | InitialOptions;
+    refresh: string;
 };
 
 export type LogoutFormType = {
-    refresh: string | InitialOptions;
+    refresh: string;
 };
 
 export type ForgotPasswordFormType = {
-    identifier: string | InitialOptions;
+    identifier: string;
 };
 
 export type ResetPasswordFormType = {
-    token: string | InitialOptions;
-    password: string | InitialOptions;
-    confirmPassword: string | InitialOptions;
+    token: string;
+    password: string;
+    confirmPassword: string;
 };
 
 export type ChangePasswordFormType = {
-    oldPassword: string | InitialOptions;
-    newPassword: string | InitialOptions;
-    confirmPassword: string | InitialOptions;
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
 };
 
 export const useLoginMutation = () =>
