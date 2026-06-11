@@ -8,70 +8,70 @@
                 "label": "Exam Dashboard",
                 "icon": "LayoutDashboard",
                 "path": "/exam/dashboard",
-                "permissions": []
+                "required_permissions": ["exam.setup.view"]
             },
             {
                 "id": "exam",
                 "label": "Exam",
                 "icon": "ClipboardList",
                 "path": "/exam",
-                "permissions": []
+                "required_permissions": ["exam.setup.view"]
             },
             {
                 "id": "exam-setup",
                 "label": "Exam Setup",
                 "icon": "Settings",
                 "path": "/exam/setup",
-                "permissions": []
+                "required_permissions": ["exam.setup.view"]
             },
             {
                 "id": "exam-schedule",
                 "label": "Exam Schedule",
                 "icon": "CalendarDays",
                 "path": "/exam/schedule",
-                "permissions": []
+                "required_permissions": ["exam.routine.view"]
             },
             {
                 "id": "mark-entry",
                 "label": "Mark Entry",
                 "icon": "FileSpreadsheet",
                 "path": "/exam/mark-entry",
-                "permissions": []
+                "required_permissions": ["exam.mark.view"]
             },
             {
                 "id": "grade-setup",
                 "label": "Grade Setup",
                 "icon": "Award",
                 "path": "/exam/grade-setup",
-                "permissions": []
+                "required_permissions": ["exam.grade.view"]
             },
             {
                 "id": "result-processing",
                 "label": "Result Processing",
                 "icon": "ChartLine",
                 "path": "/exam/result-processing",
-                "permissions": []
+                "required_permissions": ["exam.result.view"]
             },
             {
                 "id": "gpa-calculation",
                 "label": "GPA Calculation",
                 "icon": "CalculatorIcon",
                 "path": "/exam/gpa-calculation",
-                "permissions": []
+                "required_permissions": ["exam.result.view"]
             },
             {
                 "id": "seat-plan",
                 "label": "Seat Plan",
                 "icon": "LayoutTemplate",
                 "path": "/exam/seat-plan",
-                "permissions": []
+                "required_permissions": ["exam.seatplan.view"]
             },
             {
                 "id": "admit-card",
                 "label": "Admit Card",
                 "icon": "IdCardIcon",
                 "path": "/exam/admit-card",
-                "permissions": []
+                "required_permissions": ["exam.routine.view"]
             }
         ]
     }
