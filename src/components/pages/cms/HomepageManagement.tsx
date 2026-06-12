@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Title from "@/components/ui/custom-ui/title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Plus, Trash2, Edit2, Save, Globe, Eye, Image as ImageIcon, Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { useWebsiteContentQuery } from "@/apis/queries/website_queries";
+import { updateWebsiteContent } from "@/apis/mutations/website_mutations";
 
 interface Slide {
     id: string;
@@ -28,45 +30,34 @@ interface Stat {
 }
 
 export function HomepageManagement() {
-    // Sliders
-    const [slides, setSlides] = useState<Slide[]>([
-        {
-            id: "1",
-            image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070",
-            title: "Welcome to ePathshala",
-            subtitle: "Empowering minds, shaping the future",
-            active: true
-        },
-        {
-            id: "2",
-            image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=2070",
-            title: "Modern Classrooms & Labs",
-            subtitle: "Equipped with state-of-the-art facilities",
-            active: true
+    // Fetch data
+    const { data: response, isLoading } = useWebsiteContentQuery("Homepage");
+    const contents = response?.data || [];
+
+    // State
+    const [slides, setSlides] = useState<Slide[]>([]);
+    const [stats, setStats] = useState<Stat[]>([]);
+    const [principal, setPrincipal] = useState({ name: "", designation: "", message: "", avatar: "" });
+    const [about, setAbout] = useState({ title: "", description: "" });
+
+    // Populate data on load
+    useEffect(() => {
+        if (!isLoading && contents.length > 0) {
+            const getSection = (sec: string) => contents.find((c: any) => c.section === sec);
+            
+            const heroData = getSection("HeroSlides")?.content;
+            if (heroData) setSlides(JSON.parse(heroData));
+
+            const statsData = getSection("QuickStats")?.content;
+            if (statsData) setStats(JSON.parse(statsData));
+
+            const principalData = getSection("PrincipalMessage")?.content;
+            if (principalData) setPrincipal(JSON.parse(principalData));
+
+            const aboutData = getSection("AboutSnippet")?.content;
+            if (aboutData) setAbout(JSON.parse(aboutData));
         }
-    ]);
-
-    // Stats
-    const [stats, setStats] = useState<Stat[]>([
-        { id: "1", label: "Institution BIN", value: "15005030", icon: "FileCheck" },
-        { id: "2", label: "Institution Code", value: "NA", icon: "Building" },
-        { id: "3", label: "Center Code", value: "NA", icon: "Building" },
-        { id: "4", label: "Established Year", value: "2025", icon: "Clock" }
-    ]);
-
-    // Principal Message
-    const [principal, setPrincipal] = useState({
-        name: "Harish",
-        designation: "Principal",
-        message: "Welcome to Demo International High School. We are dedicated to providing excellence in education. Our mission is to empower students with knowledge, moral values, and skills necessary to face the challenges of tomorrow's world.",
-        avatar: ""
-    });
-
-    // About Section
-    const [about, setAbout] = useState({
-        title: "About Institution",
-        description: "Demo International High School is a premier educational institution committed to fostering academic excellence, critical thinking, and character development in students. Our campus is equipped with modern facilities designed to create an engaging learning environment."
-    });
+    }, [isLoading, contents]);
 
     const [isSlideDialogOpen, setIsSlideDialogOpen] = useState(false);
     const [currentSlide, setCurrentSlide] = useState<Partial<Slide>>({ title: "", subtitle: "", image: "", active: true });
@@ -89,10 +80,10 @@ export function HomepageManagement() {
                     active: currentSlide.active ?? true
                 }
             ]);
-            toast.success("Slide added successfully");
+            toast.success("Slide added. Don't forget to save changes!");
         } else {
             setSlides(slides.map(s => s.id === currentSlide.id ? (currentSlide as Slide) : s));
-            toast.success("Slide updated successfully");
+            toast.success("Slide updated. Don't forget to save changes!");
         }
         setIsSlideDialogOpen(false);
     };
@@ -105,12 +96,28 @@ export function HomepageManagement() {
 
     const handleDeleteSlide = (id: string) => {
         setSlides(slides.filter(s => s.id !== id));
-        toast.success("Slide removed");
+        toast.success("Slide removed. Don't forget to save changes!");
     };
 
-    const handleSaveAll = () => {
-        toast.success("Homepage configuration saved and published successfully!");
+    const handleSaveAll = async () => {
+        try {
+            const payload = {
+                sections: [
+                    { section: "HeroSlides", content: JSON.stringify(slides) },
+                    { section: "QuickStats", content: JSON.stringify(stats) },
+                    { section: "PrincipalMessage", content: JSON.stringify(principal) },
+                    { section: "AboutSnippet", content: JSON.stringify(about) }
+                ]
+            };
+
+            await updateWebsiteContent("Homepage", payload);
+            toast.success("Homepage configuration saved and published successfully!");
+        } catch (error) {
+            toast.error("Failed to save homepage configuration.");
+        }
     };
+
+    if (isLoading) return <div className="p-10 text-center text-gray-500">Loading Homepage Settings...</div>;
 
     return (
         <div className="p-6 space-y-6 max-w-6xl mx-auto">
@@ -200,6 +207,14 @@ export function HomepageManagement() {
                                     />
                                 </div>
                             ))}
+                            {stats.length === 0 && (
+                                <Button variant="outline" className="w-full md:col-span-2" onClick={() => setStats([
+                                    { id: "1", label: "Institution BIN", value: "15005030", icon: "FileCheck" },
+                                    { id: "2", label: "Institution Code", value: "NA", icon: "Building" },
+                                    { id: "3", label: "Center Code", value: "NA", icon: "Building" },
+                                    { id: "4", label: "Established Year", value: "2025", icon: "Clock" }
+                                ])}>Initialize Default Stats Fields</Button>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -243,9 +258,18 @@ export function HomepageManagement() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="md:col-span-1 space-y-4 flex flex-col justify-center items-center p-6 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
                             <div className="w-32 h-32 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden relative shadow-inner">
-                                <span className="text-3xl text-gray-400">👤</span>
+                                {principal.avatar ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={principal.avatar} alt="Principal" className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-3xl text-gray-400">👤</span>
+                                )}
                             </div>
-                            <Button size="sm" variant="outline" className="w-full">Upload Portrait</Button>
+                            <Input 
+                                placeholder="Avatar URL" 
+                                value={principal.avatar}
+                                onChange={(e) => setPrincipal({ ...principal, avatar: e.target.value })}
+                            />
                         </div>
                         <div className="md:col-span-2 space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

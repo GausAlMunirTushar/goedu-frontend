@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Title from "@/components/ui/custom-ui/title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,8 @@ import { Save, Phone, Mail, MapPin, Eye, Trash2, MailOpen, Inbox, FileText, Send
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useWebsiteContentQuery } from "@/apis/queries/website_queries";
+import { updateWebsiteContent } from "@/apis/mutations/website_mutations";
 
 interface Message {
     id: string;
@@ -23,18 +25,30 @@ interface Message {
 }
 
 export function ContactManagement() {
+    // Fetch data
+    const { data: response, isLoading } = useWebsiteContentQuery("Contact");
+    const contents = response?.data || [];
+
     // Contact Info Config
     const [contactInfo, setContactInfo] = useState({
-        email: "info@epathshala.edu.bd",
-        phone: "+880 2-1234567",
-        mobile: "+880 1712-345678",
-        address: "House 42, Road 11, Banani, Dhaka, Bangladesh",
-        mapLink: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.157474474776!2d90.40228791536294!3d23.79520038456743!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c70e08abcb37%3A0xe543c7b396739943!2sBanani%20Graveyard!5e0!3m2!1sen!2sbd!4v1623126789012!5m2!1sen!2sbd",
-        facebook: "https://facebook.com/epathshala",
-        youtube: "https://youtube.com/epathshala"
+        email: "",
+        phone: "",
+        mobile: "",
+        address: "",
+        mapLink: "",
+        facebook: "",
+        youtube: ""
     });
 
-    // Received Messages Inbox
+    useEffect(() => {
+        if (!isLoading && contents.length > 0) {
+            const getSection = (sec: string) => contents.find((c: any) => c.section === sec);
+            const infoData = getSection("ContactInfo")?.content;
+            if (infoData) setContactInfo(JSON.parse(infoData));
+        }
+    }, [isLoading, contents]);
+
+    // Received Messages Inbox (Mocked since no backend model exists yet for inquiries)
     const [messages, setMessages] = useState<Message[]>([
         {
             id: "1",
@@ -61,8 +75,19 @@ export function ContactManagement() {
     const [isMessageOpen, setIsMessageOpen] = useState(false);
     const [replyText, setReplyText] = useState("");
 
-    const handleSaveInfo = () => {
-        toast.success("Contact Information configuration saved and published!");
+    const handleSaveInfo = async () => {
+        try {
+            const payload = {
+                sections: [
+                    { section: "ContactInfo", content: JSON.stringify(contactInfo) }
+                ]
+            };
+
+            await updateWebsiteContent("Contact", payload);
+            toast.success("Contact Information configuration saved and published!");
+        } catch (error) {
+            toast.error("Failed to save Contact Info");
+        }
     };
 
     const handleViewMessage = (msg: Message) => {
@@ -88,6 +113,8 @@ export function ContactManagement() {
         setIsMessageOpen(false);
         setReplyText("");
     };
+
+    if (isLoading) return <div className="p-10 text-center text-gray-500">Loading Contact Settings...</div>;
 
     return (
         <div className="p-6 space-y-6 max-w-6xl mx-auto">
@@ -213,13 +240,17 @@ export function ContactManagement() {
                             <CardDescription>Live representation of public contact map</CardDescription>
                         </CardHeader>
                         <div className="flex-1 w-full bg-gray-100 h-64 lg:h-auto min-h-[250px]">
-                            <iframe
-                                src={contactInfo.mapLink}
-                                className="w-full h-full border-0"
-                                allowFullScreen={false}
-                                loading="lazy"
-                                title="Institution Map Location"
-                            ></iframe>
+                            {contactInfo.mapLink ? (
+                                <iframe
+                                    src={contactInfo.mapLink}
+                                    className="w-full h-full border-0"
+                                    allowFullScreen={false}
+                                    loading="lazy"
+                                    title="Institution Map Location"
+                                ></iframe>
+                            ) : (
+                                <div className="flex items-center justify-center h-full text-gray-400 text-sm">No map link provided</div>
+                            )}
                         </div>
                     </Card>
                 </div>

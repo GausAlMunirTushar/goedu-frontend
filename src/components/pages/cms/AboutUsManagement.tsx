@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Title from "@/components/ui/custom-ui/title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Plus, Trash2, Edit2, Save, FileText, Target, Eye, Compass } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { useWebsiteContentQuery } from "@/apis/queries/website_queries";
+import { updateWebsiteContent } from "@/apis/mutations/website_mutations";
 
 interface Section {
     id: string;
@@ -19,32 +21,29 @@ interface Section {
 }
 
 export function AboutUsManagement() {
+    // Fetch data
+    const { data: response, isLoading } = useWebsiteContentQuery("About");
+    const contents = response?.data || [];
+
     const [aboutInfo, setAboutInfo] = useState({
-        headline: "Nurturing Excellence, Inspiring Leadership",
-        subheadline: "A legacy of educational excellence since 2025",
-        introduction: "Demo International High School is dedicated to fostering academic excellence, critical thinking, and character development in students. Our campus is equipped with modern facilities designed to create an engaging learning environment. We believe in providing holistic development and preparation for global challenges."
+        headline: "",
+        subheadline: "",
+        introduction: ""
     });
 
-    const [sections, setSections] = useState<Section[]>([
-        {
-            id: "1",
-            title: "Our Vision",
-            description: "To be a leading center of educational excellence, producing responsible, innovative, and global citizens of high moral character.",
-            icon: "Eye"
-        },
-        {
-            id: "2",
-            title: "Our Mission",
-            description: "To offer a comprehensive and challenging curriculum that fosters academic proficiency, analytical thinking, creativity, and values-based leadership.",
-            icon: "Target"
-        },
-        {
-            id: "3",
-            title: "Core Values",
-            description: "Integrity, Respect, Excellence, Collaboration, and Innovation guide everything we do.",
-            icon: "Compass"
+    const [sections, setSections] = useState<Section[]>([]);
+
+    useEffect(() => {
+        if (!isLoading && contents.length > 0) {
+            const getSection = (sec: string) => contents.find((c: any) => c.section === sec);
+            
+            const aboutData = getSection("PrimaryIntro")?.content;
+            if (aboutData) setAboutInfo(JSON.parse(aboutData));
+
+            const sectionsData = getSection("KeySections")?.content;
+            if (sectionsData) setSections(JSON.parse(sectionsData));
         }
-    ]);
+    }, [isLoading, contents]);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
@@ -85,9 +84,23 @@ export function AboutUsManagement() {
         toast.success("Section removed");
     };
 
-    const handleSaveAll = () => {
-        toast.success("About Us content saved successfully!");
+    const handleSaveAll = async () => {
+        try {
+            const payload = {
+                sections: [
+                    { section: "PrimaryIntro", content: JSON.stringify(aboutInfo) },
+                    { section: "KeySections", content: JSON.stringify(sections) }
+                ]
+            };
+
+            await updateWebsiteContent("About", payload);
+            toast.success("About Us content saved successfully!");
+        } catch (error) {
+            toast.error("Failed to save About Us content");
+        }
     };
+
+    if (isLoading) return <div className="p-10 text-center text-gray-500">Loading About Us Settings...</div>;
 
     return (
         <div className="p-6 space-y-6 max-w-6xl mx-auto">
@@ -154,9 +167,17 @@ export function AboutUsManagement() {
                         </CardTitle>
                         <CardDescription>Manage strategic elements like Vision, Mission, Values, History, etc.</CardDescription>
                     </div>
-                    <Button onClick={() => { setCurrentSection({ title: "", description: "", icon: "Target" }); setDialogMode("add"); setIsDialogOpen(true); }} size="sm" className="flex items-center gap-1">
-                        <Plus className="w-4 h-4" /> Add Section
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        {sections.length === 0 && (
+                            <Button variant="outline" size="sm" onClick={() => setSections([
+                                { id: "1", title: "Our Vision", description: "To be a leading center of educational excellence.", icon: "Eye" },
+                                { id: "2", title: "Our Mission", description: "To offer a comprehensive and challenging curriculum.", icon: "Target" }
+                            ])}>Initialize Default</Button>
+                        )}
+                        <Button onClick={() => { setCurrentSection({ title: "", description: "", icon: "Target" }); setDialogMode("add"); setIsDialogOpen(true); }} size="sm" className="flex items-center gap-1">
+                            <Plus className="w-4 h-4" /> Add Section
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent className="p-6">
                     <div className="space-y-4">

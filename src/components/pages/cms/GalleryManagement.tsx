@@ -9,97 +9,69 @@ import { Label } from "@/components/ui/label";
 import { Plus, Trash2, Edit2, Search, Image as ImageIcon, Sparkles, Filter, Grid } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-
-interface GalleryItem {
-    id: string;
-    title: string;
-    category: "Academic" | "Sports" | "Events" | "Campus" | "Other";
-    imageUrl: string;
-    description?: string;
-}
+import { useWebsiteGalleriesQuery } from "@/apis/queries/website_queries";
+import { createWebsiteGallery, updateWebsiteGallery, deleteWebsiteGallery } from "@/apis/mutations/website_mutations";
+import { websiteGalleriesUrl } from "@/apis/endpoints/cms/website_apis";
+import { mutate } from "swr";
+import type { TWebsiteGallery } from "@/apis/types/website_type";
 
 export function GalleryManagement() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
-    const [items, setItems] = useState<GalleryItem[]>([
-        {
-            id: "1",
-            title: "Science Laboratory",
-            category: "Academic",
-            imageUrl: "https://images.unsplash.com/photo-1518152006812-cdff28b66480?q=80&w=2070",
-            description: "Students performing physics experiment in the modern lab."
-        },
-        {
-            id: "2",
-            title: "Annual Sports Day 2025",
-            category: "Sports",
-            imageUrl: "https://images.unsplash.com/photo-1569517282132-25d22f4573e6?q=80&w=2070",
-            description: "Athletics track event for senior group."
-        },
-        {
-            id: "3",
-            title: "Campus Main Building",
-            category: "Campus",
-            imageUrl: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070",
-            description: "An overview of our lush green main building campus."
-        },
-        {
-            id: "4",
-            title: "Graduation Ceremony",
-            category: "Events",
-            imageUrl: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070",
-            description: "Celebrating the class of 2025 accomplishments."
-        }
-    ]);
+    const { data: response, isLoading } = useWebsiteGalleriesQuery();
+    const items: TWebsiteGallery[] = response?.data || [];
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
-    const [currentItem, setCurrentItem] = useState<Partial<GalleryItem>>({
+    const [currentItem, setCurrentItem] = useState<Partial<TWebsiteGallery>>({
         title: "",
         category: "Academic",
         imageUrl: "",
-        description: ""
+        description: "",
+        isActive: true
     });
 
-    const handleSaveItem = () => {
+    const handleSaveItem = async () => {
         if (!currentItem.title || !currentItem.imageUrl) {
             toast.error("Please fill in the required fields");
             return;
         }
 
-        if (dialogMode === "add") {
-            setItems([
-                ...items,
-                {
-                    id: Date.now().toString(),
-                    title: currentItem.title,
-                    category: currentItem.category || "Academic",
-                    imageUrl: currentItem.imageUrl,
-                    description: currentItem.description
-                }
-            ]);
-            toast.success("Image added to gallery");
-        } else {
-            setItems(items.map(it => it.id === currentItem.id ? (currentItem as GalleryItem) : it));
-            toast.success("Gallery item updated");
+        try {
+            if (dialogMode === "add") {
+                await createWebsiteGallery(currentItem);
+                toast.success("Image added to gallery");
+            } else {
+                await updateWebsiteGallery(currentItem.id as string, currentItem);
+                toast.success("Gallery item updated");
+            }
+            mutate(websiteGalleriesUrl);
+            setIsDialogOpen(false);
+        } catch (error) {
+            toast.error("Failed to save gallery item");
         }
-        setIsDialogOpen(false);
     };
 
-    const handleEditItem = (item: GalleryItem) => {
+    const handleEditItem = (item: TWebsiteGallery) => {
         setCurrentItem(item);
         setDialogMode("edit");
         setIsDialogOpen(true);
     };
 
-    const handleDeleteItem = (id: string) => {
-        setItems(items.filter(it => it.id !== id));
-        toast.success("Gallery item deleted");
+    const handleDeleteItem = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this image?")) return;
+        try {
+            await deleteWebsiteGallery(id);
+            mutate(websiteGalleriesUrl);
+            toast.success("Gallery item deleted");
+        } catch (error) {
+            toast.error("Failed to delete gallery item");
+        }
     };
 
     const filteredItems = items.filter(it => {
-        const matchesSearch = it.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        const matchesSearch = it.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
                               (it.description && it.description.toLowerCase().includes(searchQuery.toLowerCase()));
         const matchesCategory = selectedCategory === "All" || it.category === selectedCategory;
         return matchesSearch && matchesCategory;
@@ -115,7 +87,7 @@ export function GalleryManagement() {
                     <Title>Gallery CMS Management</Title>
                     <p className="text-sm text-gray-500 mt-1">Add, update or remove photos shown on the public Website Gallery page</p>
                 </div>
-                <Button onClick={() => { setCurrentItem({ title: "", category: "Academic", imageUrl: "", description: "" }); setDialogMode("add"); setIsDialogOpen(true); }} className="flex items-center gap-1 shadow-md hover:shadow-lg transition-all duration-300">
+                <Button onClick={() => { setCurrentItem({ title: "", category: "Academic", imageUrl: "", description: "", isActive: true }); setDialogMode("add"); setIsDialogOpen(true); }} className="flex items-center gap-1 shadow-md hover:shadow-lg transition-all duration-300">
                     <Plus className="w-4 h-4" /> Add Media
                 </Button>
             </div>
@@ -153,7 +125,9 @@ export function GalleryManagement() {
 
             {/* Gallery Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {filteredItems.length > 0 ? (
+                {isLoading ? (
+                    <div className="col-span-full py-16 text-center text-gray-400">Loading...</div>
+                ) : filteredItems.length > 0 ? (
                     filteredItems.map((item) => (
                         <Card key={item.id} className="group relative border border-gray-200/60 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full bg-white">
                             <div className="h-44 w-full relative bg-gray-100 overflow-hidden">

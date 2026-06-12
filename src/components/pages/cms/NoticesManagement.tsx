@@ -8,130 +8,96 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit2, Trash2, Search, Bell, Eye, Calendar, Tag, FileText, CheckCircle, AlertCircle } from "lucide-react";
+import { Plus, Edit2, Trash2, Search, Bell, Eye, Calendar, Tag, AlertCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-
-interface Notice {
-    id: string;
-    title: string;
-    category: "Academic" | "Event" | "Admission" | "Circular" | "General";
-    date: string;
-    content: string;
-    status: "Published" | "Draft";
-    attachment?: string;
-}
+import { useWebsiteNoticesQuery } from "@/apis/queries/website_queries";
+import { createWebsiteNotice, updateWebsiteNotice, deleteWebsiteNotice } from "@/apis/mutations/website_mutations";
+import { mutate } from "swr";
+import { websiteNoticesUrl } from "@/apis/endpoints/cms/website_apis";
+import type { TWebsiteNotice } from "@/apis/types/website_type";
 
 export function NoticesManagement() {
     const [searchQuery, setSearchQuery] = useState("");
-    const [notices, setNotices] = useState<Notice[]>([
-        {
-            id: "1",
-            title: "Class Routine Published for Year 2026",
-            category: "Academic",
-            date: "2026-01-11",
-            content: "The annual class routines for Grades 1 to 10 are now active and available for download. Classes start daily at 8:00 AM.",
-            status: "Published",
-            attachment: "class_routine_2026.pdf"
-        },
-        {
-            id: "2",
-            title: "Admission Open for Session 2026-2027",
-            category: "Admission",
-            date: "2025-12-15",
-            content: "Applications are open for admission to all classes. Apply online or visit the admin desk during working hours.",
-            status: "Published"
-        },
-        {
-            id: "3",
-            title: "Winter Vacation Notice",
-            category: "Circular",
-            date: "2025-12-20",
-            content: "The institution will remain closed from December 24 to January 3 due to winter holidays. Online classes resume from Jan 4.",
-            status: "Draft"
-        }
-    ]);
+    
+    // Fetch notices
+    const { data: response, isLoading } = useWebsiteNoticesQuery();
+    const notices: TWebsiteNotice[] = response?.data || [];
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
-    const [currentNotice, setCurrentNotice] = useState<Partial<Notice>>({
+    const [currentNotice, setCurrentNotice] = useState<Partial<TWebsiteNotice>>({
         title: "",
-        category: "Academic",
-        date: new Date().toISOString().split('T')[0],
         content: "",
-        status: "Published",
-        attachment: ""
+        isActive: true,
+        attachmentUrl: ""
     });
 
-    const handleSaveNotice = () => {
-        if (!currentNotice.title || !currentNotice.content || !currentNotice.date) {
+    const handleSaveNotice = async () => {
+        if (!currentNotice.title || !currentNotice.content) {
             toast.error("Please fill in all required fields");
             return;
         }
 
-        if (dialogMode === "add") {
-            setNotices([
-                {
-                    id: Date.now().toString(),
-                    title: currentNotice.title,
-                    category: currentNotice.category || "Academic",
-                    date: currentNotice.date,
-                    content: currentNotice.content,
-                    status: currentNotice.status || "Published",
-                    attachment: currentNotice.attachment
-                },
-                ...notices
-            ]);
-            toast.success("Notice created successfully");
-        } else {
-            setNotices(notices.map(n => n.id === currentNotice.id ? (currentNotice as Notice) : n));
-            toast.success("Notice updated successfully");
+        try {
+            if (dialogMode === "add") {
+                await createWebsiteNotice(currentNotice);
+                toast.success("Notice created successfully");
+            } else {
+                await updateWebsiteNotice(currentNotice.id as string, currentNotice);
+                toast.success("Notice updated successfully");
+            }
+            mutate(websiteNoticesUrl);
+            setIsDialogOpen(false);
+        } catch (error) {
+            toast.error("Failed to save notice");
         }
-        setIsDialogOpen(false);
     };
 
-    const handleEditNotice = (notice: Notice) => {
+    const handleEditNotice = (notice: TWebsiteNotice) => {
         setCurrentNotice(notice);
         setDialogMode("edit");
         setIsDialogOpen(true);
     };
 
-    const handleDeleteNotice = (id: string) => {
-        setNotices(notices.filter(n => n.id !== id));
-        toast.success("Notice deleted");
+    const handleDeleteNotice = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this notice?")) return;
+        try {
+            await deleteWebsiteNotice(id);
+            mutate(websiteNoticesUrl);
+            toast.success("Notice deleted");
+        } catch (error) {
+            toast.error("Failed to delete notice");
+        }
     };
 
-    const toggleStatus = (id: string) => {
-        setNotices(notices.map(n => {
-            if (n.id === id) {
-                const newStatus = n.status === "Published" ? "Draft" : "Published";
-                toast.success(`Notice status updated to ${newStatus}`);
-                return { ...n, status: newStatus };
-            }
-            return n;
-        }));
+    const toggleStatus = async (notice: TWebsiteNotice) => {
+        try {
+            await updateWebsiteNotice(notice.id, { ...notice, isActive: !notice.isActive });
+            mutate(websiteNoticesUrl);
+            toast.success(`Notice status updated`);
+        } catch (error) {
+            toast.error("Failed to update status");
+        }
     };
 
     const filteredNotices = notices.filter(n =>
-        n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        n.category.toLowerCase().includes(searchQuery.toLowerCase())
+        n.title?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
         <div className="p-6 space-y-6 max-w-6xl mx-auto">
-            {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-100 pb-4">
                 <div>
                     <Title>Notice Board Management</Title>
                     <p className="text-sm text-gray-500 mt-1">Publish, edit or delete notices displayed on the website notice board</p>
                 </div>
-                <Button onClick={() => { setCurrentNotice({ title: "", category: "Academic", date: new Date().toISOString().split('T')[0], content: "", status: "Published", attachment: "" }); setDialogMode("add"); setIsDialogOpen(true); }} className="flex items-center gap-1 shadow-md hover:shadow-lg transition-all duration-300">
+                <Button onClick={() => { setCurrentNotice({ title: "", content: "", isActive: true, attachmentUrl: "" }); setDialogMode("add"); setIsDialogOpen(true); }} className="flex items-center gap-1 shadow-md hover:shadow-lg transition-all duration-300">
                     <Plus className="w-4 h-4" /> Add Notice
                 </Button>
             </div>
 
-            {/* List and Search */}
             <Card className="shadow-sm border-gray-200/60">
                 <CardHeader className="bg-gray-50/50 border-b border-gray-100 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
@@ -156,14 +122,14 @@ export function NoticesManagement() {
                             <thead>
                                 <tr className="bg-gray-50/40 text-gray-500 border-b border-gray-100 text-xs uppercase font-semibold">
                                     <th className="px-6 py-4">Notice Title</th>
-                                    <th className="px-6 py-4">Category</th>
-                                    <th className="px-6 py-4">Publish Date</th>
                                     <th className="px-6 py-4">Status</th>
                                     <th className="px-6 py-4 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 text-sm">
-                                {filteredNotices.length > 0 ? (
+                                {isLoading ? (
+                                    <tr><td colSpan={3} className="text-center py-6">Loading...</td></tr>
+                                ) : filteredNotices.length > 0 ? (
                                     filteredNotices.map((notice) => (
                                         <tr key={notice.id} className="hover:bg-gray-50/30 transition-colors duration-150">
                                             <td className="px-6 py-4">
@@ -171,21 +137,13 @@ export function NoticesManagement() {
                                                 <div className="text-xs text-gray-500 line-clamp-1 mt-0.5">{notice.content}</div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
-                                                    <Tag className="w-3 h-3" /> {notice.category}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-gray-600 flex items-center gap-1.5 py-6">
-                                                <Calendar className="w-4 h-4 text-gray-400" /> {notice.date}
-                                            </td>
-                                            <td className="px-6 py-4">
                                                 <div className="flex items-center gap-2">
                                                     <Switch
-                                                        checked={notice.status === "Published"}
-                                                        onCheckedChange={() => toggleStatus(notice.id)}
+                                                        checked={notice.isActive}
+                                                        onCheckedChange={() => toggleStatus(notice)}
                                                     />
-                                                    <Badge className={`px-2 py-0.5 rounded-full text-xs font-medium border-0 ${notice.status === "Published" ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-yellow-100 text-yellow-700 hover:bg-yellow-100"}`}>
-                                                        {notice.status}
+                                                    <Badge className={`px-2 py-0.5 rounded-full text-xs font-medium border-0 ${notice.isActive ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-yellow-100 text-yellow-700 hover:bg-yellow-100"}`}>
+                                                        {notice.isActive ? "Published" : "Draft"}
                                                     </Badge>
                                                 </div>
                                             </td>
@@ -203,7 +161,7 @@ export function NoticesManagement() {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-10 text-center text-gray-400">
+                                        <td colSpan={3} className="px-6 py-10 text-center text-gray-400">
                                             <AlertCircle className="w-8 h-8 mx-auto mb-2 text-gray-300" />
                                             No notices found matching search criteria.
                                         </td>
@@ -215,7 +173,6 @@ export function NoticesManagement() {
                 </CardContent>
             </Card>
 
-            {/* Dialog Form */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="max-w-lg bg-white">
                     <DialogHeader>
@@ -231,32 +188,6 @@ export function NoticesManagement() {
                                 value={currentNotice.title}
                                 onChange={(e) => setCurrentNotice({ ...currentNotice, title: e.target.value })}
                             />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <Label htmlFor="category">Category</Label>
-                                <select
-                                    id="category"
-                                    className="w-full bg-white border border-gray-200 rounded-md p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                                    value={currentNotice.category}
-                                    onChange={(e) => setCurrentNotice({ ...currentNotice, category: e.target.value as any })}
-                                >
-                                    <option value="Academic">Academic</option>
-                                    <option value="Event">Event</option>
-                                    <option value="Admission">Admission</option>
-                                    <option value="Circular">Circular</option>
-                                    <option value="General">General</option>
-                                </select>
-                            </div>
-                            <div className="space-y-1.5">
-                                <Label htmlFor="date">Publish Date *</Label>
-                                <Input
-                                    id="date"
-                                    type="date"
-                                    value={currentNotice.date}
-                                    onChange={(e) => setCurrentNotice({ ...currentNotice, date: e.target.value })}
-                                />
-                            </div>
                         </div>
                         <div className="space-y-1.5">
                             <Label htmlFor="content">Notice Content *</Label>
@@ -274,8 +205,8 @@ export function NoticesManagement() {
                             <Input
                                 id="attachment"
                                 placeholder="E.g., syllabus_2026.pdf"
-                                value={currentNotice.attachment}
-                                onChange={(e) => setCurrentNotice({ ...currentNotice, attachment: e.target.value })}
+                                value={currentNotice.attachmentUrl}
+                                onChange={(e) => setCurrentNotice({ ...currentNotice, attachmentUrl: e.target.value })}
                             />
                         </div>
                         <div className="flex items-center justify-between p-3 border border-gray-100 rounded-xl bg-gray-50/50">
@@ -284,8 +215,8 @@ export function NoticesManagement() {
                                 <span className="text-xs text-gray-400">If disabled, this is stored as a draft</span>
                             </div>
                             <Switch
-                                checked={currentNotice.status === "Published"}
-                                onCheckedChange={(val) => setCurrentNotice({ ...currentNotice, status: val ? "Published" : "Draft" })}
+                                checked={currentNotice.isActive}
+                                onCheckedChange={(val) => setCurrentNotice({ ...currentNotice, isActive: val })}
                             />
                         </div>
                     </div>
