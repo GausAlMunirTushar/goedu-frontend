@@ -7,6 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Printer, Download, Eye, Calendar, BookOpen, Clock } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { useUsersQuery } from "@/apis/queries/auth_queries";
+import { useRoutinesQuery } from "@/apis/queries/academic_queries";
+import { useEffect } from "react";
 
 interface AssignedPeriod {
     id: string;
@@ -20,29 +23,26 @@ interface AssignedPeriod {
 }
 
 export function TeacherRoutine() {
-    const [selectedTeacher, setSelectedTeacher] = useState("Mr. Zaman");
+    const [selectedTeacherId, setSelectedTeacherId] = useState<string>("");
 
-    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
-    
-    // Sample assigned classes database for teachers
-    const teacherData: Record<string, AssignedPeriod[]> = {
-        "Mr. Zaman": [
-            { id: "1", day: "Sunday", class: "Grade 6", section: "Section A", subject: "Mathematics", room: "Room 102", startTime: "09:00", endTime: "09:45" },
-            { id: "2", day: "Sunday", class: "Grade 7", section: "Section B", subject: "Mathematics", room: "Room 105", startTime: "10:45", endTime: "11:30" },
-            { id: "3", day: "Monday", class: "Grade 6", section: "Section A", subject: "Mathematics", room: "Room 102", startTime: "09:45", endTime: "10:30" },
-            { id: "4", day: "Monday", class: "Grade 8", section: "Section C", subject: "Mathematics", room: "Room 108", startTime: "11:30", endTime: "12:15" },
-            { id: "5", day: "Tuesday", class: "Grade 6", section: "Section A", subject: "Mathematics", room: "Room 102", startTime: "09:45", endTime: "10:30" },
-            { id: "6", day: "Wednesday", class: "Grade 7", section: "Section B", subject: "Mathematics", room: "Room 105", startTime: "09:00", endTime: "09:45" },
-            { id: "7", day: "Thursday", class: "Grade 8", section: "Section C", subject: "Mathematics", room: "Room 108", startTime: "10:45", endTime: "11:30" }
-        ],
-        "Ms. Rahman": [
-            { id: "10", day: "Sunday", class: "Grade 6", section: "Section A", subject: "English Literature", room: "Room 102", startTime: "09:45", endTime: "10:30" },
-            { id: "11", day: "Sunday", class: "Grade 8", section: "Section A", subject: "English Grammar", room: "Room 107", startTime: "11:30", endTime: "12:15" },
-            { id: "12", day: "Monday", class: "Grade 6", section: "Section A", subject: "English Grammar", room: "Room 102", startTime: "09:00", endTime: "09:45" },
-            { id: "13", day: "Wednesday", class: "Grade 7", section: "Section A", subject: "English Literature", room: "Room 103", startTime: "09:45", endTime: "10:30" },
-            { id: "14", day: "Thursday", class: "Grade 8", section: "Section A", subject: "English Grammar", room: "Room 107", startTime: "09:00", endTime: "09:45" }
-        ]
-    };
+    const daysOfWeek = ["SATURDAY", "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+
+    // Fetch teachers
+    const { data: teachersResponse, isLoading: loadingTeachers } = useUsersQuery("Teacher");
+    const teachersList = teachersResponse?.data || [];
+
+    // Set default teacher
+    useEffect(() => {
+        if (teachersList.length > 0 && !selectedTeacherId) {
+            setSelectedTeacherId(teachersList[0].id);
+        }
+    }, [teachersList, selectedTeacherId]);
+
+    // Fetch teacher's routines
+    const { data: routinesResponse, isLoading: loadingRoutines } = useRoutinesQuery({
+        teacherId: selectedTeacherId || undefined
+    });
+    const currentTeacherPeriods = routinesResponse?.data || [];
 
     const timeSlots = [
         { start: "09:00", end: "09:45", label: "1st Period" },
@@ -52,9 +52,8 @@ export function TeacherRoutine() {
         { start: "11:30", end: "12:15", label: "4th Period" }
     ];
 
-    const currentTeacherPeriods = teacherData[selectedTeacher] || [];
     const totalPeriodsCount = currentTeacherPeriods.length;
-    const busyDaysCount = new Set(currentTeacherPeriods.map(p => p.day)).size;
+    const busyDaysCount = new Set(currentTeacherPeriods.map((p: any) => p.dayOfWeek)).size;
 
     return (
         <div className="p-6 space-y-6 max-w-6xl mx-auto">
@@ -79,11 +78,15 @@ export function TeacherRoutine() {
                             <select
                                 id="teach-select"
                                 className="w-full bg-white border border-gray-200 rounded-md p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                                value={selectedTeacher}
-                                onChange={(e) => setSelectedTeacher(e.target.value)}
+                                value={selectedTeacherId}
+                                onChange={(e) => setSelectedTeacherId(e.target.value)}
+                                disabled={loadingTeachers}
                             >
-                                <option value="Mr. Zaman">Mr. Zaman (Mathematics)</option>
-                                <option value="Ms. Rahman">Ms. Rahman (English)</option>
+                                {loadingTeachers && <option>Loading...</option>}
+                                {teachersList.length === 0 && !loadingTeachers && <option value="">No teachers found</option>}
+                                {teachersList.map((t: any) => (
+                                    <option key={t.id} value={t.id}>{t.firstName} {t.lastName}</option>
+                                ))}
                             </select>
                         </div>
                     </CardContent>
@@ -135,7 +138,7 @@ export function TeacherRoutine() {
                             <tbody className="divide-y divide-gray-100">
                                 {daysOfWeek.map((day) => (
                                     <tr key={day} className="hover:bg-gray-50/10">
-                                        <td className="px-4 py-6 font-bold text-sm text-left bg-gray-50 text-gray-800">{day}</td>
+                                        <td className="px-4 py-6 font-bold text-xs text-left bg-gray-50 text-gray-800 uppercase tracking-wider">{day.toLowerCase()}</td>
                                         {timeSlots.map((slot, sIdx) => {
                                             if (slot.isBreak) {
                                                 return (
@@ -145,17 +148,17 @@ export function TeacherRoutine() {
                                                 );
                                             }
                                             
-                                            const match = currentTeacherPeriods.find(p => p.day === day && p.startTime === slot.start);
+                                            const match = currentTeacherPeriods.find((p: any) => p.dayOfWeek === day && p.startTime === slot.start);
                                             
                                             return (
                                                 <td key={sIdx} className="px-3 py-4 border-l border-gray-200 text-xs text-left">
                                                     {match ? (
                                                         <div className="p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/30 text-xs space-y-1 relative shadow-sm">
                                                             <div className="font-bold text-emerald-800 flex justify-between">
-                                                                <span>{match.subject}</span>
+                                                                <span>{match.subject?.name}</span>
                                                             </div>
-                                                            <div className="text-gray-700 font-semibold">{match.class} ({match.section})</div>
-                                                            <div className="text-gray-400 text-[10px]">{match.room}</div>
+                                                            <div className="text-gray-700 font-semibold">{match.class?.name} ({match.section?.name})</div>
+                                                            <div className="text-gray-400 text-[10px]">{match.roomId || "No room assigned"}</div>
                                                         </div>
                                                     ) : (
                                                         <span className="text-[10px] text-gray-300 italic">No assigned classes</span>
