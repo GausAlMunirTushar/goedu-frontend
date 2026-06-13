@@ -15,18 +15,8 @@ import {
   UserMinus,
   GraduationCap
 } from "lucide-react";
-import { classes, sessions } from "@/data/academic";
-
-// Mock student report database
-const studentReportsData = [
-  { id: "1", roll: "101", name: "Tasnim Alam", class: "Class 10", session: "2025-2026", gender: "Female", status: "Active", contact: "01712000001", parent: "Rafiqul Alam" },
-  { id: "2", roll: "102", name: "Amit Hasan", class: "Class 10", session: "2025-2026", gender: "Male", status: "Active", contact: "01712000002", parent: "Nazrul Islam" },
-  { id: "3", roll: "103", name: "Sara Kabir", class: "Class 10", session: "2025-2026", gender: "Female", status: "Active", contact: "01712000003", parent: "Anwar Kabir" },
-  { id: "4", roll: "201", name: "Jahidul Islam", class: "Class 9", session: "2025-2026", gender: "Male", status: "Active", contact: "01812000004", parent: "Mofizul Islam" },
-  { id: "5", roll: "202", name: "Sadia Rahman", class: "Class 9", session: "2025-2026", gender: "Female", status: "Inactive", contact: "01912000005", parent: "Habibur Rahman" },
-  { id: "6", roll: "301", name: "Rashedul Bari", class: "Class 8", session: "2024-2025", gender: "Male", status: "Active", contact: "01512000006", parent: "Abdul Bari" },
-  { id: "7", roll: "302", name: "Nusrat Jahan", class: "Class 8", session: "2024-2025", gender: "Female", status: "Transferred", contact: "01612000007", parent: "Zakir Hossain" },
-];
+import { useClassesQuery, useSessionsQuery } from "@/apis/queries/academic_queries";
+import { useStudentReportQuery } from "@/apis/queries/reports_queries";
 
 export function StudentReports() {
   const [selectedClass, setSelectedClass] = useState("All Classes");
@@ -34,23 +24,28 @@ export function StudentReports() {
   const [selectedStatus, setSelectedStatus] = useState("All Status");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredData = studentReportsData.filter((student) => {
-    const matchesClass = selectedClass === "All Classes" || student.class === selectedClass;
-    const matchesSession = selectedSession === "All Sessions" || student.session === selectedSession;
-    const matchesStatus = selectedStatus === "All Status" || student.status === selectedStatus;
-    const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          student.roll.includes(searchQuery) ||
-                          student.contact.includes(searchQuery);
-    return matchesClass && matchesSession && matchesStatus && matchesSearch;
+  const { data: classesData } = useClassesQuery();
+  const classes = classesData?.data || [];
+
+  const { data: sessionsData } = useSessionsQuery();
+  const sessions = sessionsData?.data || [];
+
+  const { data: reportData, isLoading } = useStudentReportQuery({
+    classId: selectedClass,
+    sessionId: selectedSession,
+    status: selectedStatus,
+    searchQuery,
   });
 
+  const filteredData = reportData?.data || [];
+
   const totalCount = filteredData.length;
-  const activeCount = filteredData.filter(s => s.status === "Active").length;
-  const inactiveCount = filteredData.filter(s => s.status !== "Active").length;
+  const activeCount = filteredData.filter((s: any) => s.status === "Active").length;
+  const inactiveCount = filteredData.filter((s: any) => s.status !== "Active").length;
 
   const handleExportCSV = () => {
     const headers = ["Roll,Name,Class,Session,Gender,Status,Contact,Parent\n"];
-    const rows = filteredData.map(s => `${s.roll},${s.name},${s.class},${s.session},${s.gender},${s.status},${s.contact},${s.parent}\n`);
+    const rows = filteredData.map((s: any) => `${s.roll},${s.name},${s.class},${s.session},${s.gender},${s.status},${s.contact},${s.parent}\n`);
     const blob = new Blob([...headers, ...rows], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -133,8 +128,8 @@ export function StudentReports() {
                 className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="All Classes">All Classes</option>
-                {classes.map(c => (
-                  <option key={c.id} value={c.name}>{c.name}</option>
+                {classes.map((c: any) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
@@ -148,8 +143,8 @@ export function StudentReports() {
                 className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="All Sessions">All Sessions</option>
-                {sessions.map(s => (
-                  <option key={s.id} value={s.name}>{s.name}</option>
+                {sessions.map((s: any) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
               </select>
             </div>
@@ -206,7 +201,15 @@ export function StudentReports() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {filteredData.map((student) => (
+                {isLoading ? (
+                  <tr><td colSpan={8} className="text-center py-10">Loading...</td></tr>
+                ) : filteredData.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-10 text-muted-foreground">
+                      No student records match selected filters.
+                    </td>
+                  </tr>
+                ) : filteredData.map((student: any) => (
                   <tr key={student.id} className="hover:bg-primary/5 transition-colors">
                     <td className="px-6 py-4 font-mono font-semibold">{student.roll}</td>
                     <td className="px-6 py-4 font-semibold text-gray-900">{student.name}</td>
@@ -225,13 +228,6 @@ export function StudentReports() {
                     </td>
                   </tr>
                 ))}
-                {filteredData.length === 0 && (
-                  <tr>
-                    <td colSpan={8} className="text-center py-10 text-muted-foreground">
-                      No student records match selected filters.
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>

@@ -15,16 +15,14 @@ import {
   ShieldCheck, 
   ClipboardList
 } from "lucide-react";
+import { useTeacherReportQuery } from "@/apis/queries/reports_queries";
+import { useQuery } from "@/hooks/useQuery";
+import { teacherDesignationsUrl, teacherDepartmentsUrl } from "@/apis/endpoints/staff_apis";
+import type { TResponse } from "@/types/configs";
 
-// Mock faculty database
-const teacherReportsData = [
-  { id: "1", name: "Anisur Rahman", email: "anisur@epathshala.com", contact: "01712100201", designation: "Principal", department: "Science", joinDate: "2015-01-01", status: "Active" },
-  { id: "2", name: "Farhana Yasmin", email: "farhana@epathshala.com", contact: "01712100202", designation: "Assistant Teacher", department: "English", joinDate: "2018-06-15", status: "Active" },
-  { id: "3", name: "Jamil Chowdhury", email: "jamil@epathshala.com", contact: "01712100203", designation: "Senior Teacher", department: "Mathematics", joinDate: "2016-03-10", status: "Active" },
-  { id: "4", name: "Rokeya Begum", email: "rokeya@epathshala.com", contact: "01812100204", designation: "Assistant Teacher", department: "Science", joinDate: "2020-01-15", status: "Active" },
-  { id: "5", name: "Imtiaz Ahmed", email: "imtiaz@epathshala.com", contact: "01912100205", designation: "Assistant Teacher", department: "Social Science", joinDate: "2021-08-01", status: "Inactive" },
-  { id: "6", name: "Shahana Chowdhury", email: "shahana@epathshala.com", contact: "01512100206", designation: "Senior Teacher", department: "Bangla", joinDate: "2017-09-01", status: "Active" },
-];
+// Helper hooks for fetching dropdown data
+const useDesignationsQuery = () => useQuery<TResponse<any>>(teacherDesignationsUrl);
+const useDepartmentsQuery = () => useQuery<TResponse<any>>(teacherDepartmentsUrl);
 
 export function TeacherReports() {
   const [selectedDesignation, setSelectedDesignation] = useState("All Designations");
@@ -32,23 +30,28 @@ export function TeacherReports() {
   const [selectedStatus, setSelectedStatus] = useState("All Status");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredData = teacherReportsData.filter((teacher) => {
-    const matchesDesig = selectedDesignation === "All Designations" || teacher.designation === selectedDesignation;
-    const matchesDept = selectedDept === "All Departments" || teacher.department === selectedDept;
-    const matchesStatus = selectedStatus === "All Status" || teacher.status === selectedStatus;
-    const matchesSearch = teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          teacher.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          teacher.contact.includes(searchQuery);
-    return matchesDesig && matchesDept && matchesStatus && matchesSearch;
+  const { data: designationsData } = useDesignationsQuery();
+  const designations = designationsData?.data || [];
+
+  const { data: deptsData } = useDepartmentsQuery();
+  const departments = deptsData?.data || [];
+
+  const { data: reportData, isLoading } = useTeacherReportQuery({
+    designationId: selectedDesignation,
+    departmentId: selectedDept,
+    status: selectedStatus,
+    searchQuery,
   });
 
+  const filteredData = reportData?.data || [];
+
   const totalCount = filteredData.length;
-  const activeCount = filteredData.filter(t => t.status === "Active").length;
-  const uniqueDepts = new Set(filteredData.map(t => t.department)).size;
+  const activeCount = filteredData.filter((t: any) => t.status === "Active").length;
+  const uniqueDepts = new Set(filteredData.map((t: any) => t.department)).size;
 
   const handleExportCSV = () => {
     const headers = ["Name,Email,Contact,Designation,Department,Join Date,Status\n"];
-    const rows = filteredData.map(t => `${t.name},${t.email},${t.contact},${t.designation},${t.department},${t.joinDate},${t.status}\n`);
+    const rows = filteredData.map((t: any) => `${t.name},${t.email},${t.contact},${t.designation},${t.department},${t.joinDate},${t.status}\n`);
     const blob = new Blob([...headers, ...rows], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -131,9 +134,9 @@ export function TeacherReports() {
                 className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="All Designations">All Designations</option>
-                <option value="Principal">Principal</option>
-                <option value="Senior Teacher">Senior Teacher</option>
-                <option value="Assistant Teacher">Assistant Teacher</option>
+                {designations.map((d: any) => (
+                  <option key={d.id} value={d.id}>{d.title}</option>
+                ))}
               </select>
             </div>
 
@@ -146,11 +149,9 @@ export function TeacherReports() {
                 className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="All Departments">All Departments</option>
-                <option value="Science">Science</option>
-                <option value="English">English</option>
-                <option value="Mathematics">Mathematics</option>
-                <option value="Bangla">Bangla</option>
-                <option value="Social Science">Social Science</option>
+                {departments.map((d: any) => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
               </select>
             </div>
 
@@ -204,7 +205,15 @@ export function TeacherReports() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {filteredData.map((t) => (
+                {isLoading ? (
+                  <tr><td colSpan={7} className="text-center py-10">Loading...</td></tr>
+                ) : filteredData.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-10 text-muted-foreground">
+                      No teacher records found matching selected filters.
+                    </td>
+                  </tr>
+                ) : filteredData.map((t: any) => (
                   <tr key={t.id} className="hover:bg-primary/5 transition-colors">
                     <td className="px-6 py-4 font-semibold text-gray-900">{t.name}</td>
                     <td className="px-6 py-4 text-muted-foreground">{t.designation}</td>
@@ -221,13 +230,6 @@ export function TeacherReports() {
                     </td>
                   </tr>
                 ))}
-                {filteredData.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="text-center py-10 text-muted-foreground">
-                      No teacher records found matching selected filters.
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>

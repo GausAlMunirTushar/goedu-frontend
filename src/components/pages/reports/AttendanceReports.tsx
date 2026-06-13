@@ -15,45 +15,43 @@ import {
   Clock, 
   Activity
 } from "lucide-react";
-import { classes } from "@/data/academic";
-
-// Mock attendance reports database
-const attendanceReportsData = [
-  { id: "1", date: "2026-06-10", name: "Tasnim Alam", class: "Class 10", roll: "101", inTime: "08:15 AM", outTime: "01:30 PM", status: "Present" },
-  { id: "2", date: "2026-06-10", name: "Amit Hasan", class: "Class 10", roll: "102", inTime: "08:35 AM", outTime: "01:30 PM", status: "Late" },
-  { id: "3", date: "2026-06-10", name: "Sara Kabir", class: "Class 10", roll: "103", inTime: "-", outTime: "-", status: "Absent" },
-  { id: "4", date: "2026-06-10", name: "Jahidul Islam", class: "Class 9", roll: "201", inTime: "08:10 AM", outTime: "01:30 PM", status: "Present" },
-  { id: "5", date: "2026-06-10", name: "Sadia Rahman", class: "Class 9", roll: "202", inTime: "-", outTime: "-", status: "Absent" },
-  { id: "6", date: "2026-06-09", name: "Tasnim Alam", class: "Class 10", roll: "101", inTime: "08:20 AM", outTime: "01:30 PM", status: "Present" },
-  { id: "7", date: "2026-06-09", name: "Sara Kabir", class: "Class 10", roll: "103", inTime: "08:12 AM", outTime: "01:30 PM", status: "Present" },
-];
+import { useClassesQuery } from "@/apis/queries/academic_queries";
+import { useAttendanceReportQuery } from "@/apis/queries/reports_queries";
 
 export function AttendanceReports() {
   const [selectedClass, setSelectedClass] = useState("All Classes");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
-  const [startDate, setStartDate] = useState("2026-06-09");
-  const [endDate, setEndDate] = useState("2026-06-10");
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 7);
+    return d.toISOString().split('T')[0];
+  });
+  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredData = attendanceReportsData.filter((record) => {
-    const matchesClass = selectedClass === "All Classes" || record.class === selectedClass;
-    const matchesStatus = selectedStatus === "All Status" || record.status === selectedStatus;
-    const matchesDate = record.date >= startDate && record.date <= endDate;
-    const matchesSearch = record.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          record.roll.includes(searchQuery);
-    return matchesClass && matchesStatus && matchesDate && matchesSearch;
+  const { data: classesData } = useClassesQuery();
+  const classes = classesData?.data || [];
+
+  const { data: reportData, isLoading } = useAttendanceReportQuery({
+    startDate,
+    endDate,
+    classId: selectedClass,
+    status: selectedStatus,
+    searchQuery,
   });
 
+  const filteredData = reportData?.data || [];
+
   const totalRecords = filteredData.length;
-  const presentCount = filteredData.filter(r => r.status === "Present" || r.status === "Late").length;
-  const absentCount = filteredData.filter(r => r.status === "Absent").length;
-  const lateCount = filteredData.filter(r => r.status === "Late").length;
+  const presentCount = filteredData.filter((r: any) => r.status === "Present" || r.status === "Late").length;
+  const absentCount = filteredData.filter((r: any) => r.status === "Absent").length;
+  const lateCount = filteredData.filter((r: any) => r.status === "Late").length;
   
   const attendancePercentage = totalRecords > 0 ? ((presentCount / totalRecords) * 100).toFixed(1) : "0.0";
 
   const handleExportCSV = () => {
     const headers = ["Date,Roll,Name,Class,In-Time,Out-Time,Status\n"];
-    const rows = filteredData.map(r => `${r.date},${r.roll},${r.name},${r.class},${r.inTime},${r.outTime},${r.status}\n`);
+    const rows = filteredData.map((r: any) => `${r.date},${r.roll},${r.name},${r.class},${r.inTime},${r.outTime},${r.status}\n`);
     const blob = new Blob([...headers, ...rows], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -170,8 +168,8 @@ export function AttendanceReports() {
                 className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="All Classes">All Classes</option>
-                {classes.map(c => (
-                  <option key={c.id} value={c.name}>{c.name}</option>
+                {classes.map((c: any) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
@@ -188,6 +186,7 @@ export function AttendanceReports() {
                 <option value="Present">Present</option>
                 <option value="Absent">Absent</option>
                 <option value="Late">Late</option>
+                <option value="Leave">Leave</option>
               </select>
             </div>
 
@@ -227,7 +226,15 @@ export function AttendanceReports() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {filteredData.map((record) => (
+                {isLoading ? (
+                  <tr><td colSpan={7} className="text-center py-10">Loading...</td></tr>
+                ) : filteredData.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-10 text-muted-foreground">
+                      No attendance logs found matching selected filters.
+                    </td>
+                  </tr>
+                ) : filteredData.map((record: any) => (
                   <tr key={record.id} className="hover:bg-primary/5 transition-colors">
                     <td className="px-6 py-4 font-mono text-muted-foreground">{record.date}</td>
                     <td className="px-6 py-4 font-mono font-semibold">{record.roll}</td>
@@ -238,20 +245,14 @@ export function AttendanceReports() {
                     <td className="px-6 py-4">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
                         record.status === "Present" ? "bg-emerald-50 text-emerald-700" :
-                        record.status === "Late" ? "bg-amber-50 text-amber-700" : "bg-rose-50 text-rose-700"
+                        record.status === "Late" ? "bg-amber-50 text-amber-700" :
+                        record.status === "Leave" ? "bg-blue-50 text-blue-700" : "bg-rose-50 text-rose-700"
                       }`}>
                         {record.status}
                       </span>
                     </td>
                   </tr>
                 ))}
-                {filteredData.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="text-center py-10 text-muted-foreground">
-                      No attendance logs found matching selected filters.
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>

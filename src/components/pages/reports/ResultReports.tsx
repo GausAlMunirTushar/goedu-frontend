@@ -13,54 +13,55 @@ import {
   Award, 
   Trophy, 
   CheckCircle2, 
-  HelpCircle,
   TrendingUp
 } from "lucide-react";
-import { classes, sessions } from "@/data/academic";
-
-// Mock result reports database
-const resultReportsData = [
-  { id: "1", roll: "101", name: "Tasnim Alam", class: "Class 10", session: "2025-2026", exam: "Annual Exam", gpa: 5.00, marks: 924, grade: "A+", position: "1st", status: "Pass" },
-  { id: "2", roll: "102", name: "Amit Hasan", class: "Class 10", session: "2025-2026", exam: "Annual Exam", gpa: 4.85, marks: 876, grade: "A", position: "2nd", status: "Pass" },
-  { id: "3", roll: "103", name: "Sara Kabir", class: "Class 10", session: "2025-2026", exam: "Annual Exam", gpa: 4.50, marks: 812, grade: "A-", position: "3rd", status: "Pass" },
-  { id: "4", roll: "201", name: "Jahidul Islam", class: "Class 9", session: "2025-2026", exam: "Half Yearly", gpa: 3.75, marks: 710, grade: "B", position: "5th", status: "Pass" },
-  { id: "5", roll: "202", name: "Sadia Rahman", class: "Class 9", session: "2025-2026", exam: "Half Yearly", gpa: 1.80, marks: 450, grade: "F", position: "12th", status: "Fail" },
-];
-
-const exams = ["Annual Exam", "Half Yearly", "Pre-Test"];
+import { useClassesQuery, useSessionsQuery } from "@/apis/queries/academic_queries";
+import { useExamsQuery } from "@/apis/queries/exam_queries";
+import { useResultReportQuery } from "@/apis/queries/reports_queries";
 
 export function ResultReports() {
   const [selectedClass, setSelectedClass] = useState("All Classes");
   const [selectedSession, setSelectedSession] = useState("All Sessions");
   const [selectedExam, setSelectedExam] = useState("All Exams");
+  const [selectedStatus, setSelectedStatus] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredData = resultReportsData.filter((record) => {
-    const matchesClass = selectedClass === "All Classes" || record.class === selectedClass;
-    const matchesSession = selectedSession === "All Sessions" || record.session === selectedSession;
-    const matchesExam = selectedExam === "All Exams" || record.exam === selectedExam;
-    const matchesSearch = record.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          record.roll.includes(searchQuery);
-    return matchesClass && matchesSession && matchesExam && matchesSearch;
+  const { data: classesData } = useClassesQuery();
+  const classes = classesData?.data || [];
+
+  const { data: sessionsData } = useSessionsQuery();
+  const sessions = sessionsData?.data || [];
+
+  const { data: examsData } = useExamsQuery();
+  const examsList = examsData?.data || [];
+
+  const { data: reportData, isLoading } = useResultReportQuery({
+    examId: selectedExam,
+    classId: selectedClass,
+    sessionId: selectedSession,
+    status: selectedStatus,
+    searchQuery,
   });
 
+  const filteredData = reportData?.data || [];
+
   const totalCandidates = filteredData.length;
-  const passCount = filteredData.filter(r => r.status === "Pass").length;
-  const gpa5Count = filteredData.filter(r => r.gpa === 5.00).length;
+  const passCount = filteredData.filter((r: any) => r.status === "Pass").length;
+  const gpa5Count = filteredData.filter((r: any) => r.gpa === 5.00).length;
   const passRate = totalCandidates > 0 ? ((passCount / totalCandidates) * 100).toFixed(1) : "0.0";
   
   const avgMarks = totalCandidates > 0 
-    ? Math.round(filteredData.reduce((acc, curr) => acc + curr.marks, 0) / totalCandidates) 
+    ? Math.round(filteredData.reduce((acc: number, curr: any) => acc + curr.marks, 0) / totalCandidates) 
     : 0;
 
   const handleExportCSV = () => {
     const headers = ["Roll,Name,Class,Session,Exam,GPA,Marks,Grade,Position,Status\n"];
-    const rows = filteredData.map(r => `${r.roll},${r.name},${r.class},${r.session},${r.exam},${r.gpa},${r.marks},${r.grade},${r.position},${r.status}\n`);
+    const rows = filteredData.map((r: any) => `${r.roll},${r.name},${r.class},${r.session},${r.exam},${r.gpa},${r.marks},${r.grade},${r.position},${r.status}\n`);
     const blob = new Blob([...headers, ...rows], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.setAttribute("href", url);
-    a.setAttribute("download", `result_reports_${selectedExam.replace(" ", "_")}.csv`);
+    a.setAttribute("download", `result_reports.csv`);
     a.click();
   };
 
@@ -150,8 +151,8 @@ export function ResultReports() {
                 className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="All Exams">All Exams</option>
-                {exams.map(ex => (
-                  <option key={ex} value={ex}>{ex}</option>
+                {examsList.map((ex: any) => (
+                  <option key={ex.id} value={ex.id}>{ex.name}</option>
                 ))}
               </select>
             </div>
@@ -165,8 +166,8 @@ export function ResultReports() {
                 className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="All Classes">All Classes</option>
-                {classes.map(c => (
-                  <option key={c.id} value={c.name}>{c.name}</option>
+                {classes.map((c: any) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
@@ -180,8 +181,8 @@ export function ResultReports() {
                 className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="All Sessions">All Sessions</option>
-                {sessions.map(s => (
-                  <option key={s.id} value={s.name}>{s.name}</option>
+                {sessions.map((s: any) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
               </select>
             </div>
@@ -189,9 +190,8 @@ export function ResultReports() {
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pass/Fail Status</Label>
               <select
-                onChange={(e) => {
-                  // Filter out pass / fail logic locally if needed, we'll keep it simple
-                }}
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
                 className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="All">All Results</option>
@@ -217,7 +217,7 @@ export function ResultReports() {
       <Card className="shadow-sm border-primary/10 overflow-hidden">
         <CardHeader className="bg-white border-b border-gray-100 pb-3">
           <CardTitle className="text-base font-bold flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-primary animate-bounce-slow" /> Examination Marks & GPA Ledger
+            <Trophy className="w-5 h-5 text-primary" /> Examination Marks & GPA Ledger
           </CardTitle>
           <CardDescription className="text-xs">Class-wise rank position, GPA grading, and overall passing status.</CardDescription>
         </CardHeader>
@@ -238,7 +238,15 @@ export function ResultReports() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {filteredData.map((res) => (
+                {isLoading ? (
+                  <tr><td colSpan={9} className="text-center py-10">Loading...</td></tr>
+                ) : filteredData.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="text-center py-10 text-muted-foreground">
+                      No examination results match selected filters.
+                    </td>
+                  </tr>
+                ) : filteredData.map((res: any) => (
                   <tr key={res.id} className="hover:bg-primary/5 transition-colors">
                     <td className="px-6 py-4 font-mono font-semibold">{res.roll}</td>
                     <td className="px-6 py-4 font-semibold text-gray-900">{res.name}</td>
@@ -264,13 +272,6 @@ export function ResultReports() {
                     </td>
                   </tr>
                 ))}
-                {filteredData.length === 0 && (
-                  <tr>
-                    <td colSpan={9} className="text-center py-10 text-muted-foreground">
-                      No examination results match selected filters.
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
