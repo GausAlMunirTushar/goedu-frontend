@@ -9,6 +9,8 @@ import {
   examMarksUrl,
   examResultsUrl,
   examSeatPlansUrl,
+  examTabulationSheetUrl,
+  examMarksheetUrl,
 } from "@/apis/endpoints/exam_apis";
 import type { TResponse } from "@/types/configs";
 
@@ -105,4 +107,40 @@ export const useExamSeatPlansQuery = (filters?: {
   }
   const shouldFetch = filters?.examId && filters?.classId && filters?.sectionId;
   return useQuery<TResponse<any>>(shouldFetch ? `${examSeatPlansUrl}${queryParams}` : null);
+};
+
+export const useExamTabulationSheetQuery = (filters?: {
+  examId?: string;
+  classId?: string;
+  sectionId?: string;
+}) => {
+  let queryParams = "";
+  if (filters) {
+    const parts = [];
+    if (filters.examId) parts.push(`examId=${filters.examId}`);
+    if (filters.classId) parts.push(`classId=${filters.classId}`);
+    if (filters.sectionId) parts.push(`sectionId=${filters.sectionId}`);
+    if (parts.length > 0) {
+      queryParams = "?" + parts.join("&");
+    }
+  }
+  const shouldFetch = filters?.examId && filters?.classId && filters?.sectionId;
+  return useQuery<TResponse<any>>(shouldFetch ? `${examTabulationSheetUrl}${queryParams}` : null);
+};
+
+export const useExamMarksheetQuery = (filters?: {
+  examId?: string;
+  studentId?: string;
+}) => {
+  let queryParams = "";
+  if (filters) {
+    const parts = [];
+    if (filters.examId) parts.push(`examId=${filters.examId}`);
+    if (filters.studentId) parts.push(`studentId=${filters.studentId}`);
+    if (parts.length > 0) {
+      queryParams = "?" + parts.join("&");
+    }
+  }
+  const shouldFetch = filters?.examId && filters?.studentId;
+  return useQuery<TResponse<any>>(shouldFetch ? `${examMarksheetUrl}${queryParams}` : null);
 };

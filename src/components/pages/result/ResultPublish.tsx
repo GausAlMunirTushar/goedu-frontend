@@ -12,18 +12,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { examSessions, examClasses } from "@/data/exam";
+import { useExamsQuery } from "@/apis/queries/exam_queries";
+import { publishExamResult } from "@/apis/mutations/exam_mutations";
+import { toast } from "sonner";
 
 export function ResultPublishPage() {
+  const { data: examsData, isLoading: isLoadingExams } = useExamsQuery();
+  const exams = examsData?.data || [];
+  
+  const [selectedExamId, setSelectedExamId] = useState<string>("");
   const [isPublishing, setIsPublishing] = useState(false);
   const [published, setPublished] = useState(false);
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
+    if (!selectedExamId) {
+      toast.error("Please select an exam first");
+      return;
+    }
+    
     setIsPublishing(true);
-    setTimeout(() => {
-      setIsPublishing(false);
+    try {
+      await publishExamResult(selectedExamId);
       setPublished(true);
-    }, 2000);
+      toast.success("Results published successfully!");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to publish results");
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   return (
@@ -46,20 +62,21 @@ export function ResultPublishPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Session</label>
-                  <Select defaultValue={examSessions[0].name}>
+                  <Select defaultValue="2025-2026">
                     <SelectTrigger><SelectValue placeholder="Select Session" /></SelectTrigger>
                     <SelectContent>
-                      {examSessions.map((s) => (<SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>))}
+                      <SelectItem value="2025-2026">2025-2026</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Exam Name</label>
-                  <Select defaultValue="mid">
-                    <SelectTrigger><SelectValue placeholder="Select Exam" /></SelectTrigger>
+                  <Select value={selectedExamId} onValueChange={setSelectedExamId} disabled={isLoadingExams}>
+                    <SelectTrigger><SelectValue placeholder={isLoadingExams ? "Loading..." : "Select Exam"} /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="mid">Mid-Term Examination 2026</SelectItem>
-                      <SelectItem value="unit">Unit Test - 1</SelectItem>
+                      {exams.map((exam: any) => (
+                        <SelectItem key={exam.id} value={exam.id}>{exam.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -80,7 +97,7 @@ export function ResultPublishPage() {
               <div className="pt-6">
                 <Button 
                   onClick={handlePublish} 
-                  disabled={isPublishing || published}
+                  disabled={isPublishing || published || !selectedExamId}
                   className={`w-full h-12 gap-2 text-base font-bold transition-all ${published ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-primary hover:bg-primary/90'}`}
                 >
                   {isPublishing ? (

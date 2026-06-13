@@ -6,25 +6,30 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Search, Download, Printer, FileText, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { examSessions, examClasses, examSections, resultData, gpaCalculationSample } from "@/data/exam";
+import { useExamsQuery, useExamMarksheetQuery } from "@/apis/queries/exam_queries";
 
 export function MarksheetPage() {
-  const [studentId, setStudentId] = useState("");
-  const [showResult, setShowResult] = useState(false);
+  const { data: examsData, isLoading: isLoadingExams } = useExamsQuery();
+  const exams = examsData?.data || [];
+
+  const [selectedExamId, setSelectedExamId] = useState<string>("");
+  const [studentIdInput, setStudentIdInput] = useState("");
+  const [searchParams, setSearchParams] = useState<{examId: string, studentId: string} | undefined>();
+
+  const { data: marksheetData, isLoading: isLoadingMarksheet } = useExamMarksheetQuery(searchParams);
+  const resultPayload = marksheetData?.data;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (studentId) setShowResult(true);
+    if (selectedExamId && studentIdInput) {
+      setSearchParams({ examId: selectedExamId, studentId: studentIdInput });
+    }
   };
 
-  const student = resultData.find(s => s.roll === studentId) || resultData[0];
+  const showResult = !!resultPayload;
+  const student = resultPayload?.student;
+  const examResult = resultPayload?.result;
+  const marks = resultPayload?.marks || [];
 
   return (
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
@@ -47,22 +52,24 @@ export function MarksheetPage() {
                 </SelectContent>
               </Select>
             </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Exam Name</label>
+                  <Select value={selectedExamId} onValueChange={setSelectedExamId} disabled={isLoadingExams}>
+                    <SelectTrigger className="h-9 text-sm"><SelectValue placeholder={isLoadingExams ? "Loading..." : "Select Exam"} /></SelectTrigger>
+                    <SelectContent>
+                      {exams.map((exam: any) => (
+                        <SelectItem key={exam.id} value={exam.id}>{exam.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Class</label>
-              <Select defaultValue={examClasses[0].name}>
-                <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select Class" /></SelectTrigger>
-                <SelectContent>
-                  {examClasses.map((c) => (<SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Roll / ID</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Student ID</label>
               <Input 
-                placeholder="Enter Roll No" 
+                placeholder="Enter Student UUID" 
                 className="h-9 text-sm" 
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
+                value={studentIdInput}
+                onChange={(e) => setStudentIdInput(e.target.value)}
               />
             </div>
             <Button type="submit" size="sm" className="h-9 gap-2">
@@ -98,22 +105,22 @@ export function MarksheetPage() {
                       <User className="w-8 h-8" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold">{student.studentName}</h3>
-                      <p className="text-sm text-muted-foreground">Student ID: {student.roll}</p>
+                      <h3 className="text-xl font-bold">{student?.firstName} {student?.lastName}</h3>
+                      <p className="text-sm text-muted-foreground">Student ID: {student?.studentId || student?.roll}</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div><span className="text-muted-foreground">Class:</span> <span className="font-semibold">{student.className}</span></div>
-                    <div><span className="text-muted-foreground">Section:</span> <span className="font-semibold">{student.section}</span></div>
-                    <div><span className="text-muted-foreground">Roll No:</span> <span className="font-semibold">{student.roll}</span></div>
-                    <div><span className="text-muted-foreground">Session:</span> <span className="font-semibold">2025-2026</span></div>
+                    <div><span className="text-muted-foreground">Class:</span> <span className="font-semibold">{student?.class?.name || '-'}</span></div>
+                    <div><span className="text-muted-foreground">Section:</span> <span className="font-semibold">{student?.section?.name || '-'}</span></div>
+                    <div><span className="text-muted-foreground">Roll No:</span> <span className="font-semibold">{student?.roll || '-'}</span></div>
+                    <div><span className="text-muted-foreground">Session:</span> <span className="font-semibold">{student?.sessionId || '2025-2026'}</span></div>
                   </div>
                 </div>
                 
                 <div className="flex flex-col items-center justify-center bg-primary/5 rounded-2xl p-6 border border-primary/10">
                   <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Grade Point Average</p>
-                  <p className="text-5xl font-black text-primary">{student.gpa.toFixed(2)}</p>
-                  <p className="text-sm font-bold mt-2">GRADE: {student.grade}</p>
+                  <p className="text-5xl font-black text-primary">{examResult?.gpa?.toFixed(2) || '0.00'}</p>
+                  <p className="text-sm font-bold mt-2">GRADE: {examResult?.grade || '-'}</p>
                 </div>
               </div>
 
@@ -130,27 +137,29 @@ export function MarksheetPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {gpaCalculationSample.map((item, idx) => (
+                    {marks.map((item: any, idx: number) => {
+                      const gradePoint = item.grade === 'A+' ? 5 : item.grade === 'A' ? 4 : item.grade === 'A-' ? 3.5 : item.grade === 'B' ? 3 : item.grade === 'C' ? 2 : item.grade === 'D' ? 1 : 0;
+                      return (
                       <tr key={idx} className="border-b hover:bg-gray-50/50 transition-colors">
-                        <td className="py-3.5 px-4 font-medium">{item.subject}</td>
+                        <td className="py-3.5 px-4 font-medium">{item?.subject?.name || 'Unknown Subject'}</td>
                         <td className="py-3.5 px-4 text-center">100</td>
-                        <td className="py-3.5 px-4 text-center font-bold">{item.obtainedMarks}</td>
-                        <td className="py-3.5 px-4 text-center font-bold text-primary">{item.gradePoint.toFixed(2)}</td>
+                        <td className="py-3.5 px-4 text-center font-bold">{item.total || 0}</td>
+                        <td className="py-3.5 px-4 text-center font-bold text-primary">{gradePoint.toFixed(2)}</td>
                         <td className="py-3.5 px-4 text-center">
                           <span className={`inline-flex items-center justify-center w-8 h-7 rounded-lg text-xs font-bold ${item.grade === 'F' ? 'bg-red-100 text-red-600' : 'bg-primary/10 text-primary'}`}>
-                            {item.grade}
+                            {item.grade || '-'}
                           </span>
                         </td>
                       </tr>
-                    ))}
+                    )})}
                   </tbody>
                   <tfoot>
                     <tr className="bg-primary/5 font-bold">
                       <td className="py-4 px-4">Total</td>
-                      <td className="py-4 px-4 text-center">{gpaCalculationSample.length * 100}</td>
-                      <td className="py-4 px-4 text-center">{gpaCalculationSample.reduce((acc, curr) => acc + curr.obtainedMarks, 0)}</td>
-                      <td className="py-4 px-4 text-center text-primary">{student.gpa.toFixed(2)} (GPA)</td>
-                      <td className="py-4 px-4 text-center">{student.grade}</td>
+                      <td className="py-4 px-4 text-center">{marks.length * 100}</td>
+                      <td className="py-4 px-4 text-center">{examResult?.obtainedMarks || 0}</td>
+                      <td className="py-4 px-4 text-center text-primary">{examResult?.gpa?.toFixed(2) || '0.00'} (GPA)</td>
+                      <td className="py-4 px-4 text-center">{examResult?.grade || '-'}</td>
                     </tr>
                   </tfoot>
                 </table>

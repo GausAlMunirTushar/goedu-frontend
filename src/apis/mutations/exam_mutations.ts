@@ -81,6 +81,11 @@ export const processExamResults = async (payload: { examId: string; classId: str
   return res.data;
 };
 
+export const publishExamResult = async (examId: string) => {
+  const res = await AxiosAPI.post(`/exam/results/${examId}/publish`);
+  return res.data;
+};
+
 // ==========================================
 // SEAT PLANS MUTATIONS
 // ==========================================
