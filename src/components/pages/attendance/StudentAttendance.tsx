@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,17 +8,82 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Save, History } from "lucide-react";
+import { toast } from "sonner";
+import { useClassesQuery, useSectionsQuery } from "@/apis/queries/academic_queries";
+import { useStudentAttendanceQuery } from "@/apis/queries/attendance_queries";
+import { saveStudentAttendanceBulk } from "@/apis/mutations/attendance_mutations";
 
 export function StudentAttendance() {
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [selectedClassId, setSelectedClassId] = useState("");
+    const [selectedSectionId, setSelectedSectionId] = useState("");
+    
+    // For keeping track of local changes
+    const [attendanceList, setAttendanceList] = useState<any[]>([]);
 
-    const mockStudents = [
-        { id: 1, roll: "101", name: "Tanvir Ahmed", present: true },
-        { id: 2, roll: "102", name: "Sadiya Islam", present: true },
-        { id: 3, roll: "103", name: "Rafiqul Islam", present: false },
-        { id: 4, roll: "104", name: "Nusrat Jahan", present: true },
-        { id: 5, roll: "105", name: "Abir Hossain", present: true },
-    ];
+    const { data: classesData, isLoading: isLoadingClasses } = useClassesQuery();
+    const classes = classesData?.data || [];
+
+    const { data: sectionsData, isLoading: isLoadingSections } = useSectionsQuery(selectedClassId);
+    const sections = sectionsData?.data || [];
+
+    const { data: attendanceData, isLoading: isLoadingAttendance, mutate } = useStudentAttendanceQuery({
+        date,
+        classId: selectedClassId,
+        sectionId: selectedSectionId,
+    });
+    
+    const students = attendanceData?.data || [];
+
+    useEffect(() => {
+        if (students.length > 0) {
+            setAttendanceList(
+                students.map((s: any) => ({
+                    studentId: s.studentId,
+                    status: s.status || "PRESENT",
+                    remarks: s.remarks || "",
+                }))
+            );
+        } else {
+            setAttendanceList([]);
+        }
+    }, [students]);
+
+    const handleStatusChange = (studentId: string, status: string) => {
+        setAttendanceList(prev => prev.map(a => a.studentId === studentId ? { ...a, status } : a));
+    };
+
+    const handleRemarksChange = (studentId: string, remarks: string) => {
+        setAttendanceList(prev => prev.map(a => a.studentId === studentId ? { ...a, remarks } : a));
+    };
+
+    const handleMarkAllPresent = (checked: boolean) => {
+        setAttendanceList(prev => prev.map(a => ({ ...a, status: checked ? "PRESENT" : "ABSENT" })));
+    };
+
+    const handleSave = async () => {
+        if (!selectedClassId || !selectedSectionId || !date) {
+            toast.error("Please select date, class, and section.");
+            return;
+        }
+        if (attendanceList.length === 0) {
+            toast.error("No students to save.");
+            return;
+        }
+
+        try {
+            await saveStudentAttendanceBulk({
+                date,
+                classId: selectedClassId,
+                sectionId: selectedSectionId,
+                attendance: attendanceList,
+            });
+            toast.success("Attendance saved successfully");
+            mutate();
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || "Failed to save attendance");
+        }
+    };
 
     return (
         <div className="p-6 space-y-6">
@@ -34,108 +99,110 @@ export function StudentAttendance() {
 
             <Card>
                 <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                         <div className="space-y-2">
                             <label className="text-xs font-semibold text-gray-600">Select Date</label>
                             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
                         </div>
                         <div className="space-y-2">
                             <label className="text-xs font-semibold text-gray-600">Class</label>
-                            <Select>
+                            <Select value={selectedClassId} onValueChange={setSelectedClassId} disabled={isLoadingClasses}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Choose Class" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="6">Class 6</SelectItem>
-                                    <SelectItem value="7">Class 7</SelectItem>
-                                    <SelectItem value="8">Class 8</SelectItem>
+                                    {classes.map((c: any) => (
+                                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
                             <label className="text-xs font-semibold text-gray-600">Section</label>
-                            <Select>
+                            <Select value={selectedSectionId} onValueChange={setSelectedSectionId} disabled={!selectedClassId || isLoadingSections}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Choose Section" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="A">Section A</SelectItem>
-                                    <SelectItem value="B">Section B</SelectItem>
+                                    {sections.map((s: any) => (
+                                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold text-gray-600">Shift</label>
-                            <Select>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Choose Shift" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="morning">Morning</SelectItem>
-                                    <SelectItem value="day">Day</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <Button className="flex items-center gap-2 w-full">
-                            <Search className="w-4 h-4" /> Fetch Students
+                        <Button className="flex items-center gap-2 w-full" onClick={() => mutate()} disabled={isLoadingAttendance}>
+                            <Search className="w-4 h-4" /> {isLoadingAttendance ? "Loading..." : "Fetch Students"}
                         </Button>
                     </div>
                 </CardContent>
             </Card>
 
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="text-lg">Student List (Class 6 - A)</CardTitle>
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2 text-sm">
-                            <Checkbox id="markAll" />
-                            <label htmlFor="markAll" className="cursor-pointer">Mark All Present</label>
+            {students.length > 0 && (
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle className="text-lg">Student List</CardTitle>
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 text-sm">
+                                <Checkbox id="markAll" onCheckedChange={handleMarkAllPresent} />
+                                <label htmlFor="markAll" className="cursor-pointer">Mark All Present</label>
+                            </div>
+                            <Button variant="default" className="flex items-center gap-2" onClick={handleSave}>
+                                <Save className="w-4 h-4" /> Save Attendance
+                            </Button>
                         </div>
-                        <Button variant="default" className="flex items-center gap-2">
-                            <Save className="w-4 h-4" /> Save Attendance
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[100px]">Roll</TableHead>
-                                <TableHead>Student Name</TableHead>
-                                <TableHead className="text-center w-[150px]">Attendance</TableHead>
-                                <TableHead>Remarks</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {mockStudents.map((student) => (
-                                <TableRow key={student.id}>
-                                    <TableCell className="font-medium">{student.roll}</TableCell>
-                                    <TableCell>{student.name}</TableCell>
-                                    <TableCell className="text-center">
-                                        <div className="flex justify-center gap-4">
-                                            <div className="flex items-center gap-1.5">
-                                                <input type="radio" name={`att-${student.id}`} id={`p-${student.id}`} defaultChecked={student.present} className="text-green-600 focus:ring-green-500 h-4 w-4" />
-                                                <label htmlFor={`p-${student.id}`} className="text-sm font-medium text-gray-700">P</label>
-                                            </div>
-                                            <div className="flex items-center gap-1.5">
-                                                <input type="radio" name={`att-${student.id}`} id={`a-${student.id}`} defaultChecked={!student.present} className="text-red-600 focus:ring-red-500 h-4 w-4" />
-                                                <label htmlFor={`a-${student.id}`} className="text-sm font-medium text-gray-700">A</label>
-                                            </div>
-                                            <div className="flex items-center gap-1.5">
-                                                <input type="radio" name={`att-${student.id}`} id={`l-${student.id}`} className="text-yellow-600 focus:ring-yellow-500 h-4 w-4" />
-                                                <label htmlFor={`l-${student.id}`} className="text-sm font-medium text-gray-700">L</label>
-                                            </div>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Input placeholder="Note..." className="h-8 text-xs" />
-                                    </TableCell>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-[100px]">Roll</TableHead>
+                                    <TableHead>Student Name</TableHead>
+                                    <TableHead className="text-center w-[250px]">Attendance</TableHead>
+                                    <TableHead>Remarks</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+                            </TableHeader>
+                            <TableBody>
+                                {students.map((student: any) => {
+                                    const localState = attendanceList.find(a => a.studentId === student.studentId);
+                                    const status = localState?.status || "PRESENT";
+                                    const remarks = localState?.remarks || "";
+
+                                    return (
+                                        <TableRow key={student.studentId}>
+                                            <TableCell className="font-medium">{student.roll}</TableCell>
+                                            <TableCell>{student.name}</TableCell>
+                                            <TableCell className="text-center">
+                                                <div className="flex justify-center gap-4">
+                                                    <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => handleStatusChange(student.studentId, 'PRESENT')}>
+                                                        <input type="radio" checked={status === 'PRESENT'} readOnly className="text-green-600 focus:ring-green-500 h-4 w-4 cursor-pointer" />
+                                                        <label className="text-sm font-medium text-gray-700 cursor-pointer">P</label>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => handleStatusChange(student.studentId, 'ABSENT')}>
+                                                        <input type="radio" checked={status === 'ABSENT'} readOnly className="text-red-600 focus:ring-red-500 h-4 w-4 cursor-pointer" />
+                                                        <label className="text-sm font-medium text-gray-700 cursor-pointer">A</label>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => handleStatusChange(student.studentId, 'LATE')}>
+                                                        <input type="radio" checked={status === 'LATE'} readOnly className="text-yellow-600 focus:ring-yellow-500 h-4 w-4 cursor-pointer" />
+                                                        <label className="text-sm font-medium text-gray-700 cursor-pointer">L</label>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Input 
+                                                    placeholder="Note..." 
+                                                    className="h-8 text-xs" 
+                                                    value={remarks}
+                                                    onChange={(e) => handleRemarksChange(student.studentId, e.target.value)}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            )}
         </div>
     );
 }
