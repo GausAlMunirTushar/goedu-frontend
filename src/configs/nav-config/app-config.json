@@ -253,6 +253,25 @@
             "contain_menus": [
                 "settings-dashboard"
             ]
+        },
+        {
+            "id": "finance",
+            "name": "Finance",
+            "label": "Finance",
+            "icon": "Banknote",
+            "color": "bg-amber-600",
+            "path": "/finance",
+            "order": 17,
+            "enabled": true,
+            "required_permissions": [],
+            "config_file": "finance-config.json",
+            "has_sidebar": true,
+            "contain_menus": [
+                "finance-dashboard",
+                "fee-categories",
+                "student-invoices",
+                "payment-collection"
+            ]
         }
     ],
     "global_permissions": {

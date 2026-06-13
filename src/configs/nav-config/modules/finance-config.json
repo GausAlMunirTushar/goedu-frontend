@@ -1,0 +1,32 @@
+{
+    "module": {
+        "label": "Finance",
+        "id": "finance",
+        "menus": [
+            {
+                "id": "finance-dashboard",
+                "label": "Overview",
+                "path": "/finance",
+                "icon": "LayoutDashboard"
+            },
+            {
+                "id": "fee-categories",
+                "label": "Fee Categories",
+                "path": "/finance/categories",
+                "icon": "Tags"
+            },
+            {
+                "id": "student-invoices",
+                "label": "Student Invoices",
+                "path": "/finance/invoices",
+                "icon": "FileText"
+            },
+            {
+                "id": "payment-collection",
+                "label": "Collect Payment",
+                "path": "/finance/payments",
+                "icon": "Banknote"
+            }
+        ]
+    }
+}
