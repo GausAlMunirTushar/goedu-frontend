@@ -67,6 +67,15 @@
         "permissions": [
           "student.view"
         ]
+      },
+      {
+        "id": "student-id-card",
+        "label": "ID Cards",
+        "icon": "CreditCard",
+        "path": "/student/id-card",
+        "permissions": [
+          "student.view"
+        ]
       }
     ]
   }
