@@ -27,6 +27,7 @@ interface SelectProps {
     onSearchChange?: (value: string) => void;
     allowCreate?: boolean;
     createPlaceholder?: string;
+    showNoneOption?: boolean;
 }
 
 const SelectInput: React.FC<SelectProps> = ({
@@ -48,6 +49,7 @@ const SelectInput: React.FC<SelectProps> = ({
     onSearchChange,
     allowCreate = false,
     createPlaceholder = "Type to add new...",
+    showNoneOption = true,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedValue, setSelectedValue] = useState<string | undefined>(value);
@@ -148,7 +150,7 @@ const SelectInput: React.FC<SelectProps> = ({
         }
     };
 
-    const allOptions = [{ value: "", label: "-- None --" }, ...options];
+    const allOptions = showNoneOption ? [{ value: "", label: "-- None --" }, ...options] : options;
     const selectedOption = allOptions.find((opt) => opt.value === selectedValue);
 
     const getDisplayText = () => {
@@ -171,7 +173,7 @@ const SelectInput: React.FC<SelectProps> = ({
             )}
 
             {/* Select Container */}
-            <div ref={containerRef} className={`relative ${fullWidth ? "w-full" : ""}`}>
+            <div ref={containerRef} className={`relative ${isOpen ? "z-40" : "z-0"} ${fullWidth ? "w-full" : ""}`}>
                 {/* Select Button */}
                 <button
                     type="button"
@@ -182,7 +184,7 @@ const SelectInput: React.FC<SelectProps> = ({
                     disabled={disabled}
                     onClick={() => setIsOpen((prev) => !prev)}
                     className={`
-                        w-full px-4 py-1 rounded-md
+                        w-full px-4 py-2 rounded-md
                         bg-card border border-border text-foreground placeholder:text-muted-foreground
                         font-[inherit] text-base shadow-sm transition-all duration-200
                         flex justify-between items-center

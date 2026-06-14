@@ -11,21 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { PlusCircle, GraduationCap, UserCheck, UserX, CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
 import TableActions from "@/components/ui/table-actions";
-import { StudentIdCardModal } from "./StudentIdCardModal";
 import { useStudentProfilesQuery } from "@/apis/queries/student_queries";
 import { useClassesQuery } from "@/apis/queries/academic_queries";
 import { deleteStudentProfile } from "@/apis/mutations/student_mutations";
+import { useModalStore } from "@/stores/modalStore";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
 
 export function StudentListView() {
   const router = useRouter();
@@ -35,18 +25,13 @@ export function StudentListView() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-
-  // ID Card Modal State
-  const [isIdCardOpen, setIsIdCardOpen] = useState(false);
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-  const [selectedStudentName, setSelectedStudentName] = useState<string | null>(null);
+  const openModal = useModalStore((state) => state.openModal);
 
   const handleViewIdCard = (id: string, name: string) => {
-    setSelectedStudentId(id);
-    setSelectedStudentName(name);
-    setIsIdCardOpen(true);
+    openModal("student-id-card", {
+      studentId: id,
+      studentName: name,
+    });
   };
 
   // Queries
@@ -74,28 +59,7 @@ export function StudentListView() {
     router.push(`/student/registration?id=${id}`);
   };
 
-  const openDeleteDialog = (id: string) => {
-    setDeleteId(id);
-    setIsDeleteOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (deleteId) {
-      try {
-        const res = await deleteStudentProfile(deleteId);
-        if (res.success) {
-          toast.success(res.message || "Student profile deleted successfully");
-          mutate();
-        } else {
-          toast.error(res.message || "Failed to delete student profile");
-        }
-      } catch (error: any) {
-        toast.error(error.response?.data?.message || "An error occurred while deleting student");
-      }
-    }
-    setIsDeleteOpen(false);
-    setDeleteId(null);
-  };
+  // Actions are defined inside columns using openModal directly
 
   const columns: ColumnDef<any>[] = [
     { accessorKey: "studentId", header: "Student ID" },
@@ -140,7 +104,25 @@ export function StudentListView() {
           <TableActions
             onView={() => handleView(student.id)}
             onEdit={() => handleEdit(student.id)}
-            onDelete={() => openDeleteDialog(student.id)}
+            onDelete={() => {
+              openModal("confirm-delete", {
+                title: "Confirm Delete",
+                description: `Are you sure you want to delete this student profile? Their corresponding user account login credentials will also be permanently deleted.`,
+                onConfirm: async () => {
+                  try {
+                    const res = await deleteStudentProfile(student.id);
+                    if (res.success) {
+                      toast.success(res.message || "Student profile deleted successfully");
+                      mutate();
+                    } else {
+                      toast.error(res.message || "Failed to delete student profile");
+                    }
+                  } catch (error: any) {
+                    toast.error(error.response?.data?.message || "An error occurred while deleting student");
+                  }
+                }
+              });
+            }}
             extraActions={[
               {
                 label: "ID Card",
@@ -266,29 +248,6 @@ export function StudentListView() {
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this student profile? Their corresponding user account login credentials will also be permanently deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* ID Card Dialog Modal */}
-      <StudentIdCardModal
-        open={isIdCardOpen}
-        onOpenChange={setIsIdCardOpen}
-        studentId={selectedStudentId}
-        studentName={selectedStudentName}
-      />
     </div>
   );
 }

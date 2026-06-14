@@ -7,6 +7,7 @@ import ApplicationProvider from "@/contexts/ApplicationContext";
 import { getModuleById } from "@/lib/config-utils";
 import { usePathname } from "next/navigation";
 import React, { Suspense, useMemo, useState } from "react";
+import { GlobalModal } from "@/components/common/GlobalModal";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     const pathname = usePathname();
@@ -33,6 +34,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     </div>
                 </SidebarProvider>
             </div>
+            <GlobalModal />
         </ApplicationProvider>
     );
 };

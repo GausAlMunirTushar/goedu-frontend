@@ -8,17 +8,21 @@ import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { AcademicYearForm, AcademicYearData } from "./AcademicYearForm";
+import { AcademicYearData } from "./AcademicYearForm";
 import { useAcademicYearsQuery } from "@/apis/queries/academic_queries";
 import { AxiosAPI } from "@/apis/configs";
 import { academicYearsUrl, academicYearDetailUrl } from "@/apis/endpoints/academic_apis";
+import { useModalStore } from "@/stores/modalStore";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslationClient } from "@/lib/i18n/client";
 
 export function AcademicYearListView() {
+    const { lng } = useLanguage();
+    const { t } = useTranslationClient(lng);
     const [search, setSearch] = useState("");
-    const [isFormOpen, setIsFormOpen] = useState(false);
-    const [formMode, setFormMode] = useState<"create" | "edit">("create");
-    const [editingData, setEditingData] = useState<AcademicYearData | undefined>(undefined);
+    const openModal = useModalStore((state) => state.openModal);
+    const closeModal = useModalStore((state) => state.closeModal);
 
     // Fetch live academic years from backend
     const { data: response, isLoading, mutate } = useAcademicYearsQuery();
@@ -47,34 +51,6 @@ export function AcademicYearListView() {
     const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
     const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
-    const handleCreate = () => {
-        setFormMode("create");
-        setEditingData(undefined);
-        setIsFormOpen(true);
-    };
-
-    const handleEdit = (item: AcademicYearData) => {
-        setFormMode("edit");
-        setEditingData(item);
-        setIsFormOpen(true);
-    };
-
-    const handleDelete = async (id: string) => {
-        if (confirm("Are you sure you want to delete this academic year?")) {
-            try {
-                const res = await AxiosAPI.delete(academicYearDetailUrl(id));
-                if (res.data?.success) {
-                    toast.success(res.data.message || "Academic year deleted successfully");
-                    mutate();
-                } else {
-                    toast.error(res.data?.message || "Failed to delete academic year");
-                }
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || "An error occurred while deleting");
-            }
-        }
-    };
-
     const handleFormSubmit = async (formData: AcademicYearData) => {
         const payload = {
             title: formData.year,
@@ -83,42 +59,68 @@ export function AcademicYearListView() {
             isActive: formData.status === "Active",
         };
 
-        try {
-            let res;
-            if (formMode === "create") {
-                res = await AxiosAPI.post(academicYearsUrl, payload);
-            } else {
-                res = await AxiosAPI.put(academicYearDetailUrl(formData.id!), payload);
-            }
+        const res = formData.id
+            ? await AxiosAPI.put(academicYearDetailUrl(formData.id), payload)
+            : await AxiosAPI.post(academicYearsUrl, payload);
 
-            if (res.data?.success) {
-                toast.success(res.data.message || `Academic year ${formMode === "create" ? "created" : "updated"} successfully`);
-                mutate();
-                setIsFormOpen(false);
-            } else {
-                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} academic year`);
-            }
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || "An error occurred while saving");
+        if (res.data?.success) {
+            toast.success(t("academic_year_saved_success"));
+            mutate();
+            closeModal();
+        } else {
+            toast.error(t("academic_year_save_failed"));
+            throw new Error(res.data?.message || "Failed to save academic year");
         }
+    };
+
+    const handleCreate = () => {
+        openModal("academic-year", {
+            mode: "create",
+            initialData: undefined,
+            onSubmit: handleFormSubmit,
+        });
+    };
+
+    const handleEdit = (item: AcademicYearData) => {
+        openModal("academic-year", {
+            mode: "edit",
+            initialData: item,
+            onSubmit: handleFormSubmit,
+        });
+    };
+
+    const handleDelete = async (id: string) => {
+        openModal("confirm-delete", {
+            title: t("delete_academic_year"),
+            description: t("delete_academic_year_confirm"),
+            onConfirm: async () => {
+                const res = await AxiosAPI.delete(academicYearDetailUrl(id));
+                if (res.data?.success) {
+                    toast.success(t("academic_year_deleted_success"));
+                    mutate();
+                } else {
+                    toast.error(t("academic_year_delete_failed"));
+                }
+            }
+        });
     };
 
     const columns: ColumnDef<AcademicYearData>[] = [
         {
             accessorKey: "year",
-            header: "Year Name",
+            header: t("year_name"),
         },
         {
             accessorKey: "start_date",
-            header: "Start Date",
+            header: t("start_date"),
         },
         {
             accessorKey: "end_date",
-            header: "End Date",
+            header: t("end_date"),
         },
         {
             accessorKey: "status",
-            header: "Status",
+            header: t("status"),
             cell: ({ row }) => {
                 const status = row.original.status;
                 return (
@@ -127,14 +129,14 @@ export function AcademicYearListView() {
                             status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
                         }`}
                     >
-                        {status}
+                        {status === "Active" ? t("active") : t("inactive")}
                     </span>
                 );
             },
         },
         {
             id: "actions",
-            header: "Actions",
+            header: t("actions"),
             cell: ({ row }) => (
                 <TableActions 
                     onEdit={() => handleEdit(row.original)} 
@@ -150,11 +152,11 @@ export function AcademicYearListView() {
                 <CardHeader className="bg-white border-b border-gray-100 pb-3">
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
-                            <Title>Academic Year</Title>
+                            <Title>{t("Academic Year")}</Title>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                             <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
-                                <Plus className="w-4 h-4" /> Add Academic Year
+                                <Plus className="w-4 h-4" /> {t("add_academic_year")}
                             </Button>
                         </div>
                     </div>
@@ -164,7 +166,7 @@ export function AcademicYearListView() {
                         columns={columns}
                         data={paginatedData}
                         searchKey="year"
-                        searchPlaceholder="Search year..."
+                        searchPlaceholder={t("search_year")}
                         searchValue={search}
                         onSearch={setSearch}
                         isLoading={isLoading}
@@ -182,14 +184,6 @@ export function AcademicYearListView() {
                     />
                 </CardContent>
             </Card>
-
-            <AcademicYearForm
-                mode={formMode}
-                initialData={editingData}
-                isOpen={isFormOpen}
-                onClose={() => setIsFormOpen(false)}
-                onSubmit={handleFormSubmit}
-            />
         </div>
     );
 }

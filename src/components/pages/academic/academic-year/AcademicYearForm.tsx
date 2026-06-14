@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import React from "react";
+import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import FormInput from "@/components/form/Input";
+import SelectInput from "@/components/form/SelectInput";
+import { Loader2 } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -12,6 +13,8 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslationClient } from "@/lib/i18n/client";
 
 export interface AcademicYearData {
     id?: string;
@@ -27,6 +30,7 @@ interface AcademicYearFormProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: (data: AcademicYearData) => void;
+    isLoading?: boolean;
 }
 
 export function AcademicYearForm({
@@ -35,8 +39,20 @@ export function AcademicYearForm({
     isOpen,
     onClose,
     onSubmit,
+    isLoading: parentIsLoading = false,
 }: AcademicYearFormProps) {
-    const { register, handleSubmit, reset } = useForm<AcademicYearData>({
+    const { lng } = useLanguage();
+    const { t } = useTranslationClient(lng);
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const isLoading = parentIsLoading || isSubmitting;
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        control,
+        formState: { errors },
+    } = useForm<AcademicYearData>({
         defaultValues: initialData || { year: "", start_date: "", end_date: "", status: "Active" },
     });
 
@@ -47,54 +63,123 @@ export function AcademicYearForm({
         }
     }, [isOpen, initialData, reset]);
 
-    const handleFormSubmit = (data: AcademicYearData) => {
-        onSubmit(data);
-        onClose();
+    const handleFormSubmit = async (data: AcademicYearData) => {
+        setIsSubmitting(true);
+        try {
+            await onSubmit(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-106.25">
-                <DialogHeader>
-                    <DialogTitle>
-                        {mode === "create" ? "Create Academic Year" : "Edit Academic Year"}
+        <Dialog open={isOpen} onOpenChange={(open) => {
+            if (!isLoading && !open) {
+                onClose();
+            }
+        }}>
+            <DialogContent className="sm:max-w-[450px] bg-white rounded-xl p-0 shadow-lg border-none">
+                <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-100 rounded-t-xl">
+                    <DialogTitle className="text-base font-bold text-slate-800">
+                        {mode === "create" ? t("create_academic_year") : t("edit_academic_year")}
                     </DialogTitle>
                 </DialogHeader>
                 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 mt-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="year">Year Name</Label>
-                        <Input id="year" placeholder="e.g. 2026" {...register("year", { required: true })} />
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 px-6 py-4">
+                    {/* Year Name Input */}
+                    <FormInput
+                        id="year"
+                        label={t("year_name")}
+                        placeholder={t("year_name_placeholder")}
+                        required
+                        disabled={isLoading}
+                        error={errors.year?.message}
+                        {...register("year", {
+                            required: t("year_name_required"),
+                            pattern: {
+                                value: /^\d{4}(-\d{4})?$/,
+                                message: t("year_name_format_error"),
+                            },
+                        })}
+                    />
+                    
+                    {/* Date Inputs in responsive grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Start Date Input */}
+                        <FormInput
+                            id="start_date"
+                            type="date"
+                            label={t("start_date")}
+                            required
+                            disabled={isLoading}
+                            error={errors.start_date?.message}
+                            {...register("start_date", {
+                                required: t("start_date_required"),
+                            })}
+                        />
+                        
+                        {/* End Date Input */}
+                        <FormInput
+                            id="end_date"
+                            type="date"
+                            label={t("end_date")}
+                            required
+                            disabled={isLoading}
+                            error={errors.end_date?.message}
+                            {...register("end_date", {
+                                required: t("end_date_required"),
+                                validate: (val, formValues) => {
+                                    if (!formValues.start_date) return true;
+                                    return (
+                                        new Date(val) > new Date(formValues.start_date) ||
+                                        t("end_date_after_start_date")
+                                    );
+                                },
+                            })}
+                        />
                     </div>
                     
-                    <div className="space-y-2">
-                        <Label htmlFor="start_date">Start Date</Label>
-                        <Input id="start_date" type="date" {...register("start_date", { required: true })} />
-                    </div>
-                    
-                    <div className="space-y-2">
-                        <Label htmlFor="end_date">End Date</Label>
-                        <Input id="end_date" type="date" {...register("end_date", { required: true })} />
-                    </div>
-                    
-                    <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
-                        <select 
-                            id="status" 
-                            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            {...register("status")}
-                        >
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                        </select>
-                    </div>
+                    {/* Status Select Input */}
+                    <Controller
+                        control={control}
+                        name="status"
+                        rules={{ required: t("status_required") }}
+                        render={({ field }) => (
+                            <SelectInput
+                                label={t("status")}
+                                required
+                                disabled={isLoading}
+                                showNoneOption={false}
+                                options={[
+                                    { value: "Active", label: t("active") },
+                                    { value: "Inactive", label: t("inactive") },
+                                ]}
+                                value={field.value}
+                                onChange={field.onChange}
+                                error={errors.status?.message}
+                            />
+                        )}
+                    />
 
-                    <DialogFooter className="mt-6">
-                        <Button type="button" variant="outline" onClick={onClose}>
-                            Cancel
+                    <DialogFooter className="mt-6 flex flex-row gap-3 justify-end items-center bg-slate-50 -mx-6 -mb-4 px-6 py-4 border-t border-slate-100 rounded-b-xl">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={onClose}
+                            disabled={isLoading}
+                            className="text-slate-700 border-slate-200"
+                        >
+                            {t("cancel")}
                         </Button>
-                        <Button type="submit">
-                            {mode === "create" ? "Create" : "Save Changes"}
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm flex items-center gap-1.5"
+                        >
+                            {isLoading && <Loader2 className="w-4 h-4 animate-spin shrink-0" />}
+                            {isLoading ? t("saving_dots") : mode === "create" ? t("create") : t("save_changes")}
                         </Button>
                     </DialogFooter>
                 </form>

@@ -38,7 +38,7 @@ import { useClassesQuery, useSectionsQuery } from "@/apis/queries/academic_queri
 import { AxiosAPI } from "@/apis/configs";
 import { studentIdCardImageUrl } from "@/apis/endpoints/student_apis";
 import { downloadStudentIdCard } from "@/apis/mutations/student_mutations";
-import { StudentIdCardModal } from "./StudentIdCardModal";
+import { useModalStore } from "@/stores/modalStore";
 import { toast } from "sonner";
 
 export function StudentIdCardView() {
@@ -54,10 +54,7 @@ export function StudentIdCardView() {
   // Selection state
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
-  // Modal Preview state
-  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
-  const [previewStudentId, setPreviewStudentId] = useState<string | null>(null);
-  const [previewStudentName, setPreviewStudentName] = useState<string | null>(null);
+  const openModal = useModalStore((state) => state.openModal);
 
   // Bulk operations status
   const [downloadingBulk, setDownloadingBulk] = useState<boolean>(false);
@@ -129,9 +126,10 @@ export function StudentIdCardView() {
 
   // Open single preview dialog modal
   const handleOpenPreview = (id: string, name: string) => {
-    setPreviewStudentId(id);
-    setPreviewStudentName(name);
-    setIsPreviewModalOpen(true);
+    openModal("student-id-card", {
+      studentId: id,
+      studentName: name,
+    });
   };
 
   // Direct single download PDF handler
@@ -525,13 +523,6 @@ export function StudentIdCardView() {
         </div>
       )}
 
-      {/* ID Card Modal for Preview */}
-      <StudentIdCardModal
-        open={isPreviewModalOpen}
-        onOpenChange={setIsPreviewModalOpen}
-        studentId={previewStudentId}
-        studentName={previewStudentName}
-      />
     </div>
   );
 }
