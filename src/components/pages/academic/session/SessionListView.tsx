@@ -13,8 +13,14 @@ import { useSessionsQuery } from "@/apis/queries/academic_queries";
 import { AxiosAPI } from "@/apis/configs";
 import { sessionsUrl, sessionDetailUrl } from "@/apis/endpoints/academic_apis";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslationClient } from "@/lib/i18n/client";
+import { useModalStore } from "@/stores/modalStore";
 
 export function SessionListView() {
+    const { lng } = useLanguage();
+    const { t } = useTranslationClient(lng);
+    const openModal = useModalStore((state) => state.openModal);
     const [search, setSearch] = useState("");
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -58,19 +64,23 @@ export function SessionListView() {
     };
 
     const handleDelete = async (id: string) => {
-        if (confirm("Are you sure you want to delete this session?")) {
-            try {
-                const res = await AxiosAPI.delete(sessionDetailUrl(id));
-                if (res.data?.success) {
-                    toast.success(res.data.message || "Session deleted successfully");
-                    mutate();
-                } else {
-                    toast.error(res.data?.message || "Failed to delete session");
+        openModal("confirm-delete", {
+            title: t("delete_session"),
+            description: t("delete_session_confirm"),
+            onConfirm: async () => {
+                try {
+                    const res = await AxiosAPI.delete(sessionDetailUrl(id));
+                    if (res.data?.success) {
+                        toast.success(t("session_deleted_success"));
+                        mutate();
+                    } else {
+                        toast.error(t("session_delete_failed"));
+                    }
+                } catch (error: any) {
+                    toast.error(error.response?.data?.message || t("operation_failed"));
                 }
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || "An error occurred while deleting");
             }
-        }
+        });
     };
 
     const handleFormSubmit = async (formData: SessionData) => {
@@ -90,38 +100,38 @@ export function SessionListView() {
             }
 
             if (res.data?.success) {
-                toast.success(res.data.message || `Session ${formMode === "create" ? "created" : "updated"} successfully`);
+                toast.success(t("session_saved_success"));
                 mutate();
                 setIsFormOpen(false);
             } else {
-                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} session`);
+                toast.error(t("session_save_failed"));
             }
         } catch (error: any) {
-            toast.error(error.response?.data?.message || "An error occurred while saving");
+            toast.error(error.response?.data?.message || t("operation_failed"));
         }
     };
 
     const columns: ColumnDef<SessionData>[] = [
-        { accessorKey: "name", header: "Session Name" },
-        { accessorKey: "start_month", header: "Start Month" },
-        { accessorKey: "end_month", header: "End Month" },
+        { accessorKey: "name", header: t("session_name") },
+        { accessorKey: "start_month", header: t("start_month") },
+        { accessorKey: "end_month", header: t("end_month") },
         {
             accessorKey: "status",
-            header: "Status",
+            header: t("status"),
             cell: ({ row }) => {
                 const status = row.original.status;
                 return (
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
                     }`}>
-                        {status}
+                        {status === "Active" ? t("active") : t("inactive")}
                     </span>
                 );
             },
         },
         {
             id: "actions",
-            header: "Actions",
+            header: t("actions"),
             cell: ({ row }) => (
                 <TableActions 
                     onEdit={() => handleEdit(row.original)} 
@@ -134,24 +144,24 @@ export function SessionListView() {
     return (
         <div className="p-2 space-y-4">
             <Card className="">
-                <CardHeader className="bg-white border-b border-gray-100 pb-3">
+                <CardHeader className="bg-white border-b border-gray-100">
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
-                            <Title>Session</Title>
+                            <Title>{t("Session")}</Title>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                             <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
-                                <Plus className="w-4 h-4" /> Add Session
+                                <Plus className="w-4 h-4" /> {t("add_session")}
                             </Button>
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="bg-white rounded-b-xl pt-3">
+                <CardContent className="bg-white rounded-b-xl">
                     <DataTable 
                         columns={columns} 
                         data={paginatedData} 
                         searchKey="name" 
-                        searchPlaceholder="Search session..." 
+                        searchPlaceholder={t("search_session")} 
                         searchValue={search} 
                         onSearch={setSearch} 
                         isLoading={isLoading}

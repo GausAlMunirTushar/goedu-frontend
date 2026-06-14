@@ -9,13 +9,19 @@ import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
 import { ClassForm, ClassData } from "./ClassForm";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from "@/components/ui/alert-dialog";
 import { useClassesQuery } from "@/apis/queries/academic_queries";
 import { AxiosAPI } from "@/apis/configs";
 import { classesUrl, classDetailUrl } from "@/apis/endpoints/academic_apis";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslationClient } from "@/lib/i18n/client";
+import { useModalStore } from "@/stores/modalStore";
 
 export function ClassListView() {
+    const { lng } = useLanguage();
+    const { t } = useTranslationClient(lng);
+    const openModal = useModalStore((state) => state.openModal);
     const [search, setSearch] = useState("");
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -62,10 +68,6 @@ export function ClassListView() {
     const [viewData, setViewData] = useState<ClassData | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
 
-    // Delete confirmation dialog state
-    const [deleteId, setDeleteId] = useState<string | null>(null);
-    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-
     const handleEdit = (item: ClassData) => {
         setFormMode("edit");
         setEditingData(item);
@@ -78,26 +80,23 @@ export function ClassListView() {
     };
 
     const openDeleteDialog = (id: string) => {
-        setDeleteId(id);
-        setIsDeleteOpen(true);
-    };
-
-    const handleDeleteConfirm = async () => {
-        if (deleteId) {
-            try {
-                const res = await AxiosAPI.delete(classDetailUrl(deleteId));
-                if (res.data?.success) {
-                    toast.success(res.data.message || "Class deleted successfully");
-                    mutate();
-                } else {
-                    toast.error(res.data?.message || "Failed to delete class");
+        openModal("confirm-delete", {
+            title: t("delete_class"),
+            description: t("delete_class_confirm"),
+            onConfirm: async () => {
+                try {
+                    const res = await AxiosAPI.delete(classDetailUrl(id));
+                    if (res.data?.success) {
+                        toast.success(t("class_deleted_success"));
+                        mutate();
+                    } else {
+                        toast.error(t("class_delete_failed"));
+                    }
+                } catch (error: any) {
+                    toast.error(error.response?.data?.message || t("operation_failed"));
                 }
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || "An error occurred while deleting class");
             }
-            setIsDeleteOpen(false);
-            setDeleteId(null);
-        }
+        });
     };
 
     const handleFormSubmit = async (formData: ClassData) => {
@@ -115,31 +114,31 @@ export function ClassListView() {
             }
 
             if (res.data?.success) {
-                toast.success(res.data.message || `Class ${formMode === "create" ? "created" : "updated"} successfully`);
+                toast.success(t("class_saved_success"));
                 mutate();
                 setIsFormOpen(false);
             } else {
-                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} class`);
+                toast.error(t("class_save_failed"));
             }
         } catch (error: any) {
-            toast.error(error.response?.data?.message || "An error occurred while saving class");
+            toast.error(error.response?.data?.message || t("operation_failed"));
         }
     };
 
     const columns: ColumnDef<ClassData>[] = [
-        { accessorKey: "name", header: "Class Name" },
-        { accessorKey: "code", header: "Class Code" },
-        { accessorKey: "capacity", header: "Capacity" },
+        { accessorKey: "name", header: t("class_name") },
+        { accessorKey: "code", header: t("class_code") },
+        { accessorKey: "capacity", header: t("capacity") },
         {
-            accessorKey: "status", header: "Status",
+            accessorKey: "status", header: t("status"),
             cell: ({ row }) => (
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.original.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
-                    {row.original.status}
+                    {row.original.status === "Active" ? t("active") : t("inactive")}
                 </span>
             ),
         },
         {
-            id: "actions", header: "Actions",
+            id: "actions", header: t("actions"),
             cell: ({ row }) => (
                 <TableActions 
                     onView={() => handleView(row.original)}
@@ -153,24 +152,24 @@ export function ClassListView() {
     return (
         <div className="p-2 space-y-4">
             <Card className="">
-                <CardHeader className="bg-white border-b border-gray-100 pb-3">
+                <CardHeader className="bg-white border-b border-gray-100">
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
-                            <Title>Class</Title>
+                            <Title>{t("Class")}</Title>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                             <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
-                                <Plus className="w-4 h-4" /> Add Class
+                                <Plus className="w-4 h-4" /> {t("add_class")}
                             </Button>
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="bg-white rounded-b-xl pt-3">
+                <CardContent className="bg-white rounded-b-xl">
                     <DataTable
                         columns={columns}
                         data={paginatedData}
                         searchKey="name"
-                        searchPlaceholder="Search class..."
+                        searchPlaceholder={t("search_class")}
                         searchValue={search}
                         onSearch={setSearch}
                         isLoading={isLoading}
@@ -188,35 +187,22 @@ export function ClassListView() {
                     />
                 {/* View Dialog */}
                 <AlertDialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>View Class</AlertDialogTitle>
+                    <AlertDialogContent className="bg-white rounded-xl shadow-lg border-none p-0 overflow-hidden sm:max-w-[450px]">
+                        <AlertDialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-100 rounded-t-xl">
+                            <AlertDialogTitle className="text-base font-bold text-slate-800">{t("view_class")}</AlertDialogTitle>
                         </AlertDialogHeader>
                         <AlertDialogDescription asChild>
                             {viewData && (
-                                <div className="space-y-2 text-gray-700">
-                                    <p><strong>Name:</strong> {viewData.name}</p>
-                                    <p><strong>Code:</strong> {viewData.code}</p>
-                                    <p><strong>Capacity:</strong> {viewData.capacity}</p>
-                                    <p><strong>Status:</strong> {viewData.status}</p>
+                                <div className="space-y-3 text-slate-600 px-6 py-4">
+                                    <p><strong>{t("class_name")}:</strong> {viewData.name}</p>
+                                    <p><strong>{t("class_code")}:</strong> {viewData.code}</p>
+                                    <p><strong>{t("capacity")}:</strong> {viewData.capacity}</p>
+                                    <p><strong>{t("status")}:</strong> {viewData.status === "Active" ? t("active") : t("inactive")}</p>
                                 </div>
                             )}
                         </AlertDialogDescription>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Close</AlertDialogCancel>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-                {/* Delete Confirmation Dialog */}
-                <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
-                        </AlertDialogHeader>
-                        <AlertDialogDescription>Are you sure you want to delete this class?</AlertDialogDescription>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+                        <AlertDialogFooter className="bg-slate-50 px-6 py-4 border-t border-slate-100 rounded-b-xl">
+                            <AlertDialogCancel className="text-slate-700 border-slate-200 mt-0">{t("cancel")}</AlertDialogCancel>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>

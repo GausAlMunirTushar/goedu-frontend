@@ -1,11 +1,13 @@
 "use client";
 
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import FormInput from "@/components/form/Input";
+import SelectInput from "@/components/form/SelectInput";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslationClient } from "@/lib/i18n/client";
 
 export interface ClassData {
     id?: string;
@@ -24,7 +26,16 @@ interface ClassFormProps {
 }
 
 export function ClassForm({ mode, initialData, isOpen, onClose, onSubmit }: ClassFormProps) {
-    const { register, handleSubmit, reset } = useForm<ClassData>({
+    const { lng } = useLanguage();
+    const { t } = useTranslationClient(lng);
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        control,
+        formState: { errors },
+    } = useForm<ClassData>({
         defaultValues: initialData || { name: "", code: "", capacity: "", status: "Active" },
     });
 
@@ -35,34 +46,84 @@ export function ClassForm({ mode, initialData, isOpen, onClose, onSubmit }: Clas
     const handleFormSubmit = (data: ClassData) => { onSubmit(data); onClose(); };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>{mode === "create" ? "Create Class" : "Edit Class"}</DialogTitle>
+        <Dialog open={isOpen} onOpenChange={(open) => {
+            if (!open) {
+                onClose();
+            }
+        }}>
+            <DialogContent className="sm:max-w-[450px] bg-white rounded-xl p-0 shadow-lg border-none">
+                <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-100 rounded-t-xl">
+                    <DialogTitle className="text-base font-bold text-slate-800">
+                        {mode === "create" ? t("create_class") : t("edit_class")}
+                    </DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 mt-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="name">Class Name</Label>
-                        <Input id="name" placeholder="e.g. Class 10" {...register("name", { required: true })} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="code">Class Code</Label>
-                        <Input id="code" placeholder="e.g. CLS-10" {...register("code", { required: true })} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="capacity">Capacity</Label>
-                        <Input id="capacity" type="number" placeholder="e.g. 50" {...register("capacity", { required: true })} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
-                        <select id="status" className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm" {...register("status")}>
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                        </select>
-                    </div>
-                    <DialogFooter className="mt-6">
-                        <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-                        <Button type="submit">{mode === "create" ? "Create" : "Save Changes"}</Button>
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 px-6 py-4">
+                    {/* Class Name */}
+                    <FormInput
+                        id="name"
+                        label={t("class_name")}
+                        placeholder={t("class_name_placeholder")}
+                        required
+                        error={errors.name?.message}
+                        {...register("name", { required: true })}
+                    />
+                    
+                    {/* Class Code */}
+                    <FormInput
+                        id="code"
+                        label={t("class_code")}
+                        placeholder={t("class_code_placeholder")}
+                        required
+                        error={errors.code?.message}
+                        {...register("code", { required: true })}
+                    />
+                    
+                    {/* Capacity */}
+                    <FormInput
+                        id="capacity"
+                        type="number"
+                        label={t("capacity")}
+                        placeholder={t("capacity_placeholder")}
+                        required
+                        error={errors.capacity?.message}
+                        {...register("capacity", { required: true })}
+                    />
+                    
+                    {/* Status Select Input */}
+                    <Controller
+                        control={control}
+                        name="status"
+                        render={({ field }) => (
+                            <SelectInput
+                                label={t("status")}
+                                required
+                                showNoneOption={false}
+                                options={[
+                                    { value: "Active", label: t("active") },
+                                    { value: "Inactive", label: t("inactive") },
+                                ]}
+                                value={field.value}
+                                onChange={field.onChange}
+                                error={errors.status?.message}
+                            />
+                        )}
+                    />
+
+                    <DialogFooter className="mt-6 flex flex-row gap-3 justify-end items-center bg-slate-50 -mx-6 -mb-4 px-6 py-4 border-t border-slate-100 rounded-b-xl">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={onClose}
+                            className="text-slate-700 border-slate-200"
+                        >
+                            {t("cancel")}
+                        </Button>
+                        <Button
+                            type="submit"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+                        >
+                            {mode === "create" ? t("create") : t("save_changes")}
+                        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

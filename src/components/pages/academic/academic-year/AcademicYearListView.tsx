@@ -125,9 +125,8 @@ export function AcademicYearListView() {
                 const status = row.original.status;
                 return (
                     <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
-                        }`}
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
+                            }`}
                     >
                         {status === "Active" ? t("active") : t("inactive")}
                     </span>
@@ -138,9 +137,9 @@ export function AcademicYearListView() {
             id: "actions",
             header: t("actions"),
             cell: ({ row }) => (
-                <TableActions 
-                    onEdit={() => handleEdit(row.original)} 
-                    onDelete={() => handleDelete(row.original.id!)} 
+                <TableActions
+                    onEdit={() => handleEdit(row.original)}
+                    onDelete={() => handleDelete(row.original.id!)}
                 />
             ),
         },
@@ -149,7 +148,7 @@ export function AcademicYearListView() {
     return (
         <div className="p-2 space-y-4">
             <Card className="">
-                <CardHeader className="bg-white border-b border-gray-100 pb-3">
+                <CardHeader className="bg-white border-b border-gray-100">
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
                             <Title>{t("Academic Year")}</Title>
@@ -161,7 +160,7 @@ export function AcademicYearListView() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="bg-white rounded-b-xl pt-3">
+                <CardContent className="bg-white rounded-b-xl">
                     <DataTable
                         columns={columns}
                         data={paginatedData}
@@ -171,15 +170,15 @@ export function AcademicYearListView() {
                         onSearch={setSearch}
                         isLoading={isLoading}
                         pagination={{
-                          page,
-                          pageCount,
-                          pageSize,
-                          totalCount: filteredData.length,
-                          onPageChange: setPage,
-                          onPageSizeChange: (size) => {
-                            setPageSize(size);
-                            setPage(1);
-                          },
+                            page,
+                            pageCount,
+                            pageSize,
+                            totalCount: filteredData.length,
+                            onPageChange: setPage,
+                            onPageSizeChange: (size) => {
+                                setPageSize(size);
+                                setPage(1);
+                            },
                         }}
                     />
                 </CardContent>
