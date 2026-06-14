@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Title from "@/components/ui/custom-ui/title";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, GraduationCap, UserCheck, UserX } from "lucide-react";
+import { PlusCircle, GraduationCap, UserCheck, UserX, CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
 import TableActions from "@/components/ui/table-actions";
+import { StudentIdCardModal } from "./StudentIdCardModal";
 import { useStudentProfilesQuery } from "@/apis/queries/student_queries";
 import { useClassesQuery } from "@/apis/queries/academic_queries";
 import { deleteStudentProfile } from "@/apis/mutations/student_mutations";
@@ -36,6 +37,17 @@ export function StudentListView() {
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  // ID Card Modal State
+  const [isIdCardOpen, setIsIdCardOpen] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [selectedStudentName, setSelectedStudentName] = useState<string | null>(null);
+
+  const handleViewIdCard = (id: string, name: string) => {
+    setSelectedStudentId(id);
+    setSelectedStudentName(name);
+    setIsIdCardOpen(true);
+  };
 
   // Queries
   const { data: response, isLoading, mutate } = useStudentProfilesQuery({
@@ -123,11 +135,20 @@ export function StudentListView() {
       header: "Actions",
       cell: ({ row }) => {
         const student = row.original;
+        const name = `${student.firstName || ""} ${student.lastName || ""}`;
         return (
           <TableActions
             onView={() => handleView(student.id)}
             onEdit={() => handleEdit(student.id)}
             onDelete={() => openDeleteDialog(student.id)}
+            extraActions={[
+              {
+                label: "ID Card",
+                onClick: () => handleViewIdCard(student.id, name),
+                icon: <CreditCard size={16} />,
+                colorClass: "border border-violet-300 text-violet-600 hover:bg-violet-100",
+              },
+            ]}
           />
         );
       },
@@ -260,6 +281,14 @@ export function StudentListView() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* ID Card Dialog Modal */}
+      <StudentIdCardModal
+        open={isIdCardOpen}
+        onOpenChange={setIsIdCardOpen}
+        studentId={selectedStudentId}
+        studentName={selectedStudentName}
+      />
     </div>
   );
 }
