@@ -10,6 +10,18 @@
                 "icon": "CalendarDays"
             },
             {
+                "id": "branch",
+                "label": "Branch",
+                "path": "/academic/branch",
+                "icon": "MapPin"
+            },
+            {
+                "id": "department",
+                "label": "Department",
+                "path": "/academic/department",
+                "icon": "Building2"
+            },
+            {
                 "id": "session",
                 "label": "Session",
                 "path": "/academic/session",

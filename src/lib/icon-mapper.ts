@@ -7,6 +7,7 @@ import {
     Briefcase,
     Building,
     Building2,
+    MapPin,
     CalculatorIcon,
     Calendar,
     CalendarDays,
@@ -125,6 +126,7 @@ type IconName =
     | "FaBangladeshiTakaSign"
     | "MdOutlinePayments"
     | "SwatchBook"
+    | "MapPin"
     | "TeacherIcon"
     | "TeacherDesignationsIcon";
 
@@ -173,6 +175,7 @@ const iconMap: Record<IconName, LucideIcon> = {
     Generate: Sparkles,
     Receipt: Receipt,
     Building2: Building2,
+    MapPin: MapPin,
     Image: Image,
     Phone: Phone,
     TrendingUp: TrendingUp,
