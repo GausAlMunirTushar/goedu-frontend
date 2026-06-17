@@ -52,7 +52,3 @@ export const teacherMappingDetailUrl = (id: string) => `/academic/teacher-mappin
 // Departments API Endpoints
 export const departmentsUrl = "/academic/departments";
 export const departmentDetailUrl = (id: string) => `/academic/departments/${id}`;
-
-// Branches API Endpoints
-export const branchesUrl = "/academic/branches";
-export const branchDetailUrl = (id: string) => `/academic/branches/${id}`;
