@@ -1,24 +1,31 @@
 {
-  "module": {
-    "id": "settings",
-    "label": "Settings",
-    "icon": "Settings",
-    "base_path": "/settings",
-    "menus": [
-      {
-        "id": "global-settings",
-        "label": "Global Settings",
-        "icon": "LayoutDashboard",
-        "path": "/settings",
-        "permissions": ["dashboard.view"]
-      },
-      {
-        "id": "settings-dashboard",
-        "label": "Settings Dashboard",
-        "icon": "LayoutDashboard",
-        "path": "/settings/dashboard",
-        "permissions": ["dashboard.view"]
-      }
-    ]
-  }
+    "module": {
+        "id": "settings",
+        "label": "Settings",
+        "icon": "Settings",
+        "base_path": "/settings",
+        "menus": [
+            {
+                "id": "global-settings",
+                "label": "Global Settings",
+                "icon": "LayoutDashboard",
+                "path": "/settings",
+                "permissions": ["dashboard.view"]
+            },
+            {
+                "id": "settings-dashboard",
+                "label": "Settings Dashboard",
+                "icon": "LayoutDashboard",
+                "path": "/settings/dashboard",
+                "permissions": ["dashboard.view"]
+            },
+            {
+                "id": "role-permissions",
+                "label": "role_permissions",
+                "icon": "ShieldCheck",
+                "path": "/settings/role-permission",
+                "required_permissions": ["view_rbac"]
+            }
+        ]
+    }
 }

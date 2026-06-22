@@ -25,6 +25,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslationClient } from "@/lib/i18n/client";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -54,6 +56,8 @@ export function DataTable<TData, TValue>({
     searchValue,
     isLoading,
 }: DataTableProps<TData, TValue>) {
+    const { lng } = useLanguage();
+    const { t } = useTranslationClient(lng);
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -141,7 +145,7 @@ export function DataTable<TData, TValue>({
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
+                                    {t("no_results")}
                                 </TableCell>
                             </TableRow>
                         )}

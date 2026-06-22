@@ -5,7 +5,13 @@ import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import FormInput from "@/components/form/Input";
 import SelectInput from "@/components/form/SelectInput";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslationClient } from "@/lib/i18n/client";
 import { DepartmentData } from "./DepartmentListView";
@@ -14,11 +20,19 @@ interface DepartmentFormProps {
     mode: "create" | "edit";
     initialData?: DepartmentData;
     isOpen: boolean;
+    isSubmitting?: boolean;
     onClose: () => void;
     onSubmit: (data: DepartmentData) => void;
 }
 
-export function DepartmentForm({ mode, initialData, isOpen, onClose, onSubmit }: DepartmentFormProps) {
+export function DepartmentForm({
+    mode,
+    initialData,
+    isOpen,
+    isSubmitting = false,
+    onClose,
+    onSubmit,
+}: DepartmentFormProps) {
     const { lng } = useLanguage();
     const { t } = useTranslationClient(lng);
 
@@ -41,11 +55,14 @@ export function DepartmentForm({ mode, initialData, isOpen, onClose, onSubmit }:
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => {
-            if (!open) {
-                onClose();
-            }
-        }}>
+        <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+                if (!open) {
+                    onClose();
+                }
+            }}
+        >
             <DialogContent className="sm:max-w-[450px] bg-white rounded-xl p-0 shadow-lg border-none">
                 <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-100 rounded-t-xl">
                     <DialogTitle className="text-base font-bold text-slate-800">
@@ -60,7 +77,7 @@ export function DepartmentForm({ mode, initialData, isOpen, onClose, onSubmit }:
                         placeholder={t("department_name_placeholder")}
                         required
                         error={errors.name?.message}
-                        {...register("name", { required: true })}
+                        {...register("name", { required: t("department_name_required") })}
                     />
 
                     {/* Department Code */}
@@ -97,15 +114,21 @@ export function DepartmentForm({ mode, initialData, isOpen, onClose, onSubmit }:
                             type="button"
                             variant="outline"
                             onClick={onClose}
+                            disabled={isSubmitting}
                             className="text-slate-700 border-slate-200"
                         >
                             {t("cancel")}
                         </Button>
                         <Button
                             type="submit"
+                            disabled={isSubmitting}
                             className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
                         >
-                            {mode === "create" ? t("create") : t("save_changes")}
+                            {isSubmitting
+                                ? t("saving")
+                                : mode === "create"
+                                  ? t("create")
+                                  : t("save_changes")}
                         </Button>
                     </DialogFooter>
                 </form>

@@ -1,5 +1,7 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslationClient } from "@/lib/i18n/client";
 import {
     Select,
     SelectContent,
@@ -25,6 +27,8 @@ export function DataTablePagination({
     onPageChange,
     onPageSizeChange,
 }: DataTablePaginationProps) {
+    const { lng } = useLanguage();
+    const { t } = useTranslationClient(lng);
     const safePage = Number(page) || 1;
     const safePageSize = Number(pageSize) || 0;
     const safeTotal = Number(totalCount) || 0;
@@ -36,15 +40,15 @@ export function DataTablePagination({
         <div className="flex items-center justify-between px-2 gap-6 font-[inherit]">
             {/* Count info */}
             <div className="text-sm text-muted-foreground font-[inherit]">
-                Showing <span className="font-medium">{from}</span> –{" "}
-                <span className="font-medium">{to}</span> of{" "}
+                {t("showing")} <span className="font-medium">{from}</span> -{" "}
+                <span className="font-medium">{to}</span> {t("of")}{" "}
                 <span className="font-medium">{totalCount}</span>
             </div>
 
             <div className="flex items-center gap-6">
                 {/* Rows per page */}
                 <div className="flex items-center space-x-2 font-[inherit]">
-                    <p className="text-sm font-medium">Rows per page</p>
+                    <p className="text-sm font-medium">{t("rows_per_page")}</p>
                     <Select
                         value={`${pageSize}`}
                         onValueChange={(value) => onPageSizeChange(Number(value))}
@@ -64,7 +68,7 @@ export function DataTablePagination({
 
                 {/* Page info */}
                 <div className="flex w-[120px] items-center justify-center text-sm font-medium font-[inherit]">
-                    Page {page} of {pageCount}
+                    {t("page")} {page} {t("of")} {pageCount}
                 </div>
 
                 {/* Navigation */}

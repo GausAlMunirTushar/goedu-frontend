@@ -11,6 +11,8 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Eye, MoreHorizontalIcon, Pencil, PlusCircle, Trash2 } from "lucide-react";
 import React from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslationClient } from "@/lib/i18n/client";
 
 interface TableActionsProps {
     onView?: () => void;
@@ -72,25 +74,28 @@ const TableActions: React.FC<TableActionsProps> = ({
     extraActions = [],
     extraActionsFirst = false,
 }) => {
+    const { lng } = useLanguage();
+    const { t } = useTranslationClient(lng);
+
     // Build standard actions array
     const standardActions = [
         onView && {
             key: "view",
-            label: "View",
+            label: t("view"),
             onClick: onView,
             icon: <Eye size={16} />,
             colorClass: "border border-cyan-300 text-cyan-600 hover:bg-cyan-200",
         },
         onEdit && {
             key: "edit",
-            label: "Edit",
+            label: t("edit"),
             onClick: onEdit,
             icon: <Pencil size={16} />,
             colorClass: "border border-primary/30 text-primary hover:bg-primary/10",
         },
         onDelete && {
             key: "delete",
-            label: "Delete",
+            label: t("delete"),
             onClick: onDelete,
             destructive: true,
             icon: <Trash2 size={16} />,
@@ -152,13 +157,13 @@ const TableActions: React.FC<TableActionsProps> = ({
     return (
         <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon-sm" aria-label="Open actions">
+                <Button variant="outline" size="icon-sm" aria-label={t("open_actions")}>
                     <MoreHorizontalIcon className="w-4 h-4" />
                 </Button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-40 font-semibold">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
 
                 {totalActions.map((action) => (
                     <DropdownMenuItem

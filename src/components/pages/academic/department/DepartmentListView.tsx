@@ -32,6 +32,7 @@ export function DepartmentListView() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
     const [editingData, setEditingData] = useState<DepartmentData | undefined>(undefined);
+    const [isSaving, setIsSaving] = useState(false);
 
     const { data: response, isLoading, mutate } = useDepartmentsQuery();
 
@@ -47,7 +48,7 @@ export function DepartmentListView() {
 
     const filteredData = React.useMemo(() => {
         return mappedData.filter((item: any) =>
-            item.name.toLowerCase().includes(search.toLowerCase())
+            item.name.toLowerCase().includes(search.toLowerCase()),
         );
     }, [mappedData, search]);
 
@@ -87,8 +88,10 @@ export function DepartmentListView() {
         const payload = {
             name: formData.name,
             code: formData.code || null,
+            status: formData.status,
         };
 
+        setIsSaving(true);
         try {
             let res;
             if (formMode === "create") {
@@ -98,7 +101,13 @@ export function DepartmentListView() {
             }
 
             if (res.data?.success) {
-                toast.success(t(formMode === "create" ? "department_created_success" : "department_updated_success"));
+                toast.success(
+                    t(
+                        formMode === "create"
+                            ? "department_created_success"
+                            : "department_updated_success",
+                    ),
+                );
                 mutate();
                 setIsFormOpen(false);
             } else {
@@ -106,6 +115,8 @@ export function DepartmentListView() {
             }
         } catch (error: any) {
             toast.error(error.response?.data?.message || t("operation_failed"));
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -113,9 +124,12 @@ export function DepartmentListView() {
         { accessorKey: "name", header: t("department_name") },
         { accessorKey: "code", header: t("code") },
         {
-            accessorKey: "status", header: t("status"),
+            accessorKey: "status",
+            header: t("status"),
             cell: ({ row }) => (
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.original.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${row.original.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}
+                >
                     {row.original.status === "Active" ? t("active") : t("inactive")}
                 </span>
             ),
@@ -138,10 +152,13 @@ export function DepartmentListView() {
                 <CardHeader className="bg-white border-b border-gray-100">
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
-                            <Title>{t("Departments")}</Title>
+                            <Title>{t("departments")}</Title>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-                            <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
+                            <Button
+                                className="w-full sm:w-auto flex items-center gap-2"
+                                onClick={handleCreate}
+                            >
                                 <Plus className="w-4 h-4" /> {t("add_department")}
                             </Button>
                         </div>
@@ -167,6 +184,7 @@ export function DepartmentListView() {
                 isOpen={isFormOpen}
                 onClose={() => setIsFormOpen(false)}
                 onSubmit={handleFormSubmit}
+                isSubmitting={isSaving}
             />
         </div>
     );
