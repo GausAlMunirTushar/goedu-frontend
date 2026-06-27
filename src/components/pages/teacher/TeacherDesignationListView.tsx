@@ -15,6 +15,7 @@ import { useDesignationsQuery } from "@/apis/queries/teacher_queries";
 import { AxiosAPI } from "@/apis/configs";
 import { designationsUrl, designationDetailUrl } from "@/apis/endpoints/teacher_apis";
 import { toast } from "sonner";
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -35,9 +36,6 @@ export function TeacherDesignationListView() {
   const [statusFilter, setStatusFilter] = useState<string>("All");
 
   const { data: response, isLoading, mutate } = useDesignationsQuery();
-
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -61,9 +59,6 @@ export function TeacherDesignationListView() {
       return matchesSearch && matchesStatus;
     });
   }, [mappedData, search, statusFilter]);
-
-  const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
-  const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
   const handleCreate = () => {
     setFormMode("create");
@@ -154,6 +149,8 @@ export function TeacherDesignationListView() {
     },
   ];
 
+  if (isLoading) return <TableSkeleton />;
+
   return (
     <div className="p-2 space-y-4">
       <Card>
@@ -161,7 +158,7 @@ export function TeacherDesignationListView() {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div>
               <Title>Teacher Designations</Title>
-              <p className="text-sm text-gray-500">Manage teacher roles and titles.</p>
+              <p className="text-xs text-muted-foreground mt-1">Manage teacher roles and titles.</p>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -174,7 +171,7 @@ export function TeacherDesignationListView() {
                   <SelectItem value="Inactive">Inactive</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground gap-2 shadow-sm h-9" onClick={handleCreate}>
+              <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
                 <PlusCircle className="w-4 h-4" /> Add Designation
               </Button>
             </div>
@@ -183,23 +180,12 @@ export function TeacherDesignationListView() {
         <CardContent className="bg-white rounded-b-xl pt-3">
           <DataTable
             columns={columns}
-            data={paginatedData}
+            data={filteredData}
             searchKey="title"
             searchPlaceholder="Search designations..."
             searchValue={search}
             onSearch={setSearch}
             isLoading={isLoading}
-            pagination={{
-              page,
-              pageCount,
-              pageSize,
-              totalCount: filteredData.length,
-              onPageChange: setPage,
-              onPageSizeChange: (size) => {
-                setPageSize(size);
-                setPage(1);
-              },
-            }}
           />
         </CardContent>
       </Card>

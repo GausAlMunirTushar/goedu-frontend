@@ -8,6 +8,7 @@ import { Plus, Printer, Download, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { 
     useClassesQuery, 
@@ -291,39 +292,27 @@ export function ClassRoutine() {
                             <p className="text-xs text-muted-foreground mt-1">Configure, build, and publish weekly timetables for student classes</p>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-                            {/* Class filter */}
-                            <div className="flex items-center gap-2">
-                                <Label htmlFor="class-select" className="text-xs font-semibold text-slate-700">Class:</Label>
-                                <select
-                                    id="class-select"
-                                    className="bg-white border border-slate-200 rounded-md p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring h-9"
-                                    value={selectedClassId}
-                                    onChange={(e) => setSelectedClassId(e.target.value)}
-                                    disabled={loadingClasses}
-                                >
-                                    {loadingClasses && <option>Loading...</option>}
-                                    {classesList.map((cls: any) => (
-                                        <option key={cls.id} value={cls.id}>{cls.name}</option>
+                            <Select value={selectedClassId} onValueChange={setSelectedClassId} disabled={loadingClasses}>
+                                <SelectTrigger className="h-9 w-full sm:w-[150px] bg-gray-50 border-gray-200 text-xs font-semibold">
+                                    <SelectValue placeholder="Class" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {classesList.map((c: any) => (
+                                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                                     ))}
-                                </select>
-                            </div>
-                            {/* Section filter */}
-                            <div className="flex items-center gap-2">
-                                <Label htmlFor="sec-select" className="text-xs font-semibold text-slate-700">Section:</Label>
-                                <select
-                                    id="sec-select"
-                                    className="bg-white border border-slate-200 rounded-md p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring h-9"
-                                    value={selectedSectionId}
-                                    onChange={(e) => setSelectedSectionId(e.target.value)}
-                                    disabled={loadingSections}
-                                >
-                                    {loadingSections && <option>Loading...</option>}
-                                    {sectionsList.length === 0 && !loadingSections && <option value="">No sections found</option>}
-                                    {sectionsList.map((sec: any) => (
-                                        <option key={sec.id} value={sec.id}>{sec.name}</option>
+                                </SelectContent>
+                            </Select>
+
+                            <Select value={selectedSectionId} onValueChange={setSelectedSectionId} disabled={loadingSections || sectionsList.length === 0}>
+                                <SelectTrigger className="h-9 w-full sm:w-[150px] bg-gray-50 border-gray-200 text-xs font-semibold">
+                                    <SelectValue placeholder="Section" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {sectionsList.map((s: any) => (
+                                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                                     ))}
-                                </select>
-                            </div>
+                                </SelectContent>
+                            </Select>
                             <div className="flex gap-2 w-full sm:w-auto">
                                 <Button onClick={handleExportPdf} variant="outline" className="flex items-center gap-1.5 text-xs h-9">
                                     <Download className="w-3.5 h-3.5" /> PDF
@@ -520,8 +509,6 @@ export function ClassRoutine() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-                </CardContent>
-            </Card>
         </div>
     );
 }

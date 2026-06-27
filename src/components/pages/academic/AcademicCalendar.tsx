@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight, BookOpen, Flag, Star, Award, Coffee, Umbrella, Download, Printer } from "lucide-react";
+import Title from "@/components/ui/custom-ui/title";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 /* ─── Types ─────────────────────────────────────────────────── */
 type EventType = "exam" | "holiday" | "event" | "meeting" | "vacation" | "sports";
@@ -113,22 +115,20 @@ export default function AcademicCalendar() {
   const next = () => setViewMonth((m) => (m === 11 ? 0 : m + 1));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-emerald-50/20">
-      {/* Hero */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-white py-10 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-              <Calendar className="w-5 h-5" />
-            </div>
-            <span className="text-primary-foreground/80 text-sm font-semibold uppercase tracking-widest">Academic</span>
+    <div className="p-2 space-y-6">
+      {/* Header */}
+      <Card>
+        <CardHeader className="bg-white pb-4">
+          <div>
+            <Title>Academic Calendar</Title>
+            <p className="text-xs text-muted-foreground mt-1">
+              All events, exams, holidays & vacations for the session {year}.
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-1">Academic Calendar</h1>
-          <p className="text-primary-foreground/75 text-sm">All events, exams, holidays & vacations · {year}</p>
-        </div>
-      </div>
+        </CardHeader>
+      </Card>
 
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+      <div className="space-y-6">
 
         {/* Top Actions */}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">

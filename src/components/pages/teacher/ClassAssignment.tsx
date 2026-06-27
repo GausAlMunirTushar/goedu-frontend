@@ -9,8 +9,10 @@ import { DataTable } from "@/components/ui/data-table/data-table";
 import TableActions from "@/components/ui/table-actions";
 import { ColumnDef } from "@tanstack/react-table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { useClassAssignmentsQuery, useTeachersProfilesQuery } from "@/apis/queries/teacher_queries";
 import { useClassesQuery, useSectionsQuery, useShiftsQuery, useSessionsQuery } from "@/apis/queries/academic_queries";
@@ -50,10 +52,6 @@ export function ClassAssignment() {
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-    // Pagination
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-
     const assignments = assignmentsRes?.data || [];
     const teachers = teachersRes?.data || [];
     const classesList = classesRes?.data || [];
@@ -78,9 +76,6 @@ export function ClassAssignment() {
             return matchesSearch && matchesClass;
         });
     }, [assignments, search, selectedClassFilter]);
-
-    const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
-    const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
     // Reset section selection when class changes
     useEffect(() => {
@@ -236,47 +231,10 @@ export function ClassAssignment() {
     const activeAssignments = assignments.filter((a: any) => a.status === "Active").length;
     const uniqueTeachers = new Set(assignments.map((a: any) => a.teacher?.id).filter(Boolean)).size;
 
+    if (isLoading) return <TableSkeleton />;
+
     return (
         <div className="p-2 space-y-4">
-            {/* Metrics */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card className="shadow-sm border-primary/10">
-                    <CardContent className="p-4 flex items-center gap-4">
-                        <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center shrink-0">
-                            <GraduationCap className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-black text-gray-900">{totalAssigned}</p>
-                            <p className="text-xs text-muted-foreground">Classes Assigned</p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="shadow-sm border-primary/10">
-                    <CardContent className="p-4 flex items-center gap-4">
-                        <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0">
-                            <UserCheck className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-black text-gray-900">{activeAssignments}</p>
-                            <p className="text-xs text-muted-foreground">Active Class Teachers</p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="shadow-sm border-primary/10">
-                    <CardContent className="p-4 flex items-center gap-4">
-                        <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0">
-                            <Users className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-black text-gray-900">{uniqueTeachers}</p>
-                            <p className="text-xs text-muted-foreground">Unique Class Teachers</p>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
             <Card>
                 <CardHeader className="bg-white border-b border-gray-100 pb-3">
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -284,47 +242,34 @@ export function ClassAssignment() {
                             <Title>Class Assignments</Title>
                             <p className="text-xs text-muted-foreground mt-1">Assign teachers to be the dedicated Class Teacher of a class & section.</p>
                         </div>
-                        <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
-                            <Plus className="w-4 h-4" /> Assign Class Teacher
-                        </Button>
+                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                            <Select value={selectedClassFilter} onValueChange={setSelectedClassFilter}>
+                                <SelectTrigger className="h-9 w-full sm:w-[150px] bg-gray-50 border-gray-200 text-xs font-semibold">
+                                    <SelectValue placeholder="Class" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="All">All Classes</SelectItem>
+                                    {classesList.map((c: any) => (
+                                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
+                                <Plus className="w-4 h-4" /> Assign Class Teacher
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent className="bg-white rounded-b-xl pt-3">
-                    {/* Toolbar Filters */}
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-48">
-                            <select 
-                                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                onChange={(e) => setSelectedClassFilter(e.target.value)} 
-                                value={selectedClassFilter}
-                            >
-                                <option value="All">All Classes</option>
-                                {classesList.map((c: any) => (
-                                    <option key={c.id} value={c.id}>{c.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
 
                     <DataTable
                         columns={columns}
-                        data={paginatedData}
-                        searchKey="teacherName"
+                        data={filteredData}
+                        searchKey="teacher"
                         searchPlaceholder="Search mappings..."
                         searchValue={search}
                         onSearch={setSearch}
                         isLoading={isLoading}
-                        pagination={{
-                            page,
-                            pageCount,
-                            pageSize,
-                            totalCount: filteredData.length,
-                            onPageChange: setPage,
-                            onPageSizeChange: (size) => {
-                                setPageSize(size);
-                                setPage(1);
-                            },
-                        }}
                     />
                 </CardContent>
             </Card>

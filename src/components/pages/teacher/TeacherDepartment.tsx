@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { useDepartmentsQuery, useTeachersProfilesQuery } from "@/apis/queries/teacher_queries";
 import { AxiosAPI } from "@/apis/configs";
@@ -51,10 +52,6 @@ export function TeacherDepartment() {
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-    // Pagination
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-
     const facultyList = React.useMemo(() => {
         const teachers = teacherResponse?.data || [];
         return teachers.map((t: any) => ({
@@ -81,9 +78,6 @@ export function TeacherDepartment() {
                item.code.toLowerCase().includes(search.toLowerCase()) ||
                item.headOfDept.toLowerCase().includes(search.toLowerCase());
     });
-
-    const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
-    const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
     const handleCreate = () => {
         setFormMode("create");
@@ -200,47 +194,10 @@ export function TeacherDepartment() {
     const activeDepts = mappedData.filter(d => d.status === "Active").length;
     const totalTeachersMapped = mappedData.reduce((acc, curr) => acc + curr.teacherCount, 0);
 
+    if (isLoading) return <TableSkeleton />;
+
     return (
         <div className="p-2 space-y-4">
-            {/* Metrics */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card className="shadow-sm border-primary/10">
-                    <CardContent className="p-4 flex items-center gap-4">
-                        <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center shrink-0">
-                            <ClipboardList className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-black text-gray-900">{totalDepts}</p>
-                            <p className="text-xs text-muted-foreground">Total Departments</p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="shadow-sm border-primary/10">
-                    <CardContent className="p-4 flex items-center gap-4">
-                        <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0">
-                            <UserCheck className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-black text-gray-900">{activeDepts}</p>
-                            <p className="text-xs text-muted-foreground">Active Departments</p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="shadow-sm border-primary/10">
-                    <CardContent className="p-4 flex items-center gap-4">
-                        <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0">
-                            <Users className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-black text-gray-900">{totalTeachersMapped}</p>
-                            <p className="text-xs text-muted-foreground">Faculty Staff Count</p>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
             <Card>
                 <CardHeader className="bg-white border-b border-gray-100 pb-3">
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -256,23 +213,12 @@ export function TeacherDepartment() {
                 <CardContent className="bg-white rounded-b-xl pt-3">
                     <DataTable
                         columns={columns}
-                        data={paginatedData}
+                        data={filteredData}
                         searchKey="name"
                         searchPlaceholder="Search departments..."
                         searchValue={search}
                         onSearch={setSearch}
                         isLoading={isLoading}
-                        pagination={{
-                            page,
-                            pageCount,
-                            pageSize,
-                            totalCount: filteredData.length,
-                            onPageChange: setPage,
-                            onPageSizeChange: (size) => {
-                                setPageSize(size);
-                                setPage(1);
-                            },
-                        }}
                     />
                 </CardContent>
             </Card>

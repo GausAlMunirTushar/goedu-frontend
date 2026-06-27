@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { Search, Trophy, BookOpen, ChevronDown, Download, Printer } from "lucide-react";
+import Title from "@/components/ui/custom-ui/title";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const classes = ["All Classes", "Class VI", "Class VII", "Class VIII", "Class IX", "Class X"];
 const exams   = ["All Exams", "Half Yearly 2024", "Annual 2024", "Pre-Test 2024"];
@@ -73,22 +75,20 @@ export default function ExamResult() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-emerald-50/20">
-      {/* Hero */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-white py-10 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-              <Trophy className="w-5 h-5" />
-            </div>
-            <span className="text-sm font-semibold uppercase tracking-widest text-white/70">Students</span>
+    <div className="p-2 space-y-6">
+      {/* Header */}
+      <Card>
+        <CardHeader className="bg-white pb-4">
+          <div>
+            <Title>Exam Results</Title>
+            <p className="text-xs text-muted-foreground mt-1">
+              Published results for all examinations.
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-1">Exam Results</h1>
-          <p className="text-white/70 text-sm">Published results for all examinations · Session 2024</p>
-        </div>
-      </div>
+        </CardHeader>
+      </Card>
 
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+      <div className="space-y-6">
         {/* Filters */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex flex-col sm:flex-row gap-3 items-end">

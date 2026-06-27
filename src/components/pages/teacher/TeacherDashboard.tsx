@@ -9,6 +9,9 @@ import PieChart from "@/components/charts/PieChart";
 import ChartCard from "@/components/charts/ChartCard";
 import { teachers } from "@/data/teachers";
 
+import Title from "@/components/ui/custom-ui/title";
+import { Card, CardHeader } from "@/components/ui/card";
+
 // Derive statistics
 const totalTeachers = teachers.length;
 const seniorTeachers = teachers.filter(t =>
@@ -23,7 +26,19 @@ const departmentCounts = departments.map(dep => ({
 
 export default function TeacherDashboard() {
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-2 space-y-6">
+      {/* Header */}
+      <Card>
+        <CardHeader className="bg-white pb-4">
+          <div>
+            <Title>Teacher Dashboard</Title>
+            <p className="text-xs text-muted-foreground mt-1">
+              Overview statistics and analysis metrics for teacher profiles.
+            </p>
+          </div>
+        </CardHeader>
+      </Card>
+
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatCard title="Total Teachers" value={totalTeachers} subtitle="All teachers" color="blue" />
