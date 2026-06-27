@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslationClient } from "@/lib/i18n/client";
 import { useModalStore } from "@/stores/modalStore";
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 
 export function SessionListView() {
     const { lng } = useLanguage();
@@ -140,6 +141,8 @@ export function SessionListView() {
             ),
         },
     ];
+
+    if (isLoading) return <TableSkeleton />;
 
     return (
         <div className="p-2 space-y-4">

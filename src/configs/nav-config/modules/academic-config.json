@@ -4,8 +4,8 @@
         "id": "academic",
         "menus": [
             {
-                "id": "academic-overview",
-                "label": "Academic Overview",
+                "id": "academic-dashboard",
+                "label": "Academic",
                 "path": "/academic",
                 "icon": "LayoutDashboard"
             },

@@ -16,13 +16,16 @@ import { useModalStore } from "@/stores/modalStore";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslationClient } from "@/lib/i18n/client";
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 
 export function AcademicYearListView() {
     const { lng } = useLanguage();
     const { t } = useTranslationClient(lng);
-    const [search, setSearch] = useState("");
     const openModal = useModalStore((state) => state.openModal);
-    const closeModal = useModalStore((state) => state.closeModal);
+    const [search, setSearch] = useState("");
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [formMode, setFormMode] = useState<"create" | "edit">("create");
+    const [editingData, setEditingData] = useState<AcademicYearData | undefined>(undefined);
 
     // Fetch live academic years from backend
     const { data: response, isLoading, mutate } = useAcademicYearsQuery();
@@ -35,58 +38,51 @@ export function AcademicYearListView() {
     const mappedData = React.useMemo(() => {
         return rawData.map((item: any) => ({
             id: item.id,
-            year: item.title,
-            start_date: new Date(item.startDate).toISOString().split("T")[0],
-            end_date: new Date(item.endDate).toISOString().split("T")[0],
-            status: item.isActive ? "Active" : "Inactive",
+            title: item.title,
+            startDate: item.startDate,
+            endDate: item.endDate,
+            isActive: item.isActive,
         }));
     }, [rawData]);
 
     const filteredData = React.useMemo(() => {
         return mappedData.filter((item: any) =>
-            item.year.toLowerCase().includes(search.toLowerCase())
+            item.title.toLowerCase().includes(search.toLowerCase())
         );
     }, [mappedData, search]);
 
     const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
     const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
+    const handleCreate = () => { setFormMode("create"); setEditingData(undefined); setIsFormOpen(true); };
+    const handleEdit = (item: AcademicYearData) => { setFormMode("edit"); setEditingData(item); setIsFormOpen(true); };
+
     const handleFormSubmit = async (formData: AcademicYearData) => {
         const payload = {
-            title: formData.year,
-            startDate: new Date(formData.start_date).toISOString(),
-            endDate: new Date(formData.end_date).toISOString(),
-            isActive: formData.status === "Active",
+            title: formData.title,
+            startDate: formData.startDate,
+            endDate: formData.endDate,
+            isActive: formData.isActive,
         };
 
-        const res = formData.id
-            ? await AxiosAPI.put(academicYearDetailUrl(formData.id), payload)
-            : await AxiosAPI.post(academicYearsUrl, payload);
+        try {
+            let res;
+            if (formMode === "create") {
+                res = await AxiosAPI.post(academicYearsUrl, payload);
+            } else {
+                res = await AxiosAPI.put(academicYearDetailUrl(formData.id!), payload);
+            }
 
-        if (res.data?.success) {
-            toast.success(t("academic_year_saved_success"));
-            mutate();
-            closeModal();
-        } else {
-            toast.error(t("academic_year_save_failed"));
-            throw new Error(res.data?.message || "Failed to save academic year");
+            if (res.data?.success) {
+                toast.success(res.data.message || `Academic year ${formMode === "create" ? "created" : "updated"} successfully`);
+                mutate();
+                setIsFormOpen(false);
+            } else {
+                toast.error(res.data?.message || `Failed to ${formMode === "create" ? "create" : "update"} academic year`);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred while saving");
         }
-    };
-
-    const handleCreate = () => {
-        openModal("academic-year", {
-            mode: "create",
-            initialData: undefined,
-            onSubmit: handleFormSubmit,
-        });
-    };
-
-    const handleEdit = (item: AcademicYearData) => {
-        openModal("academic-year", {
-            mode: "edit",
-            initialData: item,
-            onSubmit: handleFormSubmit,
-        });
     };
 
     const handleDelete = async (id: string) => {
@@ -106,23 +102,19 @@ export function AcademicYearListView() {
     };
 
     const columns: ColumnDef<AcademicYearData>[] = [
+        { accessorKey: "title", header: t("title") },
         {
-            accessorKey: "year",
-            header: t("year_name"),
+            accessorKey: "startDate", header: t("start_date"),
+            cell: ({ row }) => row.original.startDate ? new Date(row.original.startDate).toLocaleDateString() : "",
         },
         {
-            accessorKey: "start_date",
-            header: t("start_date"),
+            accessorKey: "endDate", header: t("end_date"),
+            cell: ({ row }) => row.original.endDate ? new Date(row.original.endDate).toLocaleDateString() : "",
         },
         {
-            accessorKey: "end_date",
-            header: t("end_date"),
-        },
-        {
-            accessorKey: "status",
-            header: t("status"),
+            accessorKey: "isActive", header: t("status"),
             cell: ({ row }) => {
-                const status = row.original.status;
+                const status = row.original.isActive ? "Active" : "Inactive";
                 return (
                     <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
@@ -144,6 +136,8 @@ export function AcademicYearListView() {
             ),
         },
     ];
+
+    if (isLoading) return <TableSkeleton />;
 
     return (
         <div className="p-2 space-y-4">

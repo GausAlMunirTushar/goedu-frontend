@@ -13,6 +13,7 @@ import {
     subjectAssignmentsUrl,
     teacherMappingsUrl,
     departmentsUrl,
+    academicOverviewUrl,
 } from "@/apis/endpoints/academic_apis";
 import type { TResponse } from "@/types/configs";
 
@@ -68,3 +69,6 @@ export const useTeacherMappingsQuery = (classId?: string) =>
 
 export const useDepartmentsQuery = () =>
   useQuery<TResponse<any>>(departmentsUrl);
+
+export const useAcademicOverviewQuery = () =>
+  useQuery<TResponse<any>>(academicOverviewUrl);

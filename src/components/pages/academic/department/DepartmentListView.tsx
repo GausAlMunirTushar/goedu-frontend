@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslationClient } from "@/lib/i18n/client";
 import { useModalStore } from "@/stores/modalStore";
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 
 export interface DepartmentData {
     id?: string;
@@ -36,21 +37,28 @@ export function DepartmentListView() {
 
     const { data: response, isLoading, mutate } = useDepartmentsQuery();
 
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+
     const rawData = response?.data || [];
     const mappedData = React.useMemo(() => {
         return rawData.map((item: any) => ({
             id: item.id,
             name: item.name,
-            code: item.code || "",
-            status: item.status ?? "Active",
+            code: item.code,
+            status: item.status,
         }));
     }, [rawData]);
 
     const filteredData = React.useMemo(() => {
         return mappedData.filter((item: any) =>
-            item.name.toLowerCase().includes(search.toLowerCase()),
+            item.name.toLowerCase().includes(search.toLowerCase()) ||
+            (item.code && item.code.toLowerCase().includes(search.toLowerCase()))
         );
     }, [mappedData, search]);
+
+    const pageCount = Math.ceil(filteredData.length / pageSize) || 1;
+    const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
     const handleCreate = () => {
         setFormMode("create");
@@ -64,7 +72,7 @@ export function DepartmentListView() {
         setIsFormOpen(true);
     };
 
-    const openDeleteDialog = (id: string) => {
+    const handleDelete = async (id: string) => {
         openModal("confirm-delete", {
             title: t("delete_department"),
             description: t("delete_department_confirm"),
@@ -87,7 +95,7 @@ export function DepartmentListView() {
     const handleFormSubmit = async (formData: DepartmentData) => {
         const payload = {
             name: formData.name,
-            code: formData.code || null,
+            code: formData.code,
             status: formData.status,
         };
 
@@ -102,11 +110,8 @@ export function DepartmentListView() {
 
             if (res.data?.success) {
                 toast.success(
-                    t(
-                        formMode === "create"
-                            ? "department_created_success"
-                            : "department_updated_success",
-                    ),
+                    res.data.message ||
+                    (formMode === "create" ? t("department_created_success") : t("department_updated_success"))
                 );
                 mutate();
                 setIsFormOpen(false);
@@ -140,11 +145,13 @@ export function DepartmentListView() {
             cell: ({ row }) => (
                 <TableActions
                     onEdit={() => handleEdit(row.original)}
-                    onDelete={() => openDeleteDialog(row.original.id!)}
+                    onDelete={() => handleDelete(row.original.id!)}
                 />
             ),
         },
     ];
+
+    if (isLoading) return <TableSkeleton />;
 
     return (
         <div className="p-2 space-y-4">

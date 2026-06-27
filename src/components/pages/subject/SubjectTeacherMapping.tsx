@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useModalStore } from "@/stores/modalStore";
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
@@ -206,6 +207,8 @@ export function SubjectTeacherMapping() {
             ),
         },
     ];
+
+    if (isLoading) return <TableSkeleton />;
 
     return (
         <div className="p-2 space-y-4">

@@ -14,6 +14,7 @@ import { AxiosAPI } from "@/apis/configs";
 import { roomsUrl, roomDetailUrl } from "@/apis/endpoints/academic_apis";
 import { toast } from "sonner";
 import { useModalStore } from "@/stores/modalStore";
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
 export function RoomListView() {
@@ -130,6 +131,8 @@ export function RoomListView() {
             ),
         },
     ];
+
+    if (isLoading) return <TableSkeleton />;
 
     return (
         <div className="p-2 space-y-4">

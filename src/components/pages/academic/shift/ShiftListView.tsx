@@ -14,6 +14,7 @@ import { AxiosAPI } from "@/apis/configs";
 import { shiftsUrl, shiftDetailUrl } from "@/apis/endpoints/academic_apis";
 import { toast } from "sonner";
 import { useModalStore } from "@/stores/modalStore";
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 
 export function ShiftListView() {
     const openModal = useModalStore((state) => state.openModal);
@@ -120,6 +121,8 @@ export function ShiftListView() {
             ),
         },
     ];
+
+    if (isLoading) return <TableSkeleton />;
 
     return (
         <div className="p-2 space-y-4">

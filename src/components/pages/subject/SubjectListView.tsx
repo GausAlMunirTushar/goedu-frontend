@@ -15,6 +15,7 @@ import { AxiosAPI } from "@/apis/configs";
 import { subjectsUrl, subjectDetailUrl } from "@/apis/endpoints/academic_apis";
 import { toast } from "sonner";
 import { useModalStore } from "@/stores/modalStore";
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 
 export function SubjectListView() {
     const openModal = useModalStore((state) => state.openModal);
@@ -148,6 +149,8 @@ export function SubjectListView() {
             ),
         },
     ];
+
+    if (isLoading) return <TableSkeleton />;
 
     return (
         <div className="p-2 space-y-4">
