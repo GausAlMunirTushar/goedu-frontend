@@ -1,4 +1,5 @@
-import useQuery from '@/hooks/useQuery';
+import { useQuery } from '@/hooks/useQuery';
+import type { TResponse } from '@/types/configs';
 import {
   financeAnalyticsUrl,
   financeCategoriesUrl,
@@ -7,11 +8,11 @@ import {
 } from '../endpoints/finance_apis';
 
 export const useFinanceAnalyticsQuery = () => {
-  return useQuery(financeAnalyticsUrl);
+  return useQuery<TResponse<any>>(financeAnalyticsUrl);
 };
 
 export const useFeeCategoriesQuery = () => {
-  return useQuery(financeCategoriesUrl);
+  return useQuery<TResponse<any>>(financeCategoriesUrl);
 };
 
 export const useFeeInvoicesQuery = (params?: { status?: string; studentId?: string }) => {
@@ -24,9 +25,9 @@ export const useFeeInvoicesQuery = (params?: { status?: string; studentId?: stri
       url += `?${query.toString()}`;
     }
   }
-  return useQuery(url);
+  return useQuery<TResponse<any>>(url);
 };
 
 export const useFeePaymentsQuery = () => {
-  return useQuery(financePaymentsUrl);
+  return useQuery<TResponse<any>>(financePaymentsUrl);
 };

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Printer, Download, BookOpen, Clock, User, MapPin, Calendar, ChevronDown } from "lucide-react";
 import Title from "@/components/ui/custom-ui/title";
-import { Card, CardHeader } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 import { useClassesQuery, useSectionsQuery, useRoutinesQuery } from "@/apis/queries/academic_queries";

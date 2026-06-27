@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { examClasses, examSessions } from "@/data/exam";
 import { useExamsQuery } from "@/apis/queries/exam_queries";
 import { publishExamResult } from "@/apis/mutations/exam_mutations";
 import { toast } from "sonner";

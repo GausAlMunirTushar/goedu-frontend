@@ -2,10 +2,9 @@
 
 import React, { useState, useMemo } from "react";
 import { useFeeInvoicesQuery, useFeeCategoriesQuery } from "@/apis/queries/finance_queries";
-import { useClassQuery } from "@/apis/queries/academic_queries";
-import { useStudentQuery } from "@/apis/queries/student_queries";
+import { useClassesQuery } from "@/apis/queries/academic_queries";
 import { financeInvoicesUrl, financeInvoicesBulkUrl, financeInvoiceDetailUrl } from "@/apis/endpoints/finance_apis";
-import axiosInstance from "@/apis/configs";
+import { AxiosAPI as axiosInstance } from "@/apis/configs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +25,7 @@ export default function StudentInvoicesPage() {
     const { data: catRes } = useFeeCategoriesQuery();
     const categories = catRes?.data || [];
 
-    const { data: classRes } = useClassQuery();
+    const { data: classRes } = useClassesQuery();
     const classes = classRes?.data || [];
 
     const [isBulkOpen, setIsBulkOpen] = useState(false);

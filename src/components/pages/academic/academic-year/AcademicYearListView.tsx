@@ -114,7 +114,7 @@ export function AcademicYearListView() {
         {
             accessorKey: "isActive", header: t("status"),
             cell: ({ row }) => {
-                const status = row.original.isActive ? "Active" : "Inactive";
+                const status = row.original.isActive === "Active" ? "Active" : "Inactive";
                 return (
                     <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"

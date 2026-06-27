@@ -18,10 +18,10 @@ import { useTranslationClient } from "@/lib/i18n/client";
 
 export interface AcademicYearData {
     id?: string;
-    year: string;
-    start_date: string;
-    end_date: string;
-    status: string;
+    title: string;
+    startDate: string;
+    endDate: string;
+    isActive: string;
 }
 
 interface AcademicYearFormProps {
@@ -53,13 +53,13 @@ export function AcademicYearForm({
         control,
         formState: { errors },
     } = useForm<AcademicYearData>({
-        defaultValues: initialData || { year: "", start_date: "", end_date: "", status: "Active" },
+        defaultValues: initialData || { title: "", startDate: "", endDate: "", isActive: "Active" },
     });
 
     // Reset form when opened with new data
     React.useEffect(() => {
         if (isOpen) {
-            reset(initialData || { year: "", start_date: "", end_date: "", status: "Active" });
+            reset(initialData || { title: "", startDate: "", endDate: "", isActive: "Active" });
         }
     }, [isOpen, initialData, reset]);
 
@@ -90,13 +90,13 @@ export function AcademicYearForm({
                 <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 px-6 py-4">
                     {/* Year Name Input */}
                     <FormInput
-                        id="year"
+                        id="title"
                         label={t("year_name")}
                         placeholder={t("year_name_placeholder")}
                         required
                         disabled={isLoading}
-                        error={errors.year?.message}
-                        {...register("year", {
+                        error={errors.title?.message}
+                        {...register("title", {
                             required: t("year_name_required"),
                             pattern: {
                                 value: /^\d{4}(-\d{4})?$/,
@@ -109,31 +109,31 @@ export function AcademicYearForm({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Start Date Input */}
                         <FormInput
-                            id="start_date"
+                            id="startDate"
                             type="date"
                             label={t("start_date")}
                             required
                             disabled={isLoading}
-                            error={errors.start_date?.message}
-                            {...register("start_date", {
+                            error={errors.startDate?.message}
+                            {...register("startDate", {
                                 required: t("start_date_required"),
                             })}
                         />
                         
                         {/* End Date Input */}
                         <FormInput
-                            id="end_date"
+                            id="endDate"
                             type="date"
                             label={t("end_date")}
                             required
                             disabled={isLoading}
-                            error={errors.end_date?.message}
-                            {...register("end_date", {
+                            error={errors.endDate?.message}
+                            {...register("endDate", {
                                 required: t("end_date_required"),
                                 validate: (val, formValues) => {
-                                    if (!formValues.start_date) return true;
+                                    if (!formValues.startDate) return true;
                                     return (
-                                        new Date(val) > new Date(formValues.start_date) ||
+                                        new Date(val) > new Date(formValues.startDate) ||
                                         t("end_date_after_start_date")
                                     );
                                 },
@@ -144,7 +144,7 @@ export function AcademicYearForm({
                     {/* Status Select Input */}
                     <Controller
                         control={control}
-                        name="status"
+                        name="isActive"
                         rules={{ required: t("status_required") }}
                         render={({ field }) => (
                             <SelectInput
@@ -158,7 +158,7 @@ export function AcademicYearForm({
                                 ]}
                                 value={field.value}
                                 onChange={field.onChange}
-                                error={errors.status?.message}
+                                error={errors.isActive?.message}
                             />
                         )}
                     />

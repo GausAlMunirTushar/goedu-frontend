@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useTeacherReportQuery } from "@/apis/queries/reports_queries";
 import { useQuery } from "@/hooks/useQuery";
-import { teacherDesignationsUrl, teacherDepartmentsUrl } from "@/apis/endpoints/staff_apis";
+import { designationsUrl as teacherDesignationsUrl, departmentsUrl as teacherDepartmentsUrl } from "@/apis/endpoints/teacher_apis";
 import type { TResponse } from "@/types/configs";
 
 // Helper hooks for fetching dropdown data

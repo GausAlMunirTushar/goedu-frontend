@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { useFeeCategoriesQuery } from "@/apis/queries/finance_queries";
 import { financeCategoriesUrl, financeCategoryDetailUrl } from "@/apis/endpoints/finance_apis";
-import axiosInstance from "@/apis/configs";
+import { AxiosAPI as axiosInstance } from "@/apis/configs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
