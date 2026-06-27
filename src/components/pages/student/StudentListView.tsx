@@ -17,6 +17,8 @@ import { deleteStudentProfile } from "@/apis/mutations/student_mutations";
 import { useModalStore } from "@/stores/modalStore";
 import { toast } from "sonner";
 
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
+
 export function StudentListView() {
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -142,6 +144,8 @@ export function StudentListView() {
   const activeStudents = students.filter((s: any) => s.status === "Active").length;
   const inactiveStudents = totalStudents - activeStudents;
 
+  if (isLoading) return <TableSkeleton />;
+
   return (
     <div className="p-2 space-y-4">
       {/* Metrics */}
@@ -188,7 +192,7 @@ export function StudentListView() {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div>
               <Title>Students</Title>
-              <p className="text-sm text-gray-500">A comprehensive list of students enrolled.</p>
+              <p className="text-xs text-muted-foreground mt-1">A comprehensive list of students enrolled.</p>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
               <Select value={classFilter} onValueChange={(val) => { setClassFilter(val); setPage(1); }}>

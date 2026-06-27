@@ -12,6 +12,8 @@ import { useStudentProfileQuery } from "@/apis/queries/student_queries";
 import { useClassesQuery, useSectionsQuery, useShiftsQuery, useSessionsQuery } from "@/apis/queries/academic_queries";
 import { createStudentProfile, updateStudentProfile } from "@/apis/mutations/student_mutations";
 import { toast } from "sonner";
+import Title from "@/components/ui/custom-ui/title";
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 
 export function StudentRegistrationPage() {
   const router = useRouter();
@@ -133,24 +135,26 @@ export function StudentRegistrationPage() {
   };
 
   if (isEditMode && isStudentLoading) {
-    return <div className="p-6">Loading student details...</div>;
+    return <TableSkeleton />;
   }
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="p-6 space-y-6 max-w-5xl mx-auto">
-      <div className="flex items-center gap-4">
-        <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={() => router.back()}>
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            {isEditMode ? "Edit Student Profile" : "Student Registration"}
-          </h1>
-          <p className="text-sm text-gray-500">
-            {isEditMode ? "Modify details of the student." : "Register a new student into the system."}
-          </p>
-        </div>
-      </div>
+    <form onSubmit={handleSubmit(submit)} className="p-2 space-y-6">
+      <Card>
+        <CardHeader className="bg-white pb-4">
+          <div className="flex items-center gap-4">
+            <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={() => router.back()}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <Title>{isEditMode ? "Edit Student Profile" : "Student Registration"}</Title>
+              <p className="text-xs text-muted-foreground mt-1">
+                {isEditMode ? "Modify details of the student." : "Register a new student into the system."}
+              </p>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
 
       {/* Personal Information */}
       <Card className="shadow-sm border-none ring-1 ring-gray-200">

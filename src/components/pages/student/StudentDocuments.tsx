@@ -82,13 +82,15 @@ export function StudentDocumentsPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Student Academic Documents</h1>
-        <p className="text-sm text-gray-500">
-          Upload and archive student birth certificates, credentials, and transcripts.
-        </p>
-      </div>
+    <div className="p-2 space-y-6">
+      <Card>
+        <CardHeader className="bg-white pb-4">
+          <div>
+            <Title>Student Academic Documents</Title>
+            <p className="text-xs text-muted-foreground mt-1">Upload and archive student birth certificates, credentials, and transcripts.</p>
+          </div>
+        </CardHeader>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Search Panel */}

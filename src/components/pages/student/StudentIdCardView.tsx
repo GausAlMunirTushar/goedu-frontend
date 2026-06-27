@@ -40,6 +40,7 @@ import { studentIdCardImageUrl } from "@/apis/endpoints/student_apis";
 import { downloadStudentIdCard } from "@/apis/mutations/student_mutations";
 import { useModalStore } from "@/stores/modalStore";
 import { toast } from "sonner";
+import { TableSkeleton } from "@/components/ui/custom-ui/table-skeleton";
 
 export function StudentIdCardView() {
   // Filters
@@ -243,15 +244,21 @@ export function StudentIdCardView() {
     }
   };
 
+  if (loadingStudents) return <TableSkeleton />;
+
   return (
     <div className="p-2 space-y-4">
       {/* Header */}
-      <div>
-        <Title>Student ID Cards</Title>
-        <p className="text-sm text-gray-500">
-          Manage, preview, and export student ID cards. Choose a class or section, search for students, and download or print in bulk.
-        </p>
-      </div>
+      <Card>
+        <CardHeader className="bg-white pb-4">
+          <div>
+            <Title>Student ID Cards</Title>
+            <p className="text-xs text-muted-foreground mt-1">
+              Manage, preview, and export student ID cards. Choose a class or section, search for students, and download or print in bulk.
+            </p>
+          </div>
+        </CardHeader>
+      </Card>
 
       {/* Filters Toolbar */}
       <Card className="border-primary/10 shadow-xs">

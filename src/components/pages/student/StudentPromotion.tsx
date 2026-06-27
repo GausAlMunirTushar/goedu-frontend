@@ -119,12 +119,16 @@ export function StudentPromotionPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-6xl mx-auto">
+    <div className="p-2 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Student Bulk Promotion</h1>
-        <p className="text-sm text-gray-500">Promote students in batch from one placement to another.</p>
-      </div>
+      <Card>
+        <CardHeader className="bg-white pb-4">
+          <div>
+            <Title>Student Bulk Promotion</Title>
+            <p className="text-xs text-muted-foreground mt-1">Promote students in batch from one placement to another.</p>
+          </div>
+        </CardHeader>
+      </Card>
 
       {/* Grid of Placement Choices */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -78,13 +78,15 @@ export function StudentTransferPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Student Transfer Management</h1>
-        <p className="text-sm text-gray-500">
-          Process outward transfers, releases, and migration clearances.
-        </p>
-      </div>
+    <div className="p-2 space-y-6">
+      <Card>
+        <CardHeader className="bg-white pb-4">
+          <div>
+            <Title>Student Transfer Management</Title>
+            <p className="text-xs text-muted-foreground mt-1">Process outward transfers, releases, and migration clearances.</p>
+          </div>
+        </CardHeader>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left Side: Search Student */}

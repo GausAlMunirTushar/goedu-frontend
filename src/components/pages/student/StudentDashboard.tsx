@@ -52,14 +52,16 @@ export function StudentDashboard() {
     ];
 
     return (
-        <div className="p-6 space-y-6 max-w-6xl mx-auto">
+        <div className="p-2 space-y-6">
             {/* Header */}
-            <div className="border-b border-gray-100 pb-4">
-                <Title>Student Dashboard</Title>
-                <p className="text-sm text-gray-500 mt-1">
-                    Manage student profiles, registrations, bulk promotions, and academic files.
-                </p>
-            </div>
+            <Card>
+                <CardHeader className="bg-white pb-4">
+                    <div>
+                        <Title>Student Dashboard</Title>
+                        <p className="text-xs text-muted-foreground mt-1">Manage student profiles, registrations, bulk promotions, and academic files.</p>
+                    </div>
+                </CardHeader>
+            </Card>
 
             {/* Quick Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
