@@ -13,8 +13,10 @@ import { useShiftsQuery } from "@/apis/queries/academic_queries";
 import { AxiosAPI } from "@/apis/configs";
 import { shiftsUrl, shiftDetailUrl } from "@/apis/endpoints/academic_apis";
 import { toast } from "sonner";
+import { useModalStore } from "@/stores/modalStore";
 
 export function ShiftListView() {
+    const openModal = useModalStore((state) => state.openModal);
     const [search, setSearch] = useState("");
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -49,19 +51,23 @@ export function ShiftListView() {
     const handleEdit = (item: ShiftData) => { setFormMode("edit"); setEditingData(item); setIsFormOpen(true); };
     
     const handleDelete = async (id: string) => { 
-        if (confirm("Are you sure you want to delete this shift?")) {
-            try {
-                const res = await AxiosAPI.delete(shiftDetailUrl(id));
-                if (res.data?.success) {
-                    toast.success(res.data.message || "Shift deleted successfully");
-                    mutate();
-                } else {
-                    toast.error(res.data?.message || "Failed to delete shift");
+        openModal("confirm-delete", {
+            title: "Delete Shift",
+            description: "Are you sure you want to delete this shift?",
+            onConfirm: async () => {
+                try {
+                    const res = await AxiosAPI.delete(shiftDetailUrl(id));
+                    if (res.data?.success) {
+                        toast.success(res.data.message || "Shift deleted successfully");
+                        mutate();
+                    } else {
+                        toast.error(res.data?.message || "Failed to delete shift");
+                    }
+                } catch (error: any) {
+                    toast.error(error.response?.data?.message || "An error occurred while deleting");
                 }
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || "An error occurred while deleting");
             }
-        }
+        });
     };
 
     const handleFormSubmit = async (formData: ShiftData) => {
@@ -122,6 +128,7 @@ export function ShiftListView() {
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
                             <Title>Shift</Title>
+                            <p className="text-xs text-muted-foreground mt-1">Configure school time shifts (e.g., Morning, Day, Evening).</p>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                             <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>

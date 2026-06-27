@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { useModalStore } from "@/stores/modalStore";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { 
     useClassesQuery, 
@@ -37,6 +38,7 @@ export interface AssignmentData {
 }
 
 export function SubjectAssignment() {
+    const openModal = useModalStore((state) => state.openModal);
     const [search, setSearch] = useState("");
     const [selectedClassFilter, setSelectedClassFilter] = useState("All Classes");
 
@@ -68,9 +70,7 @@ export function SubjectAssignment() {
     const [viewData, setViewData] = useState<AssignmentData | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
 
-    // Delete dialog
-    const [deleteData, setDeleteData] = useState<AssignmentData | null>(null);
-    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    // Delete dialog managed by global modal store
 
     // Pagination
     const [page, setPage] = useState(1);
@@ -128,28 +128,25 @@ export function SubjectAssignment() {
     };
 
     const openDeleteDialog = (item: AssignmentData) => {
-        setDeleteData(item);
-        setIsDeleteOpen(true);
-    };
-
-    const handleDeleteConfirm = async () => {
-        if (deleteData) {
-            try {
-                const res = await AxiosAPI.delete(
-                    subjectAssignmentDetailUrl(deleteData.classId, deleteData.sectionId, deleteData.shiftId)
-                );
-                if (res.data?.success) {
-                    toast.success(res.data.message || "Assignment mapping deleted successfully");
-                    mutate();
-                } else {
-                    toast.error(res.data?.message || "Failed to delete assignment");
+        openModal("confirm-delete", {
+            title: "Delete Subject Assignment",
+            description: "Are you sure you want to delete this class subject assignment?",
+            onConfirm: async () => {
+                try {
+                    const res = await AxiosAPI.delete(
+                        subjectAssignmentDetailUrl(item.classId, item.sectionId, item.shiftId)
+                    );
+                    if (res.data?.success) {
+                        toast.success(res.data.message || "Assignment mapping deleted successfully");
+                        mutate();
+                    } else {
+                        toast.error(res.data?.message || "Failed to delete assignment");
+                    }
+                } catch (error: any) {
+                    toast.error(error.response?.data?.message || "An error occurred while deleting");
                 }
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || "An error occurred while deleting");
             }
-        }
-        setIsDeleteOpen(false);
-        setDeleteData(null);
+        });
     };
 
     const handleSubjectToggle = (subjectId: string) => {
@@ -231,28 +228,27 @@ export function SubjectAssignment() {
                             <Title>Subject Assignment</Title>
                             <p className="text-xs text-muted-foreground mt-1">Assign multiple subjects to classes and sections.</p>
                         </div>
-                        <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
-                            <Plus className="w-4 h-4" /> Assign Subjects
-                        </Button>
+                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                            <div className="w-full sm:w-48">
+                                <Select onValueChange={setSelectedClassFilter} value={selectedClassFilter}>
+                                    <SelectTrigger className="h-9">
+                                        <SelectValue placeholder="Filter by class" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="All Classes">All Classes</SelectItem>
+                                        {classesList.map((c: any) => (
+                                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
+                                <Plus className="w-4 h-4" /> Assign Subjects
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent className="bg-white rounded-b-xl pt-3">
-                    {/* Toolbar Filters */}
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-48">
-                            <Select onValueChange={setSelectedClassFilter} value={selectedClassFilter}>
-                                <SelectTrigger className="h-9">
-                                    <SelectValue placeholder="Filter by class" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="All Classes">All Classes</SelectItem>
-                                    {classesList.map((c: any) => (
-                                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
 
                     <DataTable
                         columns={columns}
@@ -371,43 +367,31 @@ export function SubjectAssignment() {
 
             {/* View Dialog */}
             <AlertDialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>View Subject Assignment</AlertDialogTitle>
+                <AlertDialogContent className="bg-white rounded-xl shadow-lg border-none p-0 overflow-hidden sm:max-w-[450px]">
+                    <AlertDialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-100 rounded-t-xl">
+                        <AlertDialogTitle className="text-base font-bold text-slate-800">View Subject Assignment</AlertDialogTitle>
                     </AlertDialogHeader>
-                    {viewData && (
-                        <div className="space-y-3 text-sm">
-                            <p><strong>Class:</strong> {viewData.className}</p>
-                            <p><strong>Section:</strong> {viewData.sectionName}</p>
-                            <p><strong>Shift:</strong> {viewData.shiftName}</p>
-                            <div>
-                                <strong>Assigned Subjects:</strong>
-                                <div className="flex flex-wrap gap-1.5 mt-2">
-                                    {viewData.assignedSubjects.map((s, idx) => (
-                                        <span key={idx} className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 rounded-full">
-                                            {s}
-                                        </span>
-                                    ))}
+                    <AlertDialogDescription asChild>
+                        {viewData && (
+                            <div className="space-y-3 text-slate-600 px-6 py-4">
+                                <p><strong>Class:</strong> {viewData.className}</p>
+                                <p><strong>Section:</strong> {viewData.sectionName}</p>
+                                <p><strong>Shift:</strong> {viewData.shiftName}</p>
+                                <div>
+                                    <strong>Assigned Subjects:</strong>
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                        {viewData.assignedSubjects.map((s, idx) => (
+                                            <span key={idx} className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 rounded-full">
+                                                {s}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Close</AlertDialogCancel>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-
-            {/* Delete Confirmation */}
-            <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
-                        <AlertDialogDescription>Are you sure you want to delete this class subject assignment?</AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+                        )}
+                    </AlertDialogDescription>
+                    <AlertDialogFooter className="bg-slate-50 px-6 py-4 border-t border-slate-100 rounded-b-xl">
+                        <AlertDialogCancel className="text-slate-700 border-slate-200 mt-0">Close</AlertDialogCancel>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

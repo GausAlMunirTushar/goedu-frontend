@@ -153,6 +153,7 @@ export function DepartmentListView() {
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
                             <Title>{t("departments")}</Title>
+                            <p className="text-xs text-muted-foreground mt-1">Manage institution departments, faculties, and related organizational units.</p>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                             <Button

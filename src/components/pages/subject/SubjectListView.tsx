@@ -14,8 +14,10 @@ import { useSubjectsQuery } from "@/apis/queries/academic_queries";
 import { AxiosAPI } from "@/apis/configs";
 import { subjectsUrl, subjectDetailUrl } from "@/apis/endpoints/academic_apis";
 import { toast } from "sonner";
+import { useModalStore } from "@/stores/modalStore";
 
 export function SubjectListView() {
+    const openModal = useModalStore((state) => state.openModal);
     const [search, setSearch] = useState("");
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -62,9 +64,7 @@ export function SubjectListView() {
     const [viewData, setViewData] = useState<SubjectData | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
 
-    // Delete confirmation dialog state
-    const [deleteId, setDeleteId] = useState<string | null>(null);
-    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    // Delete dialog managed by global modal store
 
     const handleEdit = (item: SubjectData) => {
         setFormMode("edit");
@@ -78,26 +78,23 @@ export function SubjectListView() {
     };
 
     const openDeleteDialog = (id: string) => {
-        setDeleteId(id);
-        setIsDeleteOpen(true);
-    };
-
-    const handleDeleteConfirm = async () => {
-        if (deleteId) {
-            try {
-                const res = await AxiosAPI.delete(subjectDetailUrl(deleteId));
-                if (res.data?.success) {
-                    toast.success(res.data.message || "Subject deleted successfully");
-                    mutate();
-                } else {
-                    toast.error(res.data?.message || "Failed to delete subject");
+        openModal("confirm-delete", {
+            title: "Delete Subject",
+            description: "Are you sure you want to delete this subject?",
+            onConfirm: async () => {
+                try {
+                    const res = await AxiosAPI.delete(subjectDetailUrl(id));
+                    if (res.data?.success) {
+                        toast.success(res.data.message || "Subject deleted successfully");
+                        mutate();
+                    } else {
+                        toast.error(res.data?.message || "Failed to delete subject");
+                    }
+                } catch (error: any) {
+                    toast.error(error.response?.data?.message || "An error occurred while deleting subject");
                 }
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || "An error occurred while deleting subject");
             }
-            setIsDeleteOpen(false);
-            setDeleteId(null);
-        }
+        });
     };
 
     const handleFormSubmit = async (formData: SubjectData) => {
@@ -159,6 +156,7 @@ export function SubjectListView() {
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
                             <Title>Subjects</Title>
+                            <p className="text-xs text-muted-foreground mt-1">Manage course subjects, codes, types, and class associations.</p>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                             <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
@@ -190,13 +188,13 @@ export function SubjectListView() {
                     />
                 {/* View Dialog */}
                 <AlertDialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>View Subject</AlertDialogTitle>
+                    <AlertDialogContent className="bg-white rounded-xl shadow-lg border-none p-0 overflow-hidden sm:max-w-[450px]">
+                        <AlertDialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-100 rounded-t-xl">
+                            <AlertDialogTitle className="text-base font-bold text-slate-800">View Subject</AlertDialogTitle>
                         </AlertDialogHeader>
                         <AlertDialogDescription asChild>
                             {viewData && (
-                                <div className="space-y-2 text-gray-700">
+                                <div className="space-y-3 text-slate-600 px-6 py-4">
                                     <p><strong>Name:</strong> {viewData.name}</p>
                                     <p><strong>Code:</strong> {viewData.code}</p>
                                     <p><strong>Type:</strong> {viewData.type}</p>
@@ -205,21 +203,8 @@ export function SubjectListView() {
                                 </div>
                             )}
                         </AlertDialogDescription>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Close</AlertDialogCancel>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-                {/* Delete Confirmation Dialog */}
-                <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
-                        </AlertDialogHeader>
-                        <AlertDialogDescription>Are you sure you want to delete this subject?</AlertDialogDescription>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+                        <AlertDialogFooter className="bg-slate-50 px-6 py-4 border-t border-slate-100 rounded-b-xl">
+                            <AlertDialogCancel className="text-slate-700 border-slate-200 mt-0">Close</AlertDialogCancel>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>

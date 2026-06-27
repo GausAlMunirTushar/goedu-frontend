@@ -148,6 +148,7 @@ export function SessionListView() {
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
                             <Title>{t("Session")}</Title>
+                            <p className="text-xs text-muted-foreground mt-1">Configure and manage active academic sessions and terms.</p>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                             <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>

@@ -4,6 +4,12 @@
         "id": "academic",
         "menus": [
             {
+                "id": "academic-overview",
+                "label": "Academic Overview",
+                "path": "/academic",
+                "icon": "LayoutDashboard"
+            },
+            {
                 "id": "academic-year",
                 "label": "Academic Year",
                 "path": "/academic/academic-year",
@@ -48,24 +54,20 @@
             {
                 "id": "subject",
                 "label": "Subject",
-                "icon": "BookOpen",
-                "submenus": [
-                    {
-                        "id": "subject-creation",
-                        "label": "Subject Creation",
-                        "path": "/academic/subject"
-                    },
-                    {
-                        "id": "subject-assignment",
-                        "label": "Subject Assignment",
-                        "path": "/academic/subject/assignment"
-                    },
-                    {
-                        "id": "subject-teacher-mapping",
-                        "label": "Teacher Mapping",
-                        "path": "/academic/subject/teacher-mapping"
-                    }
-                ]
+                "path": "/academic/subject",
+                "icon": "BookOpen"
+            },
+            {
+                "id": "subject-assignment",
+                "label": "Subject Assignment",
+                "path": "/academic/subject/assignment",
+                "icon": "ClipboardList"
+            },
+            {
+                "id": "subject-teacher-mapping",
+                "label": "Teacher Mapping",
+                "path": "/academic/subject/teacher-mapping",
+                "icon": "UserCheck"
             },
             {
                 "id": "room",

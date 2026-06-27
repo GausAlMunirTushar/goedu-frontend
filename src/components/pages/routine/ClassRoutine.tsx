@@ -282,79 +282,76 @@ export function ClassRoutine() {
     };
 
     return (
-        <div className="p-6 space-y-6 max-w-6xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-100 pb-4">
-                <div>
-                    <Title>Class Routine Board</Title>
-                    <p className="text-sm text-gray-500 mt-1">Configure, build, and publish weekly timetables for student classes</p>
-                </div>
-                <div className="flex gap-2">
-                    <Button onClick={handleExportPdf} variant="outline" className="flex items-center gap-2">
-                        <Download className="w-4 h-4" /> Export PDF
-                    </Button>
-                    <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
-                        <Download className="w-4 h-4" /> Export Excel
-                    </Button>
-                    <Button onClick={() => {
-                        setCurrentPeriod({
-                            dayOfWeek: "SUNDAY",
-                            roomId: "",
-                            startTime: "09:00",
-                            endTime: "09:45",
-                            subjectId: subjectsList[0]?.id || "",
-                            teacherId: teachersList[0]?.id || "",
-                            academicYearId: activeYear?.id || "",
-                        });
-                        setDialogMode("add");
-                        setIsDialogOpen(true);
-                    }} className="flex items-center gap-1 shadow-md hover:shadow-lg transition-all duration-300">
-                        <Plus className="w-4 h-4" /> Add Period
-                    </Button>
-                </div>
-            </div>
-
-            {/* Selection bar */}
-            <Card className="shadow-sm border-gray-200/60 bg-gray-50/50">
-                <CardContent className="p-4 flex flex-wrap gap-4 items-center">
-                    <div className="flex items-center gap-2">
-                        <Label htmlFor="class-select" className="text-sm font-semibold text-gray-700">Class:</Label>
-                        <select
-                            id="class-select"
-                            className="bg-white border border-gray-200 rounded-md p-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                            value={selectedClassId}
-                            onChange={(e) => setSelectedClassId(e.target.value)}
-                            disabled={loadingClasses}
-                        >
-                            {loadingClasses && <option>Loading...</option>}
-                            {classesList.map((cls: any) => (
-                                <option key={cls.id} value={cls.id}>{cls.name}</option>
-                            ))}
-                        </select>
+        <div className="p-2 space-y-4">
+            <Card>
+                <CardHeader className="bg-white border-b border-gray-100 pb-3">
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                        <div>
+                            <Title>Class Routine Board</Title>
+                            <p className="text-xs text-muted-foreground mt-1">Configure, build, and publish weekly timetables for student classes</p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                            {/* Class filter */}
+                            <div className="flex items-center gap-2">
+                                <Label htmlFor="class-select" className="text-xs font-semibold text-slate-700">Class:</Label>
+                                <select
+                                    id="class-select"
+                                    className="bg-white border border-slate-200 rounded-md p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring h-9"
+                                    value={selectedClassId}
+                                    onChange={(e) => setSelectedClassId(e.target.value)}
+                                    disabled={loadingClasses}
+                                >
+                                    {loadingClasses && <option>Loading...</option>}
+                                    {classesList.map((cls: any) => (
+                                        <option key={cls.id} value={cls.id}>{cls.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            {/* Section filter */}
+                            <div className="flex items-center gap-2">
+                                <Label htmlFor="sec-select" className="text-xs font-semibold text-slate-700">Section:</Label>
+                                <select
+                                    id="sec-select"
+                                    className="bg-white border border-slate-200 rounded-md p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring h-9"
+                                    value={selectedSectionId}
+                                    onChange={(e) => setSelectedSectionId(e.target.value)}
+                                    disabled={loadingSections}
+                                >
+                                    {loadingSections && <option>Loading...</option>}
+                                    {sectionsList.length === 0 && !loadingSections && <option value="">No sections found</option>}
+                                    {sectionsList.map((sec: any) => (
+                                        <option key={sec.id} value={sec.id}>{sec.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex gap-2 w-full sm:w-auto">
+                                <Button onClick={handleExportPdf} variant="outline" className="flex items-center gap-1.5 text-xs h-9">
+                                    <Download className="w-3.5 h-3.5" /> PDF
+                                </Button>
+                                <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-1.5 text-xs h-9">
+                                    <Download className="w-3.5 h-3.5" /> Excel
+                                </Button>
+                                <Button onClick={() => {
+                                    setCurrentPeriod({
+                                        dayOfWeek: "SUNDAY",
+                                        roomId: "",
+                                        startTime: "09:00",
+                                        endTime: "09:45",
+                                        subjectId: subjectsList[0]?.id || "",
+                                        teacherId: teachersList[0]?.id || "",
+                                        academicYearId: activeYear?.id || "",
+                                    });
+                                    setDialogMode("add");
+                                    setIsDialogOpen(true);
+                                }} className="flex items-center gap-1 text-xs h-9 shadow-md">
+                                    <Plus className="w-3.5 h-3.5" /> Add Period
+                                </Button>
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Label htmlFor="sec-select" className="text-sm font-semibold text-gray-700">Section:</Label>
-                        <select
-                            id="sec-select"
-                            className="bg-white border border-gray-200 rounded-md p-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                            value={selectedSectionId}
-                            onChange={(e) => setSelectedSectionId(e.target.value)}
-                            disabled={loadingSections}
-                        >
-                            {loadingSections && <option>Loading...</option>}
-                            {sectionsList.length === 0 && !loadingSections && <option value="">No sections found</option>}
-                            {sectionsList.map((sec: any) => (
-                                <option key={sec.id} value={sec.id}>{sec.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Timetable Grid */}
-            <Card className="shadow-sm border-gray-200/60 overflow-hidden bg-white">
-                <CardContent className="p-0">
-                    <div className="overflow-x-auto">
+                </CardHeader>
+                <CardContent className="bg-white rounded-b-xl pt-3">
+                    <div className="overflow-x-auto border rounded-xl overflow-hidden">
                         <table className="w-full border-collapse text-center">
                             <thead>
                                 <tr className="bg-gray-50 text-gray-700 border-b border-gray-200">
@@ -523,6 +520,8 @@ export function ClassRoutine() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+                </CardContent>
+            </Card>
         </div>
     );
 }

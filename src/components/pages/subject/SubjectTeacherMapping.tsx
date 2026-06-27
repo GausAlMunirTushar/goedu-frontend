@@ -11,6 +11,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useModalStore } from "@/stores/modalStore";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
@@ -39,6 +40,7 @@ export interface TeacherMappingData {
 }
 
 export function SubjectTeacherMapping() {
+    const openModal = useModalStore((state) => state.openModal);
     const [search, setSearch] = useState("");
     const [selectedClassFilter, setSelectedClassFilter] = useState("All Classes");
 
@@ -73,9 +75,7 @@ export function SubjectTeacherMapping() {
     const [viewData, setViewData] = useState<TeacherMappingData | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
 
-    // Delete dialog
-    const [deleteId, setDeleteId] = useState<string | null>(null);
-    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    // Delete dialog managed by global modal store
 
     // Pagination
     const [page, setPage] = useState(1);
@@ -134,26 +134,23 @@ export function SubjectTeacherMapping() {
     };
 
     const openDeleteDialog = (id: string) => {
-        setDeleteId(id);
-        setIsDeleteOpen(true);
-    };
-
-    const handleDeleteConfirm = async () => {
-        if (deleteId) {
-            try {
-                const res = await AxiosAPI.delete(teacherMappingDetailUrl(deleteId));
-                if (res.data?.success) {
-                    toast.success(res.data.message || "Teacher mapping deleted successfully");
-                    mutate();
-                } else {
-                    toast.error(res.data?.message || "Failed to delete mapping");
+        openModal("confirm-delete", {
+            title: "Delete Teacher Mapping",
+            description: "Are you sure you want to delete this teacher subject mapping?",
+            onConfirm: async () => {
+                try {
+                    const res = await AxiosAPI.delete(teacherMappingDetailUrl(id));
+                    if (res.data?.success) {
+                        toast.success(res.data.message || "Teacher mapping deleted successfully");
+                        mutate();
+                    } else {
+                        toast.error(res.data?.message || "Failed to delete mapping");
+                    }
+                } catch (error: any) {
+                    toast.error(error.response?.data?.message || "An error occurred while deleting");
                 }
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || "An error occurred while deleting");
             }
-        }
-        setIsDeleteOpen(false);
-        setDeleteId(null);
+        });
     };
 
     const handleFormSubmit = async (e: React.FormEvent) => {
@@ -219,28 +216,27 @@ export function SubjectTeacherMapping() {
                             <Title>Subject Teacher Mapping</Title>
                             <p className="text-xs text-muted-foreground mt-1">Map specific subject teachers to classes and sections.</p>
                         </div>
-                        <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
-                            <Plus className="w-4 h-4" /> Map Teacher
-                        </Button>
+                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                            <div className="w-full sm:w-48">
+                                <Select onValueChange={setSelectedClassFilter} value={selectedClassFilter}>
+                                    <SelectTrigger className="h-9">
+                                        <SelectValue placeholder="Filter by class" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="All Classes">All Classes</SelectItem>
+                                        {classesList.map((c: any) => (
+                                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
+                                <Plus className="w-4 h-4" /> Map Teacher
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent className="bg-white rounded-b-xl pt-3">
-                    {/* Toolbar Filters */}
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-48">
-                            <Select onValueChange={setSelectedClassFilter} value={selectedClassFilter}>
-                                <SelectTrigger className="h-9">
-                                    <SelectValue placeholder="Filter by class" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="All Classes">All Classes</SelectItem>
-                                    {classesList.map((c: any) => (
-                                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
 
                     <DataTable
                         columns={columns}
@@ -364,35 +360,23 @@ export function SubjectTeacherMapping() {
 
             {/* View Dialog */}
             <AlertDialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>View Teacher Mapping</AlertDialogTitle>
+                <AlertDialogContent className="bg-white rounded-xl shadow-lg border-none p-0 overflow-hidden sm:max-w-[450px]">
+                    <AlertDialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-100 rounded-t-xl">
+                        <AlertDialogTitle className="text-base font-bold text-slate-800">View Teacher Mapping</AlertDialogTitle>
                     </AlertDialogHeader>
-                    {viewData && (
-                        <div className="space-y-2 text-sm">
-                            <p><strong>Teacher Name:</strong> {viewData.teacherName}</p>
-                            <p><strong>Class:</strong> {viewData.className}</p>
-                            <p><strong>Section:</strong> {viewData.sectionName}</p>
-                            <p><strong>Subject:</strong> {viewData.subjectName}</p>
-                            <p><strong>Shift:</strong> {viewData.shiftName}</p>
-                        </div>
-                    )}
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Close</AlertDialogCancel>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-
-            {/* Delete Confirmation */}
-            <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
-                        <AlertDialogDescription>Are you sure you want to delete this teacher subject mapping?</AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+                    <AlertDialogDescription asChild>
+                        {viewData && (
+                            <div className="space-y-3 text-slate-600 px-6 py-4">
+                                <p><strong>Teacher Name:</strong> {viewData.teacherName}</p>
+                                <p><strong>Class:</strong> {viewData.className}</p>
+                                <p><strong>Section:</strong> {viewData.sectionName}</p>
+                                <p><strong>Subject:</strong> {viewData.subjectName}</p>
+                                <p><strong>Shift:</strong> {viewData.shiftName}</p>
+                            </div>
+                        )}
+                    </AlertDialogDescription>
+                    <AlertDialogFooter className="bg-slate-50 px-6 py-4 border-t border-slate-100 rounded-b-xl">
+                        <AlertDialogCancel className="text-slate-700 border-slate-200 mt-0">Close</AlertDialogCancel>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

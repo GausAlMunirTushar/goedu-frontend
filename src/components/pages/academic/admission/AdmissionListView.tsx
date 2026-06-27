@@ -13,9 +13,11 @@ import { useAdmissionsQuery } from "@/apis/queries/academic_queries";
 import { AxiosAPI } from "@/apis/configs";
 import { admissionsUrl, admissionDetailUrl } from "@/apis/endpoints/academic_apis";
 import { toast } from "sonner";
+import { useModalStore } from "@/stores/modalStore";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
 export function AdmissionListView() {
+    const openModal = useModalStore((state) => state.openModal);
     const [search, setSearch] = useState("");
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -53,29 +55,28 @@ export function AdmissionListView() {
     const handleCreate = () => { setFormMode("create"); setEditingData(undefined); setIsFormOpen(true); };
     const [viewData, setViewData] = useState<AdmissionData | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
-    const [deleteId, setDeleteId] = useState<string | null>(null);
-    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    // Delete dialog managed by global modal store
     
     const handleEdit = (item: AdmissionData) => { setFormMode("edit"); setEditingData(item); setIsFormOpen(true); };
     const handleView = (item: AdmissionData) => { setViewData(item); setIsViewOpen(true); };
-    const openDeleteDialog = (id: string) => { setDeleteId(id); setIsDeleteOpen(true); };
-    
-    const handleDeleteConfirm = async () => {
-        if (deleteId) {
-            try {
-                const res = await AxiosAPI.delete(admissionDetailUrl(deleteId));
-                if (res.data?.success) {
-                    toast.success(res.data.message || "Admission application deleted successfully");
-                    mutate();
-                } else {
-                    toast.error(res.data?.message || "Failed to delete admission application");
+    const openDeleteDialog = (id: string) => {
+        openModal("confirm-delete", {
+            title: "Delete Admission Application",
+            description: "Are you sure you want to delete this application?",
+            onConfirm: async () => {
+                try {
+                    const res = await AxiosAPI.delete(admissionDetailUrl(id));
+                    if (res.data?.success) {
+                        toast.success(res.data.message || "Admission application deleted successfully");
+                        mutate();
+                    } else {
+                        toast.error(res.data?.message || "Failed to delete admission application");
+                    }
+                } catch (error: any) {
+                    toast.error(error.response?.data?.message || "An error occurred while deleting");
                 }
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || "An error occurred while deleting");
             }
-        }
-        setIsDeleteOpen(false);
-        setDeleteId(null);
+        });
     };
 
     const handleFormSubmit = async (formData: AdmissionData) => {
@@ -142,6 +143,7 @@ export function AdmissionListView() {
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
                             <Title>Admissions</Title>
+                            <p className="text-xs text-muted-foreground mt-1">Track, view, and process student admission applications.</p>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                             <Button className="w-full sm:w-auto flex items-center gap-2" onClick={handleCreate}>
@@ -173,36 +175,23 @@ export function AdmissionListView() {
                     />
                 {/* View Dialog */}
                 <AlertDialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>View Admission Application</AlertDialogTitle>
+                    <AlertDialogContent className="bg-white rounded-xl shadow-lg border-none p-0 overflow-hidden sm:max-w-[450px]">
+                        <AlertDialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-100 rounded-t-xl">
+                            <AlertDialogTitle className="text-base font-bold text-slate-800">View Admission Application</AlertDialogTitle>
                         </AlertDialogHeader>
-                        <div className="text-sm space-y-2 text-muted-foreground my-4">
+                        <AlertDialogDescription asChild>
                             {viewData && (
-                                <div className="space-y-2">
-                                    <p><strong className="text-foreground">Applicant Name:</strong> {viewData.applicant_name}</p>
-                                    <p><strong className="text-foreground">Class:</strong> {viewData.className}</p>
-                                    <p><strong className="text-foreground">Mobile:</strong> {viewData.mobile}</p>
-                                    <p><strong className="text-foreground">Application Date:</strong> {viewData.application_date}</p>
-                                    <p><strong className="text-foreground">Status:</strong> {viewData.status}</p>
+                                <div className="space-y-3 text-slate-600 px-6 py-4">
+                                    <p><strong>Applicant Name:</strong> {viewData.applicant_name}</p>
+                                    <p><strong>Class:</strong> {viewData.className}</p>
+                                    <p><strong>Mobile:</strong> {viewData.mobile}</p>
+                                    <p><strong>Application Date:</strong> {viewData.application_date}</p>
+                                    <p><strong>Status:</strong> {viewData.status}</p>
                                 </div>
                             )}
-                        </div>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Close</AlertDialogCancel>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-                {/* Delete Confirmation Dialog */}
-                <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
-                        </AlertDialogHeader>
-                        <AlertDialogDescription>Are you sure you want to delete this application?</AlertDialogDescription>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+                        </AlertDialogDescription>
+                        <AlertDialogFooter className="bg-slate-50 px-6 py-4 border-t border-slate-100 rounded-b-xl">
+                            <AlertDialogCancel className="text-slate-700 border-slate-200 mt-0">Close</AlertDialogCancel>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
