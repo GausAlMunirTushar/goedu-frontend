@@ -5,6 +5,7 @@ import { Search, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NavigationConfig } from "@/lib/navigation-utils";
+import { usePermissions } from "@/hooks/usePermissions";
 import { getIcon } from "@/lib/icon-mapper";
 import { useTranslationClient } from "@/lib/i18n/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -29,6 +30,7 @@ interface Submenu {
     label: string;
     icon?: string;
     required_permissions?: string[];
+    permissions?: string[];
 }
 
 interface Menu {
@@ -38,6 +40,7 @@ interface Menu {
     path?: string;
     submenus?: Submenu[];
     required_permissions?: string[];
+    permissions?: string[];
 }
 
 interface DynamicModuleSidebarProps {
@@ -51,6 +54,7 @@ export default function DynamicModuleSidebar({
     userPermissions = [],
     children,
 }: DynamicModuleSidebarProps) {
+    const { hasAllPermissions } = usePermissions();
     const pathname = usePathname();
     const { lng } = useLanguage();
     const { t } = useTranslationClient(lng);
@@ -103,9 +107,10 @@ export default function DynamicModuleSidebar({
     const renderSidebarItems = (menus: Menu[]) =>
         menus.map((menu) => {
             // Permission check
+            const menuPerms = menu.required_permissions || menu.permissions;
             if (
-                menu.required_permissions &&
-                !menu.required_permissions.every((perm: string) => userPermissions.includes(perm))
+                menuPerms &&
+                !hasAllPermissions(menuPerms)
             ) {
                 return null;
             }
@@ -141,11 +146,10 @@ export default function DynamicModuleSidebar({
                         <SidebarMenuSub>
                             {menu.submenus.map((submenu: Submenu) => {
                                 // Permission check for submenu
+                                const subPerms = submenu.required_permissions || submenu.permissions;
                                 if (
-                                    submenu.required_permissions &&
-                                    !submenu.required_permissions.every((perm: string) =>
-                                        userPermissions.includes(perm),
-                                    )
+                                    subPerms &&
+                                    !hasAllPermissions(subPerms)
                                 ) {
                                     return null;
                                 }

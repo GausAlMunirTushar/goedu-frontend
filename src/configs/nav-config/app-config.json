@@ -42,7 +42,9 @@
             "path": "/dashboard",
             "order": 2,
             "enabled": true,
-            "required_permissions": [],
+            "required_permissions": [
+                "academic.dashboard.view"
+            ],
             "config_file": "dashboard-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -62,17 +64,25 @@
             "path": "/academic",
             "order": 4,
             "enabled": true,
-            "required_permissions": [],
+            "required_permissions": [
+                "academic.dashboard.view"
+            ],
             "config_file": "academic-config.json",
             "has_sidebar": true,
             "contain_menus": [
+                "academic-dashboard",
                 "academic-year",
+                "department",
                 "session",
                 "class",
                 "section",
                 "group",
                 "shift",
-                "subject"
+                "subject",
+                "subject-assignment",
+                "subject-teacher-mapping",
+                "room",
+                "admission"
             ]
         },
         {
@@ -84,7 +94,12 @@
             "path": "/student/dashboard",
             "order": 5,
             "enabled": true,
-            "required_permissions": [],
+            "required_permissions": [
+                "student.view",
+                "student.create",
+                "student.update",
+                "student.delete"
+            ],
             "config_file": "student-config.json",
             "has_sidebar": true,
             "contain_menus": [
@@ -106,15 +121,22 @@
             "path": "/teacher",
             "order": 6,
             "enabled": true,
-            "required_permissions": [],
+            "required_permissions": [
+                "teacher.dashboard.view",
+                "teacher.view",
+                "teacher.department.view",
+                "teacher.designation.view",
+                "teacher.class.assign"
+            ],
             "config_file": "teacher-config.json",
             "has_sidebar": true,
             "contain_menus": [
-                "teacher-registration",
-                "teacher-profile",
-                "designation",
-                "subject-assignment",
-                "teacher-documents"
+                "teacher-dashboard",
+                "teacher-departments",
+                "teacher-designations",
+                "teacher-list",
+                "teacher-class-assignment",
+                "teacher-subject-assignment"
             ]
         },
         {
@@ -147,7 +169,9 @@
             "path": "/routine/dashboard",
             "order": 10,
             "enabled": true,
-            "required_permissions": [],
+            "required_permissions": [
+                "routine.view"
+            ],
             "config_file": "routine-config.json",
             "has_sidebar": true,
             "contain_menus": [

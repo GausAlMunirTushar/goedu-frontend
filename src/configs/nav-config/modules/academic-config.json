@@ -7,79 +7,118 @@
                 "id": "academic-dashboard",
                 "label": "Academic",
                 "path": "/academic",
-                "icon": "LayoutDashboard"
+                "icon": "LayoutDashboard",
+                "permissions": [
+                    "academic.dashboard.view"
+                ]
             },
             {
                 "id": "academic-year",
                 "label": "Academic Year",
                 "path": "/academic/academic-year",
-                "icon": "CalendarDays"
+                "icon": "CalendarDays",
+                "permissions": [
+                    "academic.academicYear.view"
+                ]
             },
             {
                 "id": "department",
                 "label": "Department",
                 "path": "/academic/department",
-                "icon": "Building2"
+                "icon": "Building2",
+                "permissions": [
+                    "academic.department.view"
+                ]
             },
             {
                 "id": "session",
                 "label": "Session",
                 "path": "/academic/session",
-                "icon": "Calendar"
+                "icon": "Calendar",
+                "permissions": [
+                    "academic.session.view"
+                ]
             },
             {
                 "id": "class",
                 "label": "Class",
                 "path": "/academic/class",
-                "icon": "BookOpen"
+                "icon": "BookOpen",
+                "permissions": [
+                    "academic.class.view"
+                ]
             },
             {
                 "id": "section",
                 "label": "Section",
                 "path": "/academic/section",
-                "icon": "ClipboardList"
+                "icon": "ClipboardList",
+                "permissions": [
+                    "academic.section.view"
+                ]
             },
             {
                 "id": "group",
                 "label": "Group",
                 "path": "/academic/group",
-                "icon": "Users2Icon"
+                "icon": "Users2Icon",
+                "permissions": [
+                    "academic.group.view"
+                ]
             },
             {
                 "id": "shift",
                 "label": "Shift",
                 "path": "/academic/shift",
-                "icon": "SwatchBook"
+                "icon": "SwatchBook",
+                "permissions": [
+                    "academic.shift.view"
+                ]
             },
             {
                 "id": "subject",
                 "label": "Subject",
                 "path": "/academic/subject",
-                "icon": "BookOpen"
+                "icon": "BookOpen",
+                "permissions": [
+                    "academic.subject.view"
+                ]
             },
             {
                 "id": "subject-assignment",
                 "label": "Subject Assignment",
                 "path": "/academic/subject/assignment",
-                "icon": "ClipboardList"
+                "icon": "ClipboardList",
+                "permissions": [
+                    "academic.subjectAssignment.view"
+                ]
             },
             {
                 "id": "subject-teacher-mapping",
                 "label": "Teacher Mapping",
                 "path": "/academic/subject/teacher-mapping",
-                "icon": "UserCheck"
+                "icon": "UserCheck",
+                "permissions": [
+                    "academic.teacherMapping.view"
+                ]
             },
             {
                 "id": "room",
                 "label": "Room",
                 "path": "/academic/room",
-                "icon": "Home"
+                "icon": "Home",
+                "permissions": [
+                    "academic.room.view"
+                ]
             },
             {
                 "id": "admission",
                 "label": "Admission",
                 "path": "/academic/admission",
-                "icon": "UserPlus"
+                "icon": "UserPlus",
+                "permissions": [
+                    "academic.admission.view"
+                ]
             }
         ]
     }

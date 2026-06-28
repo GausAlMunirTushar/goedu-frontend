@@ -11,7 +11,8 @@ export interface Submenu {
     label: string;
     path: string;
     icon?: string;
-    required_permissions: string[];
+    required_permissions?: string[];
+    permissions?: string[];
     tabs?: Tab[];
 }
 
@@ -21,6 +22,7 @@ export interface Menu {
     icon?: string;
     path?: string;
     required_permissions?: string[];
+    permissions?: string[];
     tabs?: Tab[];
     submenus?: Submenu[];
 }
@@ -62,9 +64,10 @@ export function convertConfigToMenuItems(
 
     config.module.menus.forEach((menu) => {
         // Check if user has permission for this menu
+        const menuPerms = menu.required_permissions || menu.permissions;
         if (
-            menu.required_permissions &&
-            !hasPermissions(menu.required_permissions, userPermissions)
+            menuPerms &&
+            !hasPermissions(menuPerms, userPermissions)
         ) {
             return;
         }
@@ -74,7 +77,8 @@ export function convertConfigToMenuItems(
             const children: MenuItem[] = [];
 
             menu.submenus.forEach((submenu) => {
-                if (hasPermissions(submenu.required_permissions, userPermissions)) {
+                const subPerms = submenu.required_permissions || submenu.permissions;
+                if (hasPermissions(subPerms || [], userPermissions)) {
                     children.push({
                         name: submenu.label,
                         path: submenu.path,
