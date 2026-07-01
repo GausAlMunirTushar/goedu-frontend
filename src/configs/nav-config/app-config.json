@@ -296,6 +296,27 @@
                 "student-invoices",
                 "payment-collection"
             ]
+        },
+        {
+            "id": "library",
+            "name": "Library",
+            "label": "Library",
+            "icon": "BookOpen",
+            "color": "bg-emerald-700",
+            "path": "/library",
+            "order": 18,
+            "enabled": true,
+            "required_permissions": [],
+            "config_file": "library-config.json",
+            "has_sidebar": true,
+            "contain_menus": [
+                "library-dashboard",
+                "library-categories",
+                "library-shelves",
+                "library-books",
+                "library-issues",
+                "library-settings"
+            ]
         }
     ],
     "global_permissions": {

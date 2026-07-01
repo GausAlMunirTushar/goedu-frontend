@@ -1,0 +1,50 @@
+{
+    "module": {
+        "label": "Library",
+        "id": "library",
+        "menus": [
+            {
+                "id": "library-dashboard",
+                "label": "Overview",
+                "path": "/library",
+                "icon": "BookOpen",
+                "required_permissions": ["library.dashboard.view"]
+            },
+            {
+                "id": "library-categories",
+                "label": "Categories",
+                "path": "/library/categories",
+                "icon": "ClipboardList",
+                "required_permissions": ["library.category.view"]
+            },
+            {
+                "id": "library-shelves",
+                "label": "Shelves",
+                "path": "/library/shelves",
+                "icon": "SwatchBook",
+                "required_permissions": ["library.shelf.view"]
+            },
+            {
+                "id": "library-books",
+                "label": "Books",
+                "path": "/library/books",
+                "icon": "BookOpen",
+                "required_permissions": ["library.book.view"]
+            },
+            {
+                "id": "library-issues",
+                "label": "Issues",
+                "path": "/library/issues",
+                "icon": "Repeat",
+                "required_permissions": ["library.issue.view"]
+            },
+            {
+                "id": "library-settings",
+                "label": "Settings",
+                "path": "/library/settings",
+                "icon": "Settings",
+                "required_permissions": ["library.setting.view"]
+            }
+        ]
+    }
+}
