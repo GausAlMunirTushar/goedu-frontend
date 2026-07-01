@@ -12,12 +12,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { examSessions, examClasses, examSections, resultData, examSubjects } from "@/data/exam";
+import { useExamTabulationSheetQuery, useExamsQuery } from "@/apis/queries/exam_queries";
+import { useClassesQuery, useSectionsQuery } from "@/apis/queries/academic_queries";
+import { toast } from "sonner";
 
 export function TabulationSheetPage() {
-  const [showTable, setShowTable] = useState(false);
+  const [selectedExamId, setSelectedExamId] = useState("");
+  const [selectedClassId, setSelectedClassId] = useState("");
+  const [selectedSectionId, setSelectedSectionId] = useState("");
+  const [activeFilters, setActiveFilters] = useState<{
+    examId: string;
+    classId: string;
+    sectionId: string;
+  } | null>(null);
 
-  const handleSearch = () => setShowTable(true);
+  const { data: examsRes } = useExamsQuery();
+  const { data: classesRes } = useClassesQuery();
+  const { data: sectionsRes } = useSectionsQuery(selectedClassId);
+  const { data: tabulationRes, isLoading } = useExamTabulationSheetQuery(activeFilters || undefined);
+
+  const exams = examsRes?.data || [];
+  const classes = classesRes?.data || [];
+  const sections = sectionsRes?.data || [];
+  const subjects = tabulationRes?.data?.subjects || [];
+  const rows = tabulationRes?.data?.tabulation || [];
+
+  const handleClassChange = (classId: string) => {
+    setSelectedClassId(classId);
+    setSelectedSectionId("");
+    setActiveFilters(null);
+  };
+
+  const handleSearch = () => {
+    if (!selectedExamId || !selectedClassId || !selectedSectionId) {
+      toast.error("Please select exam, class, and section");
+      return;
+    }
+    setActiveFilters({
+      examId: selectedExamId,
+      classId: selectedClassId,
+      sectionId: selectedSectionId,
+    });
+  };
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -26,7 +62,7 @@ export function TabulationSheetPage() {
           <Title>Tabulation Sheet</Title>
           <p className="text-sm text-muted-foreground mt-1">Full class-wise result breakdown for all subjects.</p>
         </div>
-        {showTable && (
+        {activeFilters && (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="gap-2">
               <Download className="w-4 h-4" /> Export CSV
@@ -42,29 +78,29 @@ export function TabulationSheetPage() {
         <CardContent className="p-5">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Session</label>
-              <Select defaultValue={examSessions[0].name}>
-                <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select Session" /></SelectTrigger>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Exam</label>
+              <Select value={selectedExamId} onValueChange={setSelectedExamId}>
+                <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select Exam" /></SelectTrigger>
                 <SelectContent>
-                  {examSessions.map((s) => (<SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>))}
+                  {exams.map((exam: any) => (<SelectItem key={exam.id} value={exam.id}>{exam.name}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Class</label>
-              <Select defaultValue={examClasses[0].name}>
+              <Select value={selectedClassId} onValueChange={handleClassChange}>
                 <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select Class" /></SelectTrigger>
                 <SelectContent>
-                  {examClasses.map((c) => (<SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>))}
+                  {classes.map((classItem: any) => (<SelectItem key={classItem.id} value={classItem.id}>{classItem.name}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Section</label>
-              <Select defaultValue={examSections[0].shortName}>
+              <Select value={selectedSectionId} onValueChange={setSelectedSectionId}>
                 <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select Section" /></SelectTrigger>
                 <SelectContent>
-                  {examSections.map((s) => (<SelectItem key={s.id} value={s.shortName}>{s.name}</SelectItem>))}
+                  {sections.map((section: any) => (<SelectItem key={section.id} value={section.id}>{section.name}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
@@ -75,69 +111,67 @@ export function TabulationSheetPage() {
         </CardContent>
       </Card>
 
-      {showTable && (
+      {activeFilters ? (
         <Card className="shadow-sm border-primary/10 overflow-hidden">
           <CardHeader className="bg-gray-50/50 border-b">
-            <CardTitle className="text-base font-bold text-center">Tabulation Sheet — Mid-Term Examination 2026</CardTitle>
-            <CardDescription className="text-xs text-center">Class: 10 | Section: A | Session: 2025-2026</CardDescription>
+            <CardTitle className="text-base font-bold text-center">Tabulation Sheet</CardTitle>
+            <CardDescription className="text-xs text-center">Processed subject marks for the selected exam, class and section.</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-[11px] border-collapse">
-                <thead>
-                  <tr className="bg-gray-100/80 border-b">
-                    <th className="py-3 px-2 border-r text-left font-bold min-w-[120px]">Student Name</th>
-                    <th className="py-3 px-1 border-r text-center font-bold">Roll</th>
-                    {examSubjects.slice(0, 6).map((sub) => (
-                      <th key={sub.id} className="py-3 px-1 border-r text-center font-bold" colSpan={2}>{sub.name}</th>
-                    ))}
-                    <th className="py-3 px-1 border-r text-center font-bold">Total</th>
-                    <th className="py-3 px-1 border-r text-center font-bold">GPA</th>
-                    <th className="py-3 px-1 text-center font-bold">Grade</th>
-                  </tr>
-                  <tr className="bg-gray-50 border-b text-[9px] uppercase tracking-tighter">
-                    <th className="border-r"></th>
-                    <th className="border-r"></th>
-                    {examSubjects.slice(0, 6).map((sub) => (
-                      <React.Fragment key={`${sub.id}-header`}>
-                        <th className="py-1 px-1 border-r text-center">Marks</th>
-                        <th className="py-1 px-1 border-r text-center">GP</th>
-                      </React.Fragment>
-                    ))}
-                    <th className="border-r"></th>
-                    <th className="border-r"></th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {resultData.map((res) => (
-                    <tr key={res.id} className="border-b hover:bg-primary/5 transition-colors">
-                      <td className="py-2 px-2 border-r font-medium truncate">{res.studentName}</td>
-                      <td className="py-2 px-1 border-r text-center">{res.roll}</td>
-                      {examSubjects.slice(0, 6).map((sub, i) => (
-                        <React.Fragment key={`${res.id}-${sub.id}`}>
-                          <td className="py-2 px-1 border-r text-center">{Math.floor(Math.random() * 40) + 60}</td>
-                          <td className="py-2 px-1 border-r text-center font-semibold text-primary">{(Math.random() * 2 + 3).toFixed(2)}</td>
-                        </React.Fragment>
+            {isLoading ? (
+              <div className="py-16 text-center text-sm text-muted-foreground">Loading tabulation sheet...</div>
+            ) : rows.length === 0 ? (
+              <div className="py-16 text-center text-sm text-muted-foreground">No tabulation records found for this selection.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-[11px] border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100/80 border-b">
+                      <th className="py-3 px-2 border-r text-left font-bold min-w-[120px]">Student Name</th>
+                      <th className="py-3 px-1 border-r text-center font-bold">Roll</th>
+                      {subjects.map((subject: any) => (
+                        <th key={subject.id} className="py-3 px-1 border-r text-center font-bold">{subject.name}</th>
                       ))}
-                      <td className="py-2 px-1 border-r text-center font-bold">{res.obtainedMarks}</td>
-                      <td className="py-2 px-1 border-r text-center font-black text-primary">{res.gpa.toFixed(2)}</td>
-                      <td className="py-2 px-1 text-center font-bold">{res.grade}</td>
+                      <th className="py-3 px-1 border-r text-center font-bold">Total</th>
+                      <th className="py-3 px-1 border-r text-center font-bold">GPA</th>
+                      <th className="py-3 px-1 text-center font-bold">Grade</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {rows.map((row: any) => {
+                      const studentName = `${row.student?.firstName || ""} ${row.student?.lastName || ""}`.trim();
+                      return (
+                        <tr key={row.student?.id} className="border-b hover:bg-primary/5 transition-colors">
+                          <td className="py-2 px-2 border-r font-medium truncate">{studentName || "Student"}</td>
+                          <td className="py-2 px-1 border-r text-center">{row.student?.roll || "-"}</td>
+                          {subjects.map((subject: any) => {
+                            const mark = row.subjectMarks?.[subject.id];
+                            return (
+                              <td key={`${row.student?.id}-${subject.id}`} className="py-2 px-1 border-r text-center">
+                                {mark?.total ?? "-"}
+                              </td>
+                            );
+                          })}
+                          <td className="py-2 px-1 border-r text-center font-bold">{row.result?.obtainedMarks ?? "-"}</td>
+                          <td className="py-2 px-1 border-r text-center font-black text-primary">
+                            {row.result?.gpa !== undefined ? Number(row.result.gpa).toFixed(2) : "-"}
+                          </td>
+                          <td className="py-2 px-1 text-center font-bold">{row.result?.grade || "-"}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </CardContent>
         </Card>
-      )}
-
-      {!showTable && (
+      ) : (
         <div className="flex flex-col items-center justify-center py-24 bg-muted/20 rounded-3xl border-2 border-dashed">
           <TableIcon className="w-16 h-16 text-muted-foreground/30 mb-4" />
           <h3 className="text-lg font-semibold text-muted-foreground">Select Parameters</h3>
           <p className="text-sm text-muted-foreground/60 max-w-xs text-center mt-2">
-            Choose session, class and section to load the tabulation sheet.
+            Choose exam, class and section to load the tabulation sheet.
           </p>
         </div>
       )}

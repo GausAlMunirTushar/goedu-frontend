@@ -11,6 +11,7 @@ import {
   examSeatPlansUrl,
   examTabulationSheetUrl,
   examMarksheetUrl,
+  examDashboardUrl,
 } from "@/apis/endpoints/exam_apis";
 import type { TResponse } from "@/types/configs";
 
@@ -144,3 +145,6 @@ export const useExamMarksheetQuery = (filters?: {
   const shouldFetch = filters?.examId && filters?.studentId;
   return useQuery<TResponse<any>>(shouldFetch ? `${examMarksheetUrl}${queryParams}` : null);
 };
+
+export const useExamDashboardQuery = () =>
+  useQuery<TResponse<any>>(examDashboardUrl);

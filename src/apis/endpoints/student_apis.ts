@@ -8,3 +8,10 @@ export const studentPromoteUrl = "/student/promote";
 // Student ID Card API Endpoints
 export const studentIdCardPdfUrl = (id: string) => `/student/profiles/${id}/id-card/pdf`;
 export const studentIdCardImageUrl = (id: string) => `/student/profiles/${id}/id-card/image`;
+
+// Student Documents API Endpoints
+export const studentDocumentsUrl = "/student/documents";
+export const studentDocumentDetailUrl = (id: string) => `/student/documents/${id}`;
+
+// Student Transfer API Endpoints
+export const studentTransfersUrl = "/student/transfers";

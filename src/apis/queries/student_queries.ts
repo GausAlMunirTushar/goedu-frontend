@@ -1,7 +1,9 @@
 import { useQuery } from "@/hooks/useQuery";
 import {
+  studentDocumentsUrl,
   studentsProfilesUrl,
   studentProfileDetailUrl,
+  studentTransfersUrl,
 } from "@/apis/endpoints/student_apis";
 import type { TResponse } from "@/types/configs";
 
@@ -29,3 +31,9 @@ export const useStudentProfilesQuery = (filters?: {
 
 export const useStudentProfileQuery = (id: string) =>
   useQuery<TResponse<any>>(id ? studentProfileDetailUrl(id) : null);
+
+export const useStudentDocumentsQuery = (studentId?: string) =>
+  useQuery<TResponse<any[]>>(studentId ? `${studentDocumentsUrl}?studentId=${studentId}` : null);
+
+export const useStudentTransfersQuery = (studentId?: string) =>
+  useQuery<TResponse<any[]>>(studentId ? `${studentTransfersUrl}?studentId=${studentId}` : null);

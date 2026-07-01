@@ -8,16 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { FileText, Search, Upload, Trash2, Eye } from "lucide-react";
-import { useStudentProfilesQuery } from "@/apis/queries/student_queries";
-import { Badge } from "@/components/ui/badge";
-
-interface DocItem {
-  id: string;
-  type: string;
-  fileName: string;
-  uploadedAt: string;
-  fileSize: string;
-}
+import { useStudentDocumentsQuery, useStudentProfilesQuery } from "@/apis/queries/student_queries";
+import { createStudentDocument, deleteStudentDocument } from "@/apis/mutations/student_mutations";
 
 export function StudentDocumentsPage() {
   const [searchId, setSearchId] = useState("");
@@ -41,11 +33,8 @@ export function StudentDocumentsPage() {
     );
   }, [students, activeSearch]);
 
-  // Document list local state
-  const [documents, setDocuments] = useState<DocItem[]>([
-    { id: "1", type: "Birth Certificate", fileName: "birth_cert_stu10001.pdf", uploadedAt: "2026-05-10", fileSize: "1.2 MB" },
-    { id: "2", type: "Previous Report Card", fileName: "transcript_grade9.pdf", uploadedAt: "2026-05-12", fileSize: "2.4 MB" },
-  ]);
+  const { data: documentsRes, mutate: mutateDocuments } = useStudentDocumentsQuery(matchedStudent?.id);
+  const documents = documentsRes?.data || [];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,29 +45,40 @@ export function StudentDocumentsPage() {
     setActiveSearch(searchId);
   };
 
-  const handleUpload = (e: React.FormEvent) => {
+  const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!matchedStudent) {
+      toast.error("Please verify a student first");
+      return;
+    }
     if (!fileNameInput) {
       toast.error("Please provide a file name or select a file");
       return;
     }
 
-    const newDoc: DocItem = {
-      id: Date.now().toString(),
-      type: docType,
-      fileName: fileNameInput.endsWith(".pdf") ? fileNameInput : `${fileNameInput}.pdf`,
-      uploadedAt: new Date().toISOString().split("T")[0],
-      fileSize: "1.8 MB",
-    };
-
-    setDocuments([newDoc, ...documents]);
-    setFileNameInput("");
-    toast.success("Document uploaded successfully!");
+    try {
+      await createStudentDocument({
+        studentId: matchedStudent.id,
+        type: docType,
+        fileName: fileNameInput.endsWith(".pdf") ? fileNameInput : `${fileNameInput}.pdf`,
+        fileSize: "1.8 MB",
+      });
+      mutateDocuments();
+      setFileNameInput("");
+      toast.success("Document saved successfully!");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to save document");
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setDocuments(documents.filter((d) => d.id !== id));
-    toast.success("Document removed from profile database");
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteStudentDocument(id);
+      mutateDocuments();
+      toast.success("Document removed from profile database");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to delete document");
+    }
   };
 
   return (
@@ -189,7 +189,7 @@ export function StudentDocumentsPage() {
                         <div>
                           <p className="text-sm font-bold text-gray-800">{doc.fileName}</p>
                           <p className="text-xs text-gray-400">
-                            {doc.type} • Uploaded: {doc.uploadedAt} • Size: {doc.fileSize}
+                            {doc.type} - Uploaded: {new Date(doc.createdAt).toLocaleDateString()} - Size: {doc.fileSize || "N/A"}
                           </p>
                         </div>
                       </div>

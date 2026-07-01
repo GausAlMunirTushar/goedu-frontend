@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ArrowRightLeft, FileText, Search, UserCheck } from "lucide-react";
+import { ArrowRightLeft, Search, UserCheck } from "lucide-react";
 import { useStudentProfilesQuery } from "@/apis/queries/student_queries";
-import { updateStudentProfile } from "@/apis/mutations/student_mutations";
+import { processStudentTransfer } from "@/apis/mutations/student_mutations";
 
 export function StudentTransferPage() {
   const [searchId, setSearchId] = useState("");
@@ -55,9 +55,11 @@ export function StudentTransferPage() {
     }
 
     try {
-      // Update student status to Transferred
-      const res = await updateStudentProfile(matchedStudent.id, {
-        status: "Transferred",
+      const res = await processStudentTransfer({
+        studentId: matchedStudent.id,
+        destinationInstitution: destinationSchool,
+        reason,
+        transferDate,
       });
 
       if (res.success) {

@@ -1,9 +1,12 @@
 import { AxiosAPI } from "@/apis/configs";
 import {
+  studentDocumentDetailUrl,
+  studentDocumentsUrl,
   studentsProfilesUrl,
   studentProfileDetailUrl,
   studentPromoteUrl,
   studentIdCardPdfUrl,
+  studentTransfersUrl,
 } from "@/apis/endpoints/student_apis";
 
 export const createStudentProfile = async (payload: any) => {
@@ -38,4 +41,32 @@ export const downloadStudentIdCard = async (id: string, name: string) => {
   link.click();
   link.remove();
   window.URL.revokeObjectURL(url);
+};
+
+export const createStudentDocument = async (payload: {
+  studentId: string;
+  type: string;
+  fileName: string;
+  fileUrl?: string;
+  fileSize?: string;
+  mimeType?: string;
+  note?: string;
+}) => {
+  const res = await AxiosAPI.post(studentDocumentsUrl, payload);
+  return res.data;
+};
+
+export const deleteStudentDocument = async (id: string) => {
+  const res = await AxiosAPI.delete(studentDocumentDetailUrl(id));
+  return res.data;
+};
+
+export const processStudentTransfer = async (payload: {
+  studentId: string;
+  destinationInstitution: string;
+  reason: string;
+  transferDate: string;
+}) => {
+  const res = await AxiosAPI.post(studentTransfersUrl, payload);
+  return res.data;
 };
