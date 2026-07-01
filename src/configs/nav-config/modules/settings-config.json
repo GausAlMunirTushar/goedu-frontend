@@ -10,8 +10,55 @@
                 "label": "role_permissions",
                 "icon": "ShieldCheck",
                 "path": "/settings/role-permission",
-                "required_permissions": [
-                    ""
+                "required_permissions": ["view_rbac"]
+            },
+            {
+                "id": "sms",
+                "label": "SMS",
+                "icon": "Phone",
+                "submenus": [
+                    {
+                        "id": "sms-dashboard",
+                        "label": "SMS Dashboard",
+                        "icon": "LayoutDashboard",
+                        "path": "/settings/sms/dashboard",
+                        "required_permissions": ["sms.view"]
+                    },
+                    {
+                        "id": "sms-send",
+                        "label": "Send SMS",
+                        "icon": "Phone",
+                        "path": "/settings/sms/send",
+                        "required_permissions": ["sms.send"]
+                    },
+                    {
+                        "id": "sms-history",
+                        "label": "SMS History",
+                        "icon": "Receipt",
+                        "path": "/settings/sms/history",
+                        "required_permissions": ["sms.view"]
+                    },
+                    {
+                        "id": "sms-purchases",
+                        "label": "SMS Purchases",
+                        "icon": "CreditCard",
+                        "path": "/settings/sms/purchases",
+                        "required_permissions": ["sms.view"]
+                    },
+                    {
+                        "id": "sms-templates",
+                        "label": "SMS Templates",
+                        "icon": "FileText",
+                        "path": "/settings/sms/templates",
+                        "required_permissions": ["sms.manage"]
+                    },
+                    {
+                        "id": "saas-sms-admin",
+                        "label": "SaaS SMS Admin",
+                        "icon": "ShieldCheck",
+                        "path": "/settings/sms/saas-admin",
+                        "required_permissions": ["saas.sms.manage"]
+                    }
                 ]
             },
             {
@@ -19,18 +66,14 @@
                 "label": "Global Settings",
                 "icon": "LayoutDashboard",
                 "path": "/settings",
-                "permissions": [
-                    "dashboard.view"
-                ]
+                "permissions": ["dashboard.view"]
             },
             {
                 "id": "settings-dashboard",
                 "label": "Settings Dashboard",
                 "icon": "LayoutDashboard",
                 "path": "/settings/dashboard",
-                "permissions": [
-                    "dashboard.view"
-                ]
+                "permissions": ["dashboard.view"]
             }
         ]
     }
