@@ -16,6 +16,12 @@
                 "icon": "Tags"
             },
             {
+                "id": "fee-structures",
+                "label": "Fee Structures",
+                "path": "/finance/structures",
+                "icon": "ListChecks"
+            },
+            {
                 "id": "student-invoices",
                 "label": "Student Invoices",
                 "path": "/finance/invoices",

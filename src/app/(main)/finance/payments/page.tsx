@@ -39,9 +39,7 @@ export default function PaymentCollectionPage() {
         const found = allInvoices.find((i: any) => i.invoiceNumber.toLowerCase() === searchInvoice.toLowerCase());
         if (found) {
             setSelectedInvoice(found);
-            // Calculate remaining amount
-            const paid = found.payments?.reduce((s: number, p: any) => s + p.amount, 0) || 0;
-            setPaymentData({ ...paymentData, amount: (found.amount - paid).toString() });
+            setPaymentData({ ...paymentData, amount: String(found.balance ?? found.netAmount ?? found.amount) });
         } else {
             toast.error("Invoice not found");
         }
@@ -134,6 +132,10 @@ export default function PaymentCollectionPage() {
                                     </div>
                                     <div className="text-sm text-muted-foreground">
                                         {selectedInvoice.student?.firstName} {selectedInvoice.student?.lastName}
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground pt-2">
+                                      <span>Net: {Number(selectedInvoice.netAmount || selectedInvoice.amount || 0).toLocaleString()} BDT</span>
+                                      <span>Balance: {Number(selectedInvoice.balance || 0).toLocaleString()} BDT</span>
                                     </div>
                                 </div>
 

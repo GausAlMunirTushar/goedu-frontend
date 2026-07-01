@@ -3,7 +3,7 @@
 import React from "react";
 import { useFinanceAnalyticsQuery } from "@/apis/queries/finance_queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Banknote, TrendingDown, TrendingUp, AlertCircle } from "lucide-react";
+import { Banknote, TrendingDown, TrendingUp, AlertCircle, BadgePercent, ClockAlert } from "lucide-react";
 
 export default function FinanceDashboardPage() {
     const { data: res, isLoading } = useFinanceAnalyticsQuery();
@@ -18,7 +18,7 @@ export default function FinanceDashboardPage() {
                 <p className="text-muted-foreground text-sm">Monitor revenue collection and outstanding student fees.</p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                         <CardTitle className="text-sm font-medium">Total Revenue Collected</CardTitle>
@@ -60,6 +60,28 @@ export default function FinanceDashboardPage() {
                     <CardContent>
                         <div className="text-2xl font-bold">{stats.totalExpected.toLocaleString()} BDT</div>
                         <p className="text-xs text-muted-foreground mt-1">Overall generated invoices</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-sm font-medium">Discounts / Waivers</CardTitle>
+                        <BadgePercent className="w-4 h-4 text-purple-600" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{Number(stats.totalDiscount || 0).toLocaleString()} BDT</div>
+                        <p className="text-xs text-muted-foreground mt-1">Approved reductions</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-sm font-medium">Overdue Balance</CardTitle>
+                        <ClockAlert className="w-4 h-4 text-amber-600" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-amber-600">{Number(stats.overdue || 0).toLocaleString()} BDT</div>
+                        <p className="text-xs text-muted-foreground mt-1">{stats.overdueInvoiceCount || 0} overdue invoices</p>
                     </CardContent>
                 </Card>
             </div>
