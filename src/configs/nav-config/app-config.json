@@ -363,6 +363,29 @@
                 "hr-leaves",
                 "hr-leave-types"
             ]
+        },
+        {
+            "id": "transport",
+            "name": "Transport",
+            "label": "Transport",
+            "icon": "MapPin",
+            "color": "bg-cyan-700",
+            "path": "/transport",
+            "order": 21,
+            "enabled": true,
+            "required_permissions": [
+                "transport.view",
+                "transport.manage"
+            ],
+            "config_file": "transport-config.json",
+            "has_sidebar": true,
+            "contain_menus": [
+                "transport-dashboard",
+                "transport-vehicles",
+                "transport-drivers",
+                "transport-routes",
+                "transport-assignments"
+            ]
         }
     ],
     "global_permissions": {

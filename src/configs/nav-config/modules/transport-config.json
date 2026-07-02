@@ -1,0 +1,43 @@
+{
+    "module": {
+        "label": "Transport",
+        "id": "transport",
+        "menus": [
+            {
+                "id": "transport-dashboard",
+                "label": "Overview",
+                "path": "/transport",
+                "icon": "LayoutDashboard",
+                "required_permissions": ["transport.view"]
+            },
+            {
+                "id": "transport-vehicles",
+                "label": "Vehicles",
+                "path": "/transport/vehicles",
+                "icon": "CreditCard",
+                "required_permissions": ["transport.manage"]
+            },
+            {
+                "id": "transport-drivers",
+                "label": "Drivers",
+                "path": "/transport/drivers",
+                "icon": "Users",
+                "required_permissions": ["transport.manage"]
+            },
+            {
+                "id": "transport-routes",
+                "label": "Routes",
+                "path": "/transport/routes",
+                "icon": "MapPin",
+                "required_permissions": ["transport.view"]
+            },
+            {
+                "id": "transport-assignments",
+                "label": "Assignments",
+                "path": "/transport/assignments",
+                "icon": "ClipboardList",
+                "required_permissions": ["transport.manage"]
+            }
+        ]
+    }
+}
