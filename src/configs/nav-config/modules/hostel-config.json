@@ -1,0 +1,50 @@
+{
+    "module": {
+        "label": "Hostel",
+        "id": "hostel",
+        "menus": [
+            {
+                "id": "hostel-dashboard",
+                "label": "Overview",
+                "path": "/hostel",
+                "icon": "LayoutDashboard",
+                "required_permissions": ["hostel.view"]
+            },
+            {
+                "id": "hostel-list",
+                "label": "Hostels",
+                "path": "/hostel/hostels",
+                "icon": "Building2",
+                "required_permissions": ["hostel.manage"]
+            },
+            {
+                "id": "hostel-rooms",
+                "label": "Rooms",
+                "path": "/hostel/rooms",
+                "icon": "ClipboardList",
+                "required_permissions": ["hostel.manage"]
+            },
+            {
+                "id": "hostel-beds",
+                "label": "Beds",
+                "path": "/hostel/beds",
+                "icon": "CreditCard",
+                "required_permissions": ["hostel.manage"]
+            },
+            {
+                "id": "hostel-allocations",
+                "label": "Allocations",
+                "path": "/hostel/allocations",
+                "icon": "Users",
+                "required_permissions": ["hostel.manage"]
+            },
+            {
+                "id": "hostel-leaves",
+                "label": "Leave Register",
+                "path": "/hostel/leaves",
+                "icon": "Calendar",
+                "required_permissions": ["hostel.manage"]
+            }
+        ]
+    }
+}

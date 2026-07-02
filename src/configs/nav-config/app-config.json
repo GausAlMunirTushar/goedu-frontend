@@ -386,6 +386,30 @@
                 "transport-routes",
                 "transport-assignments"
             ]
+        },
+        {
+            "id": "hostel",
+            "name": "Hostel",
+            "label": "Hostel",
+            "icon": "Building2",
+            "color": "bg-fuchsia-700",
+            "path": "/hostel",
+            "order": 22,
+            "enabled": true,
+            "required_permissions": [
+                "hostel.view",
+                "hostel.manage"
+            ],
+            "config_file": "hostel-config.json",
+            "has_sidebar": true,
+            "contain_menus": [
+                "hostel-dashboard",
+                "hostel-list",
+                "hostel-rooms",
+                "hostel-beds",
+                "hostel-allocations",
+                "hostel-leaves"
+            ]
         }
     ],
     "global_permissions": {
