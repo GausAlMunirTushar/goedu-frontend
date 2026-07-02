@@ -1,4 +1,4 @@
-import OnlineAdmission from "@/components/pages/academic/admission/OnlineAdmission";
+import { PublicAdmissionApplicationForm } from "@/components/pages/academic/admission/PublicAdmissionApplicationForm";
 
 export const metadata = {
   title: "Online Admission Form | ePathshala",
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <OnlineAdmission />;
+  return <PublicAdmissionApplicationForm />;
 }

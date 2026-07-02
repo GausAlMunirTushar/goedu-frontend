@@ -82,7 +82,8 @@
                 "subject-assignment",
                 "subject-teacher-mapping",
                 "room",
-                "admission"
+                "admission",
+                "admission-applications"
             ]
         },
         {

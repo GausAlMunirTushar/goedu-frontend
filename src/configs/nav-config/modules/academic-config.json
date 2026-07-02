@@ -119,6 +119,15 @@
                 "permissions": [
                     "academic.admission.view"
                 ]
+            },
+            {
+                "id": "admission-applications",
+                "label": "Applicants",
+                "path": "/academic/admission-applications",
+                "icon": "FileUser",
+                "permissions": [
+                    "academic.admission.view"
+                ]
             }
         ]
     }

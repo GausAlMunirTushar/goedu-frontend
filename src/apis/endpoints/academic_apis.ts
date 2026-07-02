@@ -39,6 +39,13 @@ export const roomDetailUrl = (id: string) => `/academic/rooms/${id}`;
 // Admissions API Endpoints
 export const admissionsUrl = "/academic/admissions";
 export const admissionDetailUrl = (id: string) => `/academic/admissions/${id}`;
+export const admissionApplicationsUrl = "/academic/admissions/applications";
+export const publicAdmissionClassesUrl = "/academic/admissions/public/classes";
+export const publicAdmissionApplicationsUrl = "/academic/admissions/public/applications";
+export const admissionApplicationDetailUrl = (id: string) => `/academic/admissions/applications/${id}`;
+export const admissionApplicationDecisionUrl = (id: string) => `/academic/admissions/applications/${id}/decision`;
+export const admissionApplicationDocumentUrl = (id: string) => `/academic/admissions/applications/${id}/documents`;
+export const admissionApplicationConvertUrl = (id: string) => `/academic/admissions/applications/${id}/convert`;
 
 // Subject Assignments API Endpoints
 export const subjectAssignmentsUrl = "/academic/subject-assignments";

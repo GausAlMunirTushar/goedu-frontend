@@ -10,6 +10,8 @@ import {
     shiftsUrl,
     roomsUrl,
     admissionsUrl,
+    admissionApplicationsUrl,
+    publicAdmissionClassesUrl,
     subjectAssignmentsUrl,
     teacherMappingsUrl,
     departmentsUrl,
@@ -60,6 +62,21 @@ export const useRoomsQuery = () => useQuery<TResponse<any>>(roomsUrl);
 
 export const useAdmissionsQuery = (classId?: string) => 
     useQuery<TResponse<any>>(classId ? `${admissionsUrl}?classId=${classId}` : admissionsUrl);
+
+export const usePublicAdmissionClassesQuery = () =>
+    useQuery<TResponse<any>>(publicAdmissionClassesUrl);
+
+export const useAdmissionApplicationsQuery = (filters?: {
+    classId?: string;
+    status?: string;
+    search?: string;
+}) => {
+    const parts = [];
+    if (filters?.classId) parts.push(`classId=${filters.classId}`);
+    if (filters?.status) parts.push(`status=${filters.status}`);
+    if (filters?.search) parts.push(`search=${filters.search}`);
+    return useQuery<TResponse<any>>(`${admissionApplicationsUrl}${parts.length ? `?${parts.join("&")}` : ""}`);
+};
 
 export const useSubjectAssignmentsQuery = (classId?: string) => 
     useQuery<TResponse<any>>(classId ? `${subjectAssignmentsUrl}?classId=${classId}` : subjectAssignmentsUrl);
