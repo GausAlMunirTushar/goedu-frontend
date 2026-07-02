@@ -1,0 +1,12 @@
+{
+    "module": {
+        "label": "Certificates",
+        "id": "certificates",
+        "menus": [
+            { "id": "certificate-dashboard", "label": "Overview", "path": "/certificates", "icon": "LayoutDashboard", "required_permissions": ["certificate.view"] },
+            { "id": "certificate-templates", "label": "Templates", "path": "/certificates/templates", "icon": "LayoutTemplate", "required_permissions": ["certificate.manage"] },
+            { "id": "certificate-issued", "label": "Issued", "path": "/certificates/issued", "icon": "PiCertificateLight", "required_permissions": ["certificate.view"] },
+            { "id": "certificate-verify", "label": "Verify", "path": "/certificates/verify", "icon": "ShieldCheck", "required_permissions": ["certificate.view"] }
+        ]
+    }
+}

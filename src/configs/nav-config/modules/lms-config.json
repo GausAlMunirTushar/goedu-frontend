@@ -1,0 +1,13 @@
+{
+    "module": {
+        "label": "LMS",
+        "id": "lms",
+        "menus": [
+            { "id": "lms-dashboard", "label": "Overview", "path": "/lms", "icon": "LayoutDashboard", "required_permissions": ["lms.view"] },
+            { "id": "lms-lesson-plans", "label": "Lesson Plans", "path": "/lms/lesson-plans", "icon": "ClipboardList", "required_permissions": ["lms.manage"] },
+            { "id": "lms-homeworks", "label": "Homework", "path": "/lms/homeworks", "icon": "BookOpen", "required_permissions": ["lms.view"] },
+            { "id": "lms-submissions", "label": "Submissions", "path": "/lms/submissions", "icon": "FileCheck", "required_permissions": ["lms.view"] },
+            { "id": "lms-resources", "label": "Resources", "path": "/lms/resources", "icon": "FileText", "required_permissions": ["lms.view"] }
+        ]
+    }
+}

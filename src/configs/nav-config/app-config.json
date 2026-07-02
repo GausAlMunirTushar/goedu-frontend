@@ -434,6 +434,34 @@
                 "inventory-stock",
                 "inventory-ledger"
             ]
+        },
+        {
+            "id": "lms",
+            "name": "LMS",
+            "label": "LMS",
+            "icon": "BookOpen",
+            "color": "bg-violet-700",
+            "path": "/lms",
+            "order": 24,
+            "enabled": true,
+            "required_permissions": ["lms.view", "lms.manage", "lms.submit"],
+            "config_file": "lms-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["lms-dashboard", "lms-lesson-plans", "lms-homeworks", "lms-submissions", "lms-resources"]
+        },
+        {
+            "id": "certificates",
+            "name": "Certificates",
+            "label": "Certificates",
+            "icon": "PiCertificateLight",
+            "color": "bg-blue-800",
+            "path": "/certificates",
+            "order": 25,
+            "enabled": true,
+            "required_permissions": ["certificate.view", "certificate.manage"],
+            "config_file": "certificate-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["certificate-dashboard", "certificate-templates", "certificate-issued", "certificate-verify"]
         }
     ],
     "global_permissions": {
