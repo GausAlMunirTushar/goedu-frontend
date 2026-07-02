@@ -1,0 +1,50 @@
+{
+    "module": {
+        "label": "Inventory",
+        "id": "inventory",
+        "menus": [
+            {
+                "id": "inventory-dashboard",
+                "label": "Overview",
+                "path": "/inventory",
+                "icon": "LayoutDashboard",
+                "required_permissions": ["inventory.view"]
+            },
+            {
+                "id": "inventory-categories",
+                "label": "Categories",
+                "path": "/inventory/categories",
+                "icon": "ClipboardList",
+                "required_permissions": ["inventory.manage"]
+            },
+            {
+                "id": "inventory-assets",
+                "label": "Assets",
+                "path": "/inventory/assets",
+                "icon": "DatabaseIcon",
+                "required_permissions": ["inventory.view"]
+            },
+            {
+                "id": "inventory-assignments",
+                "label": "Assignments",
+                "path": "/inventory/assignments",
+                "icon": "Users",
+                "required_permissions": ["inventory.manage"]
+            },
+            {
+                "id": "inventory-stock",
+                "label": "Stock",
+                "path": "/inventory/stock",
+                "icon": "SwatchBook",
+                "required_permissions": ["inventory.manage"]
+            },
+            {
+                "id": "inventory-ledger",
+                "label": "Stock Ledger",
+                "path": "/inventory/ledger",
+                "icon": "Repeat",
+                "required_permissions": ["inventory.view"]
+            }
+        ]
+    }
+}

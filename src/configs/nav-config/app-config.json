@@ -410,6 +410,30 @@
                 "hostel-allocations",
                 "hostel-leaves"
             ]
+        },
+        {
+            "id": "inventory",
+            "name": "Inventory",
+            "label": "Inventory",
+            "icon": "DatabaseIcon",
+            "color": "bg-lime-700",
+            "path": "/inventory",
+            "order": 23,
+            "enabled": true,
+            "required_permissions": [
+                "inventory.view",
+                "inventory.manage"
+            ],
+            "config_file": "inventory-config.json",
+            "has_sidebar": true,
+            "contain_menus": [
+                "inventory-dashboard",
+                "inventory-categories",
+                "inventory-assets",
+                "inventory-assignments",
+                "inventory-stock",
+                "inventory-ledger"
+            ]
         }
     ],
     "global_permissions": {
