@@ -1,0 +1,43 @@
+{
+    "module": {
+        "label": "HR",
+        "id": "hr",
+        "menus": [
+            {
+                "id": "hr-dashboard",
+                "label": "Overview",
+                "path": "/hr",
+                "icon": "LayoutDashboard",
+                "permissions": ["hr.staff.view"]
+            },
+            {
+                "id": "hr-attendance",
+                "label": "Staff Attendance",
+                "path": "/hr/attendance",
+                "icon": "Calendar",
+                "permissions": ["hr.attendance.view"]
+            },
+            {
+                "id": "hr-staff",
+                "label": "Staff Directory",
+                "path": "/hr/staff",
+                "icon": "Users",
+                "permissions": ["hr.staff.view"]
+            },
+            {
+                "id": "hr-leaves",
+                "label": "Leave Applications",
+                "path": "/hr/leaves",
+                "icon": "FileText",
+                "permissions": ["hr.leave.view"]
+            },
+            {
+                "id": "hr-leave-types",
+                "label": "Leave Types",
+                "path": "/hr/leave-types",
+                "icon": "ClipboardList",
+                "permissions": ["hr.leave.view"]
+            }
+        ]
+    }
+}

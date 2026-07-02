@@ -337,6 +337,32 @@
             "config_file": "",
             "has_sidebar": false,
             "contain_menus": []
+        },
+        {
+            "id": "hr",
+            "name": "HR",
+            "label": "HR",
+            "icon": "Briefcase",
+            "color": "bg-indigo-700",
+            "path": "/hr/leaves",
+            "order": 20,
+            "enabled": true,
+            "required_permissions": [
+                "hr.staff.view",
+                "hr.attendance.view",
+                "hr.leave.view",
+                "hr.leave.apply",
+                "hr.leave.approve"
+            ],
+            "config_file": "hr-config.json",
+            "has_sidebar": true,
+            "contain_menus": [
+                "hr-dashboard",
+                "hr-attendance",
+                "hr-staff",
+                "hr-leaves",
+                "hr-leave-types"
+            ]
         }
     ],
     "global_permissions": {
