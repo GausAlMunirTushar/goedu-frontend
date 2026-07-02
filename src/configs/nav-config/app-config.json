@@ -462,6 +462,20 @@
             "config_file": "certificate-config.json",
             "has_sidebar": true,
             "contain_menus": ["certificate-dashboard", "certificate-templates", "certificate-issued", "certificate-verify"]
+        },
+        {
+            "id": "wellbeing",
+            "name": "Wellbeing",
+            "label": "Wellbeing",
+            "icon": "HeartPulse",
+            "color": "bg-rose-700",
+            "path": "/wellbeing",
+            "order": 26,
+            "enabled": true,
+            "required_permissions": ["wellbeing.view", "wellbeing.manage", "wellbeing.counseling.view", "wellbeing.counseling.manage"],
+            "config_file": "wellbeing-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["wellbeing-dashboard", "wellbeing-discipline", "wellbeing-health", "wellbeing-counseling"]
         }
     ],
     "global_permissions": {

@@ -27,6 +27,7 @@ import {
     FileUser,
     GraduationCap,
     HandCoins,
+    HeartPulse,
     Home,
     IdCard,
     Image,
@@ -101,6 +102,7 @@ type IconName =
     | "ShieldUser"
     | "GrPieChart"
     | "HandCoins"
+    | "HeartPulse"
     | "Generate"
     | "Receipt"
     | "Building2"
@@ -172,6 +174,7 @@ const iconMap: Record<IconName, LucideIcon> = {
     ShieldUser: ShieldUser,
     GrPieChart: GrPieChart as unknown as LucideIcon,
     HandCoins: HandCoins,
+    HeartPulse: HeartPulse,
     Generate: Sparkles,
     Receipt: Receipt,
     Building2: Building2,

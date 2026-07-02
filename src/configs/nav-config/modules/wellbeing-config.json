@@ -1,0 +1,12 @@
+{
+    "module": {
+        "label": "Wellbeing",
+        "id": "wellbeing",
+        "menus": [
+            { "id": "wellbeing-dashboard", "label": "Overview", "path": "/wellbeing", "icon": "LayoutDashboard", "required_permissions": ["wellbeing.view"] },
+            { "id": "wellbeing-discipline", "label": "Discipline", "path": "/wellbeing/discipline", "icon": "ShieldCheck", "required_permissions": ["wellbeing.view"] },
+            { "id": "wellbeing-health", "label": "Health", "path": "/wellbeing/health", "icon": "HeartPulse", "required_permissions": ["wellbeing.view"] },
+            { "id": "wellbeing-counseling", "label": "Counseling", "path": "/wellbeing/counseling", "icon": "UserRound", "required_permissions": ["wellbeing.counseling.view"] }
+        ]
+    }
+}
