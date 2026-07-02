@@ -69,6 +69,15 @@
         ]
       },
       {
+        "id": "student-guardians",
+        "label": "Guardians",
+        "icon": "Users2",
+        "path": "/student/guardians",
+        "permissions": [
+          "guardian.view"
+        ]
+      },
+      {
         "id": "student-id-card",
         "label": "ID Cards",
         "icon": "CreditCard",

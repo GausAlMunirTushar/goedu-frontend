@@ -1,6 +1,7 @@
 import { useQuery } from "@/hooks/useQuery";
 import {
   studentDocumentsUrl,
+  studentGuardiansUrl,
   studentsProfilesUrl,
   studentProfileDetailUrl,
   studentTransfersUrl,
@@ -37,3 +38,16 @@ export const useStudentDocumentsQuery = (studentId?: string) =>
 
 export const useStudentTransfersQuery = (studentId?: string) =>
   useQuery<TResponse<any[]>>(studentId ? `${studentTransfersUrl}?studentId=${studentId}` : null);
+
+export const useStudentGuardiansQuery = (filters?: {
+  studentId?: string;
+  status?: string;
+  search?: string;
+}) => {
+  const parts = [];
+  if (filters?.studentId) parts.push(`studentId=${filters.studentId}`);
+  if (filters?.status) parts.push(`status=${filters.status}`);
+  if (filters?.search) parts.push(`search=${filters.search}`);
+  const query = parts.length ? `?${parts.join("&")}` : "";
+  return useQuery<TResponse<any[]>>(`${studentGuardiansUrl}${query}`);
+};

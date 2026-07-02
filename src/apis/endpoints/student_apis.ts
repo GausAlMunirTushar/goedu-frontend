@@ -15,3 +15,9 @@ export const studentDocumentDetailUrl = (id: string) => `/student/documents/${id
 
 // Student Transfer API Endpoints
 export const studentTransfersUrl = "/student/transfers";
+
+// Guardian API Endpoints
+export const studentGuardiansUrl = "/student/guardians";
+export const studentGuardianDetailUrl = (id: string) => `/student/guardians/${id}`;
+export const studentGuardianLinkStudentUrl = (id: string) => `/student/guardians/${id}/students`;
+export const studentGuardianUnlinkStudentUrl = (id: string, studentId: string) => `/student/guardians/${id}/students/${studentId}`;

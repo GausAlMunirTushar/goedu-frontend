@@ -98,7 +98,8 @@
                 "student.view",
                 "student.create",
                 "student.update",
-                "student.delete"
+                "student.delete",
+                "guardian.view"
             ],
             "config_file": "student-config.json",
             "has_sidebar": true,
@@ -109,7 +110,8 @@
                 "student-profile",
                 "student-promotion",
                 "student-transfer",
-                "student-documents"
+                "student-documents",
+                "student-guardians"
             ]
         },
         {
@@ -317,6 +319,23 @@
                 "library-issues",
                 "library-settings"
             ]
+        },
+        {
+            "id": "portal",
+            "name": "Portal",
+            "label": "Portal",
+            "icon": "UserRound",
+            "color": "bg-blue-700",
+            "path": "/portal",
+            "order": 19,
+            "enabled": true,
+            "required_permissions": [
+                "portal.student.view",
+                "portal.guardian.view"
+            ],
+            "config_file": "",
+            "has_sidebar": false,
+            "contain_menus": []
         }
     ],
     "global_permissions": {
