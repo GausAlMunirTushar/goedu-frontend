@@ -138,7 +138,6 @@
     "group": "গ্রুপ",
     "Shift": "শিফট",
     "shift": "শিফট",
-    "subject": "বিষয়",
     "subject_creation": "বিষয় তৈরি",
     "Subject Assignment": "বিষয় অ্যাসাইনমেন্ট",
     "subject_assignment": "বিষয় অ্যাসাইনমেন্ট",
@@ -328,5 +327,18 @@
     "no_permissions_found": "কোনো মিলযুক্ত পারমিশন পাওয়া যায়নি।",
     "permissions_load_failed": "রোল ও পারমিশন লোড করা যায়নি। আবার চেষ্টা করুন।",
     "role_permissions_saved": "রোল পারমিশন সফলভাবে হালনাগাদ হয়েছে",
-    "role_permissions_save_failed": "রোল পারমিশন হালনাগাদ করতে ব্যর্থ হয়েছে"
+    "role_permissions_save_failed": "রোল পারমিশন হালনাগাদ করতে ব্যর্থ হয়েছে",
+    "Wellbeing": "শিক্ষার্থী কল্যাণ",
+    "Overview": "সারসংক্ষেপ",
+    "Discipline": "শৃঙ্খলা",
+    "Health": "স্বাস্থ্য",
+    "Counseling": "কাউন্সেলিং",
+    "Operations": "অপারেশন",
+    "Audit Logs": "অডিট লগ",
+    "Approvals": "অনুমোদন",
+    "Import Jobs": "ইমপোর্ট কাজ",
+    "Notifications": "নোটিফিকেশন",
+    "Backups": "ব্যাকআপ",
+    "Settings Dashboard": "সেটিংস ড্যাশবোর্ড",
+    "Global Settings": "গ্লোবাল সেটিংস"
 }

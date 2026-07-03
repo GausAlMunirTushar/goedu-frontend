@@ -72,7 +72,7 @@
                 "id": "settings-dashboard",
                 "label": "Settings Dashboard",
                 "icon": "LayoutDashboard",
-                "path": "/settings/dashboard",
+                "path": "/settings",
                 "permissions": ["dashboard.view"]
             }
         ]
