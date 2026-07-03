@@ -1,0 +1,14 @@
+{
+    "module": {
+        "label": "Operations",
+        "id": "operations",
+        "menus": [
+            { "id": "operations-dashboard", "label": "Overview", "path": "/operations", "icon": "LayoutDashboard", "required_permissions": ["operations.view"] },
+            { "id": "operations-audit", "label": "Audit Logs", "path": "/operations/audit-logs", "icon": "ClipboardList", "required_permissions": ["operations.audit.view"] },
+            { "id": "operations-approvals", "label": "Approvals", "path": "/operations/approvals", "icon": "ShieldCheck", "required_permissions": ["operations.approval.view"] },
+            { "id": "operations-imports", "label": "Import Jobs", "path": "/operations/import-jobs", "icon": "FileSpreadsheet", "required_permissions": ["operations.import.view"] },
+            { "id": "operations-notifications", "label": "Notifications", "path": "/operations/notifications", "icon": "Bell", "required_permissions": ["operations.notification.view"] },
+            { "id": "operations-backups", "label": "Backups", "path": "/operations/backups", "icon": "DatabaseIcon", "required_permissions": ["operations.backup.view"] }
+        ]
+    }
+}

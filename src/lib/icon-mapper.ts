@@ -3,6 +3,7 @@ import {
     BadgeDollarSign,
     Banknote,
     BarChart,
+    Bell,
     BookOpen,
     Briefcase,
     Building,
@@ -125,6 +126,7 @@ type IconName =
     | "ClipboardList"
     | "CalendarDays"
     | "BarChart"
+    | "Bell"
     | "FaBangladeshiTakaSign"
     | "MdOutlinePayments"
     | "SwatchBook"
@@ -198,6 +200,7 @@ const iconMap: Record<IconName, LucideIcon> = {
     ClipboardList: ClipboardList as unknown as LucideIcon,
     CalendarDays: CalendarDays as unknown as LucideIcon,
     BarChart,
+    Bell,
     FaBangladeshiTakaSign: FaRegMoneyBillAlt as unknown as LucideIcon,
     MdOutlinePayments: FaRegMoneyBillAlt as unknown as LucideIcon,
     SwatchBook: SwatchBook,

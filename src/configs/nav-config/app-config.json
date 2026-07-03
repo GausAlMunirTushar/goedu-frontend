@@ -476,6 +476,20 @@
             "config_file": "wellbeing-config.json",
             "has_sidebar": true,
             "contain_menus": ["wellbeing-dashboard", "wellbeing-discipline", "wellbeing-health", "wellbeing-counseling"]
+        },
+        {
+            "id": "operations",
+            "name": "Operations",
+            "label": "Operations",
+            "icon": "ClipboardList",
+            "color": "bg-slate-800",
+            "path": "/operations",
+            "order": 27,
+            "enabled": true,
+            "required_permissions": ["operations.view", "operations.audit.view", "operations.approval.view", "operations.import.view", "operations.notification.view", "operations.backup.view"],
+            "config_file": "operations-config.json",
+            "has_sidebar": true,
+            "contain_menus": ["operations-dashboard", "operations-audit", "operations-approvals", "operations-imports", "operations-notifications", "operations-backups"]
         }
     ],
     "global_permissions": {

@@ -1,0 +1,12 @@
+export const operationsDashboardUrl = "/operations/dashboard";
+export const auditLogsUrl = "/operations/audit-logs";
+export const approvalsUrl = "/operations/approvals";
+export const approvalDetailUrl = (id: string) => `/operations/approvals/${id}`;
+export const approveRequestUrl = (id: string) => `/operations/approvals/${id}/approve`;
+export const rejectRequestUrl = (id: string) => `/operations/approvals/${id}/reject`;
+export const importJobsUrl = "/operations/import-jobs";
+export const importJobDetailUrl = (id: string) => `/operations/import-jobs/${id}`;
+export const notificationsUrl = "/operations/notifications";
+export const notificationReadUrl = (id: string) => `/operations/notifications/${id}/read`;
+export const backupsUrl = "/operations/backups";
+export const backupCompleteUrl = (id: string) => `/operations/backups/${id}/complete`;
