@@ -131,7 +131,7 @@ export function StaffAttendance() {
                                 <TableRow>
                                     <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">No staff found.</TableCell>
                                 </TableRow>
-                            ) : filteredStaff.map((staff) => {
+                            ) : filteredStaff.map((staff: any) => {
                                 const local = getLocalState(staff.userId, staff.status || "PRESENT");
 
                                 return (
