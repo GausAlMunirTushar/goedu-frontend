@@ -6,6 +6,8 @@ import { COOKIES_KEYS } from "@/configs/constants";
 import type { ApiRequestConfig } from "@/types/configs";
 
 const NEXT_PUBLIC_API_BASE_URL: string = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+const NEXT_PUBLIC_PLATFORM_DOMAIN: string =
+    process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || "gausalmunir.site";
 
 if (NEXT_PUBLIC_API_BASE_URL === "") {
     throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined in .env");
@@ -29,7 +31,9 @@ AxiosAPI.interceptors.request.use((config) => {
     // Attach active subdomain context if running in browser
     if (typeof window !== "undefined") {
         const hostname = window.location.hostname.toLowerCase();
-        const platformDomains = ["localhost", "epathshala.com"];
+        const platformDomains = Array.from(
+            new Set(["localhost", "epathshala.com", "gausalmunir.site", NEXT_PUBLIC_PLATFORM_DOMAIN]),
+        );
         for (const plat of platformDomains) {
             if (hostname.endsWith(`.${plat}`)) {
                 const subdomain = hostname.slice(0, -(plat.length + 1));

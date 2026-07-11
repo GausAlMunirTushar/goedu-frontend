@@ -43,11 +43,11 @@ export const useLoginMutation = () =>
         authLogin,
         {
             username: {
-                value: "",
+                value: "admin",
                 validation: "required",
             },
             password: {
-                value: "",
+                value: "admin123",
                 validation: "required|min:6",
             },
             remember_me: false,

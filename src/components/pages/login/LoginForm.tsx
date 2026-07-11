@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import Logo from "@/components/common/Logo";
 import Input from "@/components/form/Input";
@@ -9,7 +9,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLoginMutation } from "@/apis/mutations/auth_mutations";
 import { COOKIES_KEYS } from "@/configs/constants";
 import { toast } from "sonner";
-import { AxiosResponse } from "axios";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslationClient } from "@/lib/i18n/client";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,6 @@ const LoginForm = () => {
     const { lng } = useLanguage();
     const { t } = useTranslationClient(lng);
 
-    const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
     const { data, errors, isLoading, submit, register } = useLoginMutation();
 
     useEffect(() => {
@@ -54,16 +52,17 @@ const LoginForm = () => {
             const refreshToken = responseData?.refresh_token;
             const user = responseData?.user;
             const expiration_time = responseData?.expires_in;
+            const secureCookie = window.location.protocol === "https:";
 
             if (accessToken) {
                 Cookies.set(COOKIES_KEYS.ACCESS_TOKEN || "access_token", accessToken, {
                     expires: expiration_time / 86400,
-                    secure: true,
+                    secure: secureCookie,
                     sameSite: "Strict",
                 });
 
                 Cookies.set(COOKIES_KEYS.REFRESH_TOKEN || "refresh_token", refreshToken, {
-                    secure: true,
+                    secure: secureCookie,
                     sameSite: "Strict",
                 });
 
@@ -71,14 +70,14 @@ const LoginForm = () => {
                     COOKIES_KEYS.EXPIRY_TIME || "expiry_time",
                     expiration_time.toString() || "",
                     {
-                        secure: true,
+                        secure: secureCookie,
                         sameSite: "Strict",
                     },
                 );
 
                 if (user) {
                     Cookies.set(COOKIES_KEYS.USER || "user", JSON.stringify(user), {
-                        secure: true,
+                        secure: secureCookie,
                         sameSite: "Strict",
                     });
                 }
@@ -92,8 +91,6 @@ const LoginForm = () => {
         } catch (error) {
             console.error("Login error:", error);
             toast.error(t("login_failed") || "Login failed. Please try again.");
-        } finally {
-            setLoadingMessage("");
         }
     };
 
