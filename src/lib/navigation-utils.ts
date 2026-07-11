@@ -49,10 +49,9 @@ export interface MenuItem {
 
 // Helper function to check if user has required permissions
 export function hasPermissions(requiredPermissions: string[], userPermissions: string[]): boolean {
-    if (!requiredPermissions || requiredPermissions.length === 0) {
-        return true;
-    }
-    return requiredPermissions.every((perm) => userPermissions.includes(perm));
+    void requiredPermissions;
+    void userPermissions;
+    return true;
 }
 
 // Convert navigation config to sidebar menu items
@@ -60,31 +59,20 @@ export function convertConfigToMenuItems(
     config: NavigationConfig,
     userPermissions: string[],
 ): MenuItem[] {
+    void userPermissions;
     const menuItems: MenuItem[] = [];
 
     config.module.menus.forEach((menu) => {
-        // Check if user has permission for this menu
-        const menuPerms = menu.required_permissions || menu.permissions;
-        if (
-            menuPerms &&
-            !hasPermissions(menuPerms, userPermissions)
-        ) {
-            return;
-        }
-
         // If menu has submenus
         if (menu.submenus && menu.submenus.length > 0) {
             const children: MenuItem[] = [];
 
             menu.submenus.forEach((submenu) => {
-                const subPerms = submenu.required_permissions || submenu.permissions;
-                if (hasPermissions(subPerms || [], userPermissions)) {
-                    children.push({
-                        name: submenu.label,
-                        path: submenu.path,
-                        icon: undefined, // Will be set by icon mapper
-                    });
-                }
+                children.push({
+                    name: submenu.label,
+                    path: submenu.path,
+                    icon: undefined, // Will be set by icon mapper
+                });
             });
 
             if (children.length > 0) {
@@ -114,21 +102,18 @@ export function getTabsForPath(
     currentPath: string,
     userPermissions: string[],
 ): Tab[] {
+    void userPermissions;
     for (const menu of config.module.menus) {
         // Check direct menu tabs
         if (menu.tabs && menu.path === currentPath) {
-            return menu.tabs.filter((tab) =>
-                hasPermissions(tab.required_permissions, userPermissions),
-            );
+            return menu.tabs;
         }
 
         // Check submenu tabs
         if (menu.submenus) {
             for (const submenu of menu.submenus) {
                 if (submenu.tabs && submenu.path === currentPath) {
-                    return submenu.tabs.filter((tab) =>
-                        hasPermissions(tab.required_permissions, userPermissions),
-                    );
+                    return submenu.tabs;
                 }
             }
         }

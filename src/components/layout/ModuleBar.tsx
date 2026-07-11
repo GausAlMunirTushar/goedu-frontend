@@ -4,9 +4,8 @@ import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { getIcon } from "@/lib/icon-mapper";
-import { getEnabledModules, getLayoutConfig, getActiveModule } from "@/lib/config-utils";
+import { getEnabledModules, getActiveModule } from "@/lib/config-utils";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { usePermissions } from "@/hooks/usePermissions";
 import Image from "next/image";
 
 interface ModuleBarProps {
@@ -16,19 +15,10 @@ interface ModuleBarProps {
 
 export default function ModuleBar({ isOpen = true, onClose }: ModuleBarProps) {
     const pathname = usePathname();
-    const layoutConfig = getLayoutConfig();
-    const { hasAnyPermission } = usePermissions();
 
-    // Get modules accessible by the user using permissions from usePermissions
     const modules = useMemo(() => {
-        const enabledModules = getEnabledModules();
-        return enabledModules.filter((mod) => {
-            if (!mod.required_permissions || mod.required_permissions.length === 0) {
-                return true;
-            }
-            return hasAnyPermission(mod.required_permissions);
-        });
-    }, [hasAnyPermission]);
+        return getEnabledModules();
+    }, []);
 
     // Determine active module from pathname using contain_menus
     const activeModuleId = useMemo(() => {

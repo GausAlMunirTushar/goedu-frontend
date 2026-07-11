@@ -5,7 +5,6 @@ import { Search, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NavigationConfig } from "@/lib/navigation-utils";
-import { usePermissions } from "@/hooks/usePermissions";
 import { getIcon } from "@/lib/icon-mapper";
 import { useTranslationClient } from "@/lib/i18n/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -54,7 +53,7 @@ export default function DynamicModuleSidebar({
     userPermissions = [],
     children,
 }: DynamicModuleSidebarProps) {
-    const { hasAllPermissions } = usePermissions();
+    void userPermissions;
     const pathname = usePathname();
     const { lng } = useLanguage();
     const { t } = useTranslationClient(lng);
@@ -106,14 +105,6 @@ export default function DynamicModuleSidebar({
     // Render menu items recursively for Sidebar
     const renderSidebarItems = (menus: Menu[]) =>
         menus.map((menu) => {
-            // Permission check
-            const menuPerms = menu.required_permissions || menu.permissions;
-            if (
-                menuPerms &&
-                !hasAllPermissions(menuPerms)
-            ) {
-                return null;
-            }
             const IconComponent = menu.icon ? getIcon(menu.icon) : undefined;
             const hasChildren = menu.submenus && menu.submenus.length > 0;
             const isExpanded = expandedItems.includes(menu.id);
@@ -145,14 +136,6 @@ export default function DynamicModuleSidebar({
                     {hasChildren && isExpanded && menu.submenus && (
                         <SidebarMenuSub>
                             {menu.submenus.map((submenu: Submenu) => {
-                                // Permission check for submenu
-                                const subPerms = submenu.required_permissions || submenu.permissions;
-                                if (
-                                    subPerms &&
-                                    !hasAllPermissions(subPerms)
-                                ) {
-                                    return null;
-                                }
                                 const SubIconComponent = submenu.icon
                                     ? getIcon(submenu.icon)
                                     : undefined;

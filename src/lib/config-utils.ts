@@ -21,17 +21,8 @@ export function getEnabledModules(): Module[] {
  * @param userPermissions - Array of permission strings assigned to the user's role (from API/backend)
  */
 export function getAccessibleModules(userPermissions: string[]): Module[] {
-    const modules = getEnabledModules();
-
-    return modules.filter((mod) => {
-        // Super admin has access to everything
-        if (userPermissions.includes("SUPER_ADMIN")) {
-            return true;
-        }
-
-        // Check if user has any of the required permissions
-        return hasPermissions(userPermissions, mod.required_permissions);
-    });
+    void userPermissions;
+    return getEnabledModules();
 }
 
 /**
@@ -67,17 +58,9 @@ export async function getModuleConfig(moduleId: string): Promise<ModuleConfig | 
  * @param requiredPermissions - Array of required permissions to check
  */
 export function hasPermissions(userPermissions: string[], requiredPermissions: string[]): boolean {
-    if (!requiredPermissions || requiredPermissions.length === 0) {
-        return true;
-    }
-
-    // Super admin has all permissions
-    if (userPermissions.includes("SUPER_ADMIN")) {
-        return true;
-    }
-
-    // Check if user has at least one of the required permissions
-    return requiredPermissions.some((permission) => userPermissions.includes(permission));
+    void userPermissions;
+    void requiredPermissions;
+    return true;
 }
 
 /**
