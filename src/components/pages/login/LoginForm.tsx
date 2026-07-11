@@ -34,15 +34,14 @@ const LoginForm = () => {
         e.preventDefault();
 
         try {
-            const isPhone = /^0\d+$/.test(data.username);
             const payload = {
+                email: data.email,
                 password: data.password,
-                ...(isPhone ? { phone: data.username } : { username: data.username }),
             };
 
             const response = await submit(undefined, payload as any);
             if (!response || !response.success) {
-                toast.error(response?.message || t("invalid_credentials") || "Invalid username or password.");
+                toast.error(response?.message || t("invalid_credentials") || "Invalid email or password.");
                 return;
             }
 
@@ -94,7 +93,7 @@ const LoginForm = () => {
         }
     };
 
-    const usernameProps = register("username");
+    const emailProps = register("email");
     const passwordProps = register("password");
     const rememberMeProps = register("remember_me");
 
@@ -108,13 +107,13 @@ const LoginForm = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <Input
-                            id="username"
-                            type="text"
-                            label={t("username") || "Username"}
-                            placeholder={t("username_placeholder") || "e.g. admin"}
+                            id="email"
+                            type="email"
+                            label={t("email") || "Email"}
+                            placeholder={t("email_placeholder") || "admin@demo.epathshala.com"}
                             icon={<Mail className="h-5 w-5" />}
-                            {...(usernameProps as React.InputHTMLAttributes<HTMLInputElement>)}
-                            error={errors.username}
+                            {...(emailProps as React.InputHTMLAttributes<HTMLInputElement>)}
+                            error={errors.email}
                             required
                             className="transition-all"
                         />

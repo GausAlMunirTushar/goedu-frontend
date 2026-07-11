@@ -22,10 +22,7 @@ export default function ForgotPasswordForm() {
         e.preventDefault();
 
         try {
-            const isPhone = /^0\d+$/.test(data.identifier);
-            const payload = isPhone
-                ? { phone: data.identifier }
-                : { username: data.identifier };
+            const payload = { email: data.identifier };
 
             const response = await submit(undefined, payload as any);
             
@@ -72,16 +69,16 @@ export default function ForgotPasswordForm() {
                                     {t("forgot_password") || "Forgot Password"}
                                 </h2>
                                 <p className="text-sm text-muted-foreground mt-2">
-                                    {t("forgot_password_desc") || "Enter your Username or Phone number to generate a password reset token."}
+                                    {t("forgot_password_desc") || "Enter your email address to generate a password reset token."}
                                 </p>
                             </div>
 
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <Input
                                     id="identifier"
-                                    type="text"
-                                    label={t("username_or_phone") || "Username or Phone Number"}
-                                    placeholder={t("username_or_phone_placeholder") || "e.g. superadmin or 01700000000"}
+                                    type="email"
+                                    label={t("email") || "Email"}
+                                    placeholder={t("email_placeholder") || "admin@demo.epathshala.com"}
                                     icon={<Mail className="h-5 w-5" />}
                                     {...(identifierProps as React.InputHTMLAttributes<HTMLInputElement>)}
                                     error={errors.identifier}

@@ -9,7 +9,7 @@ import {
 import { useForm } from "@/hooks/useForm";
 
 export type LoginFormType = {
-    username: string;
+    email: string;
     password: string;
     remember_me: boolean;
 };
@@ -42,9 +42,9 @@ export const useLoginMutation = () =>
     useForm<LoginFormType>(
         authLogin,
         {
-            username: {
-                value: "admin",
-                validation: "required",
+            email: {
+                value: "admin@demo.epathshala.com",
+                validation: "required|email",
             },
             password: {
                 value: "admin123",
@@ -91,7 +91,7 @@ export const useForgotPasswordMutation = () =>
         {
             identifier: {
                 value: "",
-                validation: "required",
+                validation: "required|email",
             },
         },
         {
