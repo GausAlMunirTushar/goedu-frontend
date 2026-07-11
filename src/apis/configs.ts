@@ -5,13 +5,11 @@ import { COOKIES_KEYS } from "@/configs/constants";
 
 import type { ApiRequestConfig } from "@/types/configs";
 
-const NEXT_PUBLIC_API_BASE_URL: string = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+const API_BASE_URL_FALLBACK = "https://epathshala-api.gausalmunir.site/api";
+const NEXT_PUBLIC_API_BASE_URL: string =
+    process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL_FALLBACK;
 const NEXT_PUBLIC_PLATFORM_DOMAIN: string =
     process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || "gausalmunir.site";
-
-if (NEXT_PUBLIC_API_BASE_URL === "") {
-    throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined in .env");
-}
 
 export const AxiosAPI = axios.create({
     baseURL: NEXT_PUBLIC_API_BASE_URL,
